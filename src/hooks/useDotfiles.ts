@@ -43,8 +43,11 @@ export function useDotfiles() {
 
   const seedDefaults = useCallback(async () => {
     const res = await fetch("/api/seed", { method: "POST" });
-    const data: ApiResponse<{ seeded: number; skipped: number }> =
-      await res.json();
+    const data: ApiResponse<{
+      seeded: number;
+      updated: number;
+      skipped: number;
+    }> = await res.json();
     if (data.success && data.data) {
       return data.data;
     }
@@ -79,10 +82,8 @@ export function useDotfiles() {
       if (!seeded) {
         addLine("info", "Seeding default dotfiles...");
         const seedResult = await seedDefaults();
-        addLine(
-          "success",
-          `Seeded ${seedResult.seeded} dotfiles (${seedResult.skipped} already exist)`
-        );
+        const parts = [`${seedResult.seeded} new`, `${seedResult.updated} updated`, `${seedResult.skipped} unchanged`];
+        addLine("success", `Sync complete: ${parts.join(", ")}`);
         setSeeded(true);
       }
 
@@ -174,6 +175,11 @@ export function useDotfiles() {
     [addLine, fetchDotfiles]
   );
 
+  const refresh = useCallback(async () => {
+    await seedDefaults();
+    return fetchDotfiles();
+  }, [seedDefaults, fetchDotfiles]);
+
   return {
     dotfiles,
     platform,
@@ -182,7 +188,7 @@ export function useDotfiles() {
     terminalLines,
     install,
     uninstall,
-    refresh: fetchDotfiles,
+    refresh,
     addLine,
     clearTerminal,
   };
