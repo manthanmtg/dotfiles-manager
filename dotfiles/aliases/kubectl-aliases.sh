@@ -952,3 +952,50 @@ alias kgsvcwsln='kubectl get service --watch --show-labels --namespace'
 alias kgingwsln='kubectl get ingress --watch --show-labels --namespace'
 alias kgcmwsln='kubectl get configmap --watch --show-labels --namespace'
 alias kgsecwsln='kubectl get secret --watch --show-labels --namespace'
+
+# ─── Deployment Logs (all pods via label selector) ─────────────────────────
+
+_klodep_selector() {
+  local dep="$1"; shift
+  local ns_args=()
+  [[ -n "$1" ]] && ns_args=(-n "$1") && shift
+  local selector
+  selector=$(kubectl get deployment "$dep" "${ns_args[@]}" \
+    -o jsonpath='{.spec.selector.matchLabels}' | \
+    sed 's/[{}"]//g' | tr ',' '\n' | sed 's/:/=/g' | paste -sd',' -)
+  [[ -z "$selector" ]] && { echo "Could not resolve selector for deployment/$dep"; return 1; }
+  echo "$selector"
+}
+
+klodep() {
+  local dep="${1:?Usage: klodep <deployment> [namespace]}"
+  local ns="$2"
+  local selector
+  selector=$(_klodep_selector "$dep" "$ns") || return 1
+  kubectl logs -l "$selector" --all-containers --prefix ${ns:+-n} ${ns:+"$ns"} "${@:3}"
+}
+
+klodepf() {
+  local dep="${1:?Usage: klodepf <deployment> [namespace]}"
+  local ns="$2"
+  local selector
+  selector=$(_klodep_selector "$dep" "$ns") || return 1
+  kubectl logs -f -l "$selector" --all-containers --prefix --max-log-requests=20 ${ns:+-n} ${ns:+"$ns"} "${@:3}"
+}
+
+klodeptail() {
+  local dep="${1:?Usage: klodeptail <deployment> [namespace] [lines]}"
+  local ns="$2"
+  local lines="${3:-100}"
+  local selector
+  selector=$(_klodep_selector "$dep" "$ns") || return 1
+  kubectl logs -f --tail="$lines" -l "$selector" --all-containers --prefix --max-log-requests=20 ${ns:+-n} ${ns:+"$ns"} "${@:4}"
+}
+
+klodepp() {
+  local dep="${1:?Usage: klodepp <deployment> [namespace]}"
+  local ns="$2"
+  local selector
+  selector=$(_klodep_selector "$dep" "$ns") || return 1
+  kubectl logs -p -l "$selector" --all-containers --prefix ${ns:+-n} ${ns:+"$ns"} "${@:3}"
+}
