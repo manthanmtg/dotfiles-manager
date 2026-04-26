@@ -1,9 +1,9 @@
 # @dotfiles-manager
 # name: Port Utilities
-# description: Quick functions to find processes listening on a port and kill them — invaluable for dev server conflicts.
+# description: Lightweight helpers to inspect port usage and terminate local processes by port without opening apps.
 # category: scripts
 # icon: Network
-# tags: network, debugging, development
+# tags: network, debugging, processes, development
 # @end
 
 # Find process on a port
@@ -12,6 +12,12 @@ listening() {
     echo "Usage: listening <port>"
     return 1
   fi
+
+  if ! command -v lsof >/dev/null 2>&1; then
+    echo "lsof is required for listening()"
+    return 1
+  fi
+
   lsof -i :"$1"
 }
 
@@ -27,6 +33,11 @@ killport() {
     return 1
   fi
 
+  if ! command -v lsof >/dev/null 2>&1; then
+    echo "lsof is required for killport()"
+    return 1
+  fi
+
   local pids
   pids="$(lsof -ti :"$1" 2>/dev/null)"
 
@@ -35,6 +46,6 @@ killport() {
     return 0
   fi
 
-  kill -9 $pids
+  printf '%s\n' "$pids" | xargs kill -9
   echo "Killed process(es) on port $1: $pids"
 }
