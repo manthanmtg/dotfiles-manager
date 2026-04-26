@@ -1,20 +1,17 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { useDotfiles } from "@/hooks/useDotfiles";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { DotfileCard } from "@/components/DotfileCard";
-import { CategorySection } from "@/components/CategorySection";
+import { DotfilesList } from "@/components/DotfilesList";
 import { TerminalConsole } from "@/components/TerminalConsole";
 import { VariableModal } from "@/components/VariableModal";
 import { CodePreview } from "@/components/CodePreview";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { PlatformGuard } from "@/components/PlatformGuard";
-import { CATEGORY_META } from "@/types";
 import type { DotfileCategory, DotfileEntry } from "@/types";
-import { PackageOpen } from "lucide-react";
 
 export default function Home() {
   const {
@@ -140,71 +137,17 @@ export default function Home() {
 
         <div className="flex-1 overflow-y-auto bg-grid pb-48">
           <div className="p-6">
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm"
-              >
-                {error}
-              </motion.div>
-            )}
-
-            {filtered.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center py-24 text-center"
-              >
-                <PackageOpen size={48} className="text-zinc-700 mb-4" />
-                <p className="text-zinc-400 text-sm mb-1">
-                  No dotfiles found
-                </p>
-                <p className="text-zinc-600 text-xs">
-                  {search
-                    ? "Try adjusting your search query"
-                    : "Dotfiles will appear here once loaded"}
-                </p>
-              </motion.div>
-            ) : activeCategory !== "all" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                <AnimatePresence mode="popLayout">
-                  {filtered.map((d) => (
-                    <DotfileCard
-                      key={d.filename}
-                      filename={d.filename}
-                      dotfile={d}
-                      onInstall={handleInstall}
-                      onUninstall={handleUninstall}
-                      onPreview={handlePreview}
-                      installing={installingFile === d.filename}
-                    />
-                  ))}
-                </AnimatePresence>
-              </div>
-            ) : (
-              (Object.keys(CATEGORY_META) as DotfileCategory[]).map((cat) => {
-                const items = grouped[cat];
-                if (!items || items.length === 0) return null;
-                return (
-                  <CategorySection key={cat} category={cat}>
-                    <AnimatePresence mode="popLayout">
-                  {items.map((d) => (
-                    <DotfileCard
-                      key={d.filename}
-                      filename={d.filename}
-                      dotfile={d}
-                      onInstall={handleInstall}
-                      onUninstall={handleUninstall}
-                      onPreview={handlePreview}
-                      installing={installingFile === d.filename}
-                    />
-                  ))}
-                    </AnimatePresence>
-                  </CategorySection>
-                );
-              })
-            )}
+            <DotfilesList
+              filtered={filtered}
+              activeCategory={activeCategory}
+              grouped={grouped}
+              installingFile={installingFile}
+              search={search}
+              error={error}
+              onInstall={handleInstall}
+              onUninstall={handleUninstall}
+              onPreview={handlePreview}
+            />
           </div>
         </div>
       </main>
