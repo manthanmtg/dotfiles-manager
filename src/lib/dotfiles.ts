@@ -18,17 +18,13 @@ function getDefaultMetadata(filename: string): DotfileMetadata {
 }
 
 function parseStoredMetadata(metaRaw: string, filename: string): DotfileMetadata {
-  let stored: unknown;
   try {
-    stored = JSON.parse(metaRaw);
+    const parsed = DotfileMetadata.safeParse(JSON.parse(metaRaw));
+    if (!parsed.success) return getDefaultMetadata(filename);
+    return parsed.data;
   } catch {
     return getDefaultMetadata(filename);
   }
-
-  const parsed = DotfileMetadata.safeParse(stored);
-  if (!parsed.success) return getDefaultMetadata(filename);
-
-  return parsed.data;
 }
 
 export function ensureDotfilesDir(): void {
