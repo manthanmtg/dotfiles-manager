@@ -21,5 +21,20 @@ killport() {
     echo "Usage: killport <port>"
     return 1
   fi
-  lsof -ti :"$1" | xargs kill -9 2>/dev/null && echo "Killed process on port $1" || echo "No process found on port $1"
+
+  if ! echo "$1" | grep -Eq '^[0-9]+$'; then
+    echo "killport expects a numeric port"
+    return 1
+  fi
+
+  local pids
+  pids="$(lsof -ti :"$1" 2>/dev/null)"
+
+  if [ -z "$pids" ]; then
+    echo "No process found on port $1"
+    return 0
+  fi
+
+  kill -9 $pids
+  echo "Killed process(es) on port $1: $pids"
 }
