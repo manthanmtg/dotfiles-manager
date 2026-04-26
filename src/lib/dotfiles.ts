@@ -127,7 +127,7 @@ export function applyVariables(
 ): string {
   let result = content;
   for (const [key, value] of Object.entries(variables)) {
-    result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, "g"), value);
+    result = result.split(`{{${key}}}`).join(value);
   }
   return result;
 }
