@@ -7,7 +7,6 @@ const DOTFILES_SOURCE_DIR = path.join(process.cwd(), "dotfiles");
 
 export interface ScannedDotfile {
   filename: string;
-  relativePath: string;
   metadata: DotfileMetadata;
   content: string;
 }
@@ -32,7 +31,7 @@ function walk(dir: string, results: ScannedDotfile[]) {
       const { metadata, content } = parseDotfileSource(raw, rel);
       const filename = path.basename(entry.name, ".sh");
 
-      results.push({ filename, relativePath: rel, metadata, content });
+      results.push({ filename, metadata, content });
     }
   }
 }
