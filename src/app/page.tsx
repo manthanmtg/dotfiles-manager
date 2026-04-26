@@ -37,6 +37,14 @@ export default function Home() {
   const [variableModal, setVariableModal] = useState<DotfileEntry | null>(null);
   const [previewModal, setPreviewModal] = useState<DotfileEntry | null>(null);
 
+  const dotfileByFilename = useMemo(() => {
+    const map = new Map<string, DotfileEntry>();
+    for (const dotfile of dotfiles) {
+      map.set(dotfile.filename, dotfile);
+    }
+    return map;
+  }, [dotfiles]);
+
   const filtered = useMemo(() => {
     let result = dotfiles;
     if (activeCategory !== "all") {
@@ -65,16 +73,19 @@ export default function Home() {
   }, [filtered]);
 
   const handleInstall = useCallback(
-    async (dotfile: DotfileEntry) => {
+    async (filename: string) => {
+      const dotfile = dotfileByFilename.get(filename);
+      if (!dotfile) return;
+
       if (dotfile.variables.length > 0) {
         setVariableModal(dotfile);
         return;
       }
       setInstallingFile(dotfile.filename);
-      await install(dotfile.filename);
+      await install(filename);
       setInstallingFile(null);
     },
-    [install]
+    [dotfileByFilename, install]
   );
 
   const handleVariableSubmit = useCallback(
@@ -97,10 +108,17 @@ export default function Home() {
     [uninstall]
   );
 
+  const handlePreview = useCallback((filename: string) => {
+    setPreviewModal(dotfileByFilename.get(filename) || null);
+  }, [dotfileByFilename]);
+
   if (loading) return <LoadingScreen />;
   if (platform && !platform.supported) return <PlatformGuard />;
 
-  const installedCount = dotfiles.filter((d) => d.installed).length;
+  const installedCount = useMemo(
+    () => dotfiles.filter((d) => d.installed).length,
+    [dotfiles]
+  );
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-950">
@@ -154,10 +172,11 @@ export default function Home() {
                   {filtered.map((d) => (
                     <DotfileCard
                       key={d.filename}
+                      filename={d.filename}
                       dotfile={d}
-                      onInstall={() => handleInstall(d)}
-                      onUninstall={() => handleUninstall(d.filename)}
-                      onPreview={() => setPreviewModal(d)}
+                      onInstall={handleInstall}
+                      onUninstall={handleUninstall}
+                      onPreview={handlePreview}
                       installing={installingFile === d.filename}
                     />
                   ))}
@@ -170,16 +189,17 @@ export default function Home() {
                 return (
                   <CategorySection key={cat} category={cat}>
                     <AnimatePresence mode="popLayout">
-                      {items.map((d) => (
-                        <DotfileCard
-                          key={d.filename}
-                          dotfile={d}
-                          onInstall={() => handleInstall(d)}
-                          onUninstall={() => handleUninstall(d.filename)}
-                          onPreview={() => setPreviewModal(d)}
-                          installing={installingFile === d.filename}
-                        />
-                      ))}
+                  {items.map((d) => (
+                    <DotfileCard
+                      key={d.filename}
+                      filename={d.filename}
+                      dotfile={d}
+                      onInstall={handleInstall}
+                      onUninstall={handleUninstall}
+                      onPreview={handlePreview}
+                      installing={installingFile === d.filename}
+                    />
+                  ))}
                     </AnimatePresence>
                   </CategorySection>
                 );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Download,
@@ -15,10 +15,11 @@ import { CATEGORY_META } from "@/types";
 import type { DotfileEntry } from "@/types";
 
 interface DotfileCardProps {
+  filename: string;
   dotfile: DotfileEntry;
-  onInstall: () => void;
-  onUninstall: () => void;
-  onPreview: () => void;
+  onInstall: (filename: string) => void;
+  onUninstall: (filename: string) => void;
+  onPreview: (filename: string) => void;
   installing: boolean;
 }
 
@@ -49,7 +50,8 @@ const INSTALLED_GRADIENT: Record<string, string> = {
   sky: "from-sky-500/5 to-transparent",
 };
 
-export function DotfileCard({
+function DotfileCard({
+  filename,
   dotfile,
   onInstall,
   onUninstall,
@@ -60,7 +62,11 @@ export function DotfileCard({
   const catMeta = CATEGORY_META[dotfile.category];
   const color = catMeta.color;
 
-  const lineCount = dotfile.content.split("\n").filter((l) => l.trim()).length;
+  const lineCount = useMemo(
+    () => dotfile.content.split("\n").filter((l) => l.trim()).length,
+    [dotfile.content]
+  );
+  const installed = dotfile.installed;
 
   return (
     <motion.div
@@ -75,7 +81,7 @@ export function DotfileCard({
         dotfile.installed ? `bg-gradient-to-br ${INSTALLED_GRADIENT[color]}` : ""
       }`}
     >
-      {dotfile.installed && (
+      {installed && (
         <div className="absolute top-3 right-3">
           <motion.div
             initial={{ scale: 0 }}
@@ -128,16 +134,16 @@ export function DotfileCard({
 
         <div className="flex items-center gap-2">
           <button
-            onClick={onPreview}
+            onClick={() => onPreview(filename)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 text-zinc-400 text-xs font-medium hover:bg-zinc-700/80 hover:text-zinc-200 transition-all"
           >
             <Eye size={13} />
             Preview
           </button>
 
-          {dotfile.installed ? (
+          {installed ? (
             <button
-              onClick={onUninstall}
+              onClick={() => onUninstall(filename)}
               disabled={installing}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium hover:bg-rose-500/20 transition-all disabled:opacity-50"
             >
@@ -150,7 +156,7 @@ export function DotfileCard({
             </button>
           ) : (
             <motion.button
-              onClick={onInstall}
+              onClick={() => onInstall(filename)}
               disabled={installing}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -174,3 +180,5 @@ export function DotfileCard({
     </motion.div>
   );
 }
+
+export const DotfileCard = memo(DotfileCard);
