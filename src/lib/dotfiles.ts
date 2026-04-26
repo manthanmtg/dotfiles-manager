@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 import os from "os";
-import type { DotfileEntry, DotfileMetadata } from "./schemas";
+import { DotfileMetadata } from "./schemas";
+import type { DotfileEntry } from "./schemas";
 import { isSourced } from "./shell";
 
 const DOTFILES_DIR = path.join(os.homedir(), ".dotfiles-manager");

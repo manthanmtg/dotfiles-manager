@@ -72,6 +72,11 @@ export default function Home() {
     return groups;
   }, [filtered]);
 
+  const installedCount = useMemo(
+    () => dotfiles.filter((d) => d.installed).length,
+    [dotfiles]
+  );
+
   const handleInstall = useCallback(
     async (filename: string) => {
       const dotfile = dotfileByFilename.get(filename);
@@ -114,11 +119,6 @@ export default function Home() {
 
   if (loading) return <LoadingScreen />;
   if (platform && !platform.supported) return <PlatformGuard />;
-
-  const installedCount = useMemo(
-    () => dotfiles.filter((d) => d.installed).length,
-    [dotfiles]
-  );
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-950">

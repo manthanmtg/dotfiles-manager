@@ -1,4 +1,6 @@
-import { DotfileMetadata, DotfileVariable, DotfileCategory } from "./schemas";
+import fs from "node:fs";
+import path from "node:path";
+import { DotfileMetadata } from "./schemas";
 import type { ZodError } from "zod/v4";
 
 const META_START = "# @dotfiles-manager";
@@ -141,9 +143,6 @@ export class MetaParseError extends Error {
 export function validateAllDotfiles(
   dotfilesDir: string
 ): { valid: string[]; errors: ParseError[] } {
-  const fs = require("fs") as typeof import("fs");
-  const path = require("path") as typeof import("path");
-
   const valid: string[] = [];
   const errs: ParseError[] = [];
 
