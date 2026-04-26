@@ -7,6 +7,30 @@ import { isSourced } from "./shell";
 const DOTFILES_DIR = path.join(os.homedir(), ".dotfiles-manager");
 const METADATA_SUFFIX = ".meta.json";
 
+function getDefaultMetadata(filename: string): DotfileMetadata {
+  return {
+    name: filename,
+    description: `Shell configuration: ${filename}`,
+    category: "aliases",
+    variables: [],
+    tags: [],
+  };
+}
+
+function parseStoredMetadata(metaRaw: string, filename: string): DotfileMetadata {
+  let stored: unknown;
+  try {
+    stored = JSON.parse(metaRaw);
+  } catch {
+    return getDefaultMetadata(filename);
+  }
+
+  const parsed = DotfileMetadata.safeParse(stored);
+  if (!parsed.success) return getDefaultMetadata(filename);
+
+  return parsed.data;
+}
+
 export function ensureDotfilesDir(): void {
   if (!fs.existsSync(DOTFILES_DIR)) {
     fs.mkdirSync(DOTFILES_DIR, { recursive: true });
@@ -30,21 +54,10 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
     const metaPath = path.join(DOTFILES_DIR, `${filename}${METADATA_SUFFIX}`);
     const content = fs.readFileSync(filePath, "utf-8");
 
-    let metadata: DotfileMetadata = {
-      name: filename,
-      description: `Shell configuration: ${filename}`,
-      category: "aliases",
-      variables: [],
-      tags: [],
-    };
+    let metadata: DotfileMetadata = getDefaultMetadata(filename);
 
     if (fs.existsSync(metaPath)) {
-      try {
-        const metaRaw = fs.readFileSync(metaPath, "utf-8");
-        metadata = { ...metadata, ...JSON.parse(metaRaw) };
-      } catch {
-        // Use defaults if metadata is malformed
-      }
+      metadata = parseStoredMetadata(fs.readFileSync(metaPath, "utf-8"), filename);
     }
 
     const installed = isSourced(shellConfigPath, filename);
@@ -68,22 +81,11 @@ export function getDotfile(
   const metaPath = path.join(DOTFILES_DIR, `${filename}${METADATA_SUFFIX}`);
   const content = fs.readFileSync(filePath, "utf-8");
 
-  let metadata: DotfileMetadata = {
-    name: filename,
-    description: `Shell configuration: ${filename}`,
-    category: "aliases",
-    variables: [],
-    tags: [],
-  };
+    let metadata: DotfileMetadata = getDefaultMetadata(filename);
 
   if (fs.existsSync(metaPath)) {
-    try {
-      const metaRaw = fs.readFileSync(metaPath, "utf-8");
-      metadata = { ...metadata, ...JSON.parse(metaRaw) };
-    } catch {
-      // Use defaults
+      metadata = parseStoredMetadata(fs.readFileSync(metaPath, "utf-8"), filename);
     }
-  }
 
   const installed = isSourced(shellConfigPath, filename);
 
