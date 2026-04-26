@@ -50,7 +50,7 @@ const INSTALLED_GRADIENT: Record<string, string> = {
   sky: "from-sky-500/5 to-transparent",
 };
 
-function DotfileCard({
+function DotfileCardInner({
   filename,
   dotfile,
   onInstall,
@@ -181,4 +181,6 @@ function DotfileCard({
   );
 }
 
-export const DotfileCard = memo(DotfileCard);
+const DotfileCard = memo(DotfileCardInner);
+DotfileCard.displayName = "DotfileCard";
+export { DotfileCard };
