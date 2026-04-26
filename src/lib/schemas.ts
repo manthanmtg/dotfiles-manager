@@ -1,5 +1,10 @@
 import { z } from "zod/v4";
 
+export const DotfileFilename = z.string().regex(
+  /^[a-zA-Z0-9._-]+$/,
+  "filename must contain only alphanumeric characters, dots, hyphens, or underscores"
+);
+
 export const DotfileCategory = z.enum([
   "aliases",
   "scripts",
@@ -31,7 +36,7 @@ export const DotfileMetadata = z.object({
 export type DotfileMetadata = z.infer<typeof DotfileMetadata>;
 
 export const DotfileEntry = DotfileMetadata.extend({
-  filename: z.string().min(1),
+  filename: DotfileFilename,
   content: z.string(),
   installed: z.boolean().default(false),
 });
@@ -45,13 +50,13 @@ export const ShellInfo = z.object({
 export type ShellInfo = z.infer<typeof ShellInfo>;
 
 export const InstallRequest = z.object({
-  filename: z.string().min(1),
+  filename: DotfileFilename,
   variables: z.record(z.string(), z.string()).optional(),
 });
 export type InstallRequest = z.infer<typeof InstallRequest>;
 
 export const UninstallRequest = z.object({
-  filename: z.string().min(1),
+  filename: DotfileFilename,
 });
 export type UninstallRequest = z.infer<typeof UninstallRequest>;
 
