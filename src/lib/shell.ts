@@ -41,11 +41,7 @@ export function isSourced(configPath: string, dotfileName: string): boolean {
   if (!fs.existsSync(configPath)) return false;
 
   const content = fs.readFileSync(configPath, "utf-8");
-  const sourcePattern = new RegExp(
-    `^\\s*source\\s+.*\\.dotfiles-manager/${escapeRegex(dotfileName)}\\s*$`,
-    "m"
-  );
-  return sourcePattern.test(content);
+  return getManagedSourceLinePattern(dotfileName).test(content);
 }
 
 export function addSource(configPath: string, dotfileName: string): void {
@@ -65,13 +61,24 @@ export function removeSource(configPath: string, dotfileName: string): void {
   }
 
   const content = fs.readFileSync(configPath, "utf-8");
-  const sourcePattern = new RegExp(
-    `\\n?\\s*source\\s+.*\\.dotfiles-manager/${escapeRegex(dotfileName)}\\s*\\n?`,
-    "g"
-  );
+  const sourcePattern = getManagedSourceLinePattern(dotfileName, {
+    includeLineEnd: true,
+  });
 
-  const newContent = content.replace(sourcePattern, "\n");
+  const newContent = content.replace(sourcePattern, "");
   fs.writeFileSync(configPath, newContent, "utf-8");
+}
+
+function getManagedSourceLinePattern(
+  dotfileName: string,
+  options: { includeLineEnd?: boolean } = {}
+): RegExp {
+  const dotfilesPathPattern = `(?:${escapeRegex(
+    path.join(os.homedir(), ".dotfiles-manager")
+  )}|~\\/\\.dotfiles-manager)\\/${escapeRegex(dotfileName)}`;
+  const lineEnd = options.includeLineEnd ? "(?:\\r?\\n|$)" : "$";
+
+  return new RegExp(`^\\s*source\\s+${dotfilesPathPattern}\\s*${lineEnd}`, "gm");
 }
 
 function escapeRegex(str: string): string {
