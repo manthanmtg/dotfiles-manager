@@ -18,9 +18,10 @@ Local-only Next.js web app for managing shell dotfiles stored at `~/.dotfiles-ma
 ```
 dotfiles/                   # Self-describing .sh files (auto-discovered)
 ├── aliases/
+│   ├── docker-aliases.sh
+│   ├── edit-aliases.sh
 │   ├── git-aliases.sh
 │   ├── kubectl-aliases.sh
-│   ├── docker-aliases.sh
 │   └── nav-aliases.sh
 ├── scripts/
 │   ├── port-utils.sh

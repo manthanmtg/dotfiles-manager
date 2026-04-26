@@ -6,4 +6,4 @@ Always follow:
 - `pnpm` for all scripts (`dev`, `build`, `start`, `lint`, `validate`).
 - Any `src/` behavioral changes must preserve shell config safety rules in `src/lib/shell.ts`.
 
-For this run, the selected autonomous guidance was: `project_guidelines_sync`.
+Guidance selection is run via `prompts/random_selector.md` each time.
