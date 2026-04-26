@@ -102,14 +102,6 @@ export function createDotfile(
   fs.writeFileSync(metaPath, JSON.stringify(metadata, null, 2), "utf-8");
 }
 
-export function deleteDotfile(filename: string): void {
-  const filePath = path.join(DOTFILES_DIR, filename);
-  const metaPath = path.join(DOTFILES_DIR, `${filename}${METADATA_SUFFIX}`);
-
-  if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-  if (fs.existsSync(metaPath)) fs.unlinkSync(metaPath);
-}
-
 export function updateDotfileContent(
   filename: string,
   content: string
