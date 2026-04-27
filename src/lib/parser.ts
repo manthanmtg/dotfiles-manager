@@ -6,6 +6,14 @@ import type { ZodError } from "zod/v4";
 
 const META_START = "# @dotfiles-manager";
 const META_END = "# @end";
+const SUPPORTED_META_KEYS = new Set([
+  "name",
+  "description",
+  "category",
+  "icon",
+  "tags",
+  "variable",
+]);
 
 interface ParseResult {
   metadata: ReturnType<typeof DotfileMetadata.parse>;
@@ -44,6 +52,7 @@ export function parseDotfileSource(
   const variables: Array<DotfileVariableMeta> = [];
   const errors: string[] = [];
   const seenVariables = new Set<string>();
+  const fieldLines: Record<string, number> = {};
 
   for (let i = 0; i < metaLines.length; i++) {
     const line = metaLines[i];
@@ -58,20 +67,31 @@ export function parseDotfileSource(
 
     const key = stripped.slice(0, colonIdx).trim().toLowerCase();
     const value = stripped.slice(colonIdx + 1).trim();
+    const lineNo = startIdx + 2 + i;
 
     if (key === "variable") {
-      const parsed = parseVariableLine(value, startIdx + 2 + i);
+      const parsed = parseVariableLine(value, lineNo);
       if (parsed.error) {
         errors.push(parsed.error);
       } else if (seenVariables.has(parsed.data!.name)) {
         errors.push(
-          `Line ${startIdx + 2 + i}: Duplicate variable "${parsed.data!.name}" in meta block`
+          `Line ${lineNo}: Duplicate variable "${parsed.data!.name}" in meta block`
         );
       } else {
         seenVariables.add(parsed.data!.name);
         variables.push(parsed.data!);
       }
+    } else if (!SUPPORTED_META_KEYS.has(key)) {
+      errors.push(
+        `Line ${lineNo}: Unknown meta key "${key}" (supported: ${[
+          ...SUPPORTED_META_KEYS,
+        ].join(", ")})`
+      );
     } else {
+      if (Object.hasOwn(fields, key)) {
+        errors.push(`Line ${lineNo}: Duplicate key "${key}" in meta block`);
+      }
+      fieldLines[key] = lineNo;
       fields[key] = value;
     }
   }
@@ -96,9 +116,19 @@ export function parseDotfileSource(
     });
   } catch (e) {
     const zodErr = e as ZodError;
-    const msgs = zodErr.issues.map(
-      (iss) => `${iss.path.join(".")}: ${iss.message}`
-    );
+    const msgs = zodErr.issues.map((iss) => {
+      const pathKey = String(iss.path[0] ?? "");
+      const line = fieldLines[pathKey];
+      const label = pathKey ? `Field "${pathKey}"` : "Meta block";
+      const location = line ? `Line ${line}: ` : "";
+      if (iss.code === "invalid_type" && pathKey && pathKey in fields) {
+        return `${location}${label}: ${iss.message}`;
+      }
+      if (iss.code === "invalid_union") {
+        return `${location}${label}: ${iss.message}`;
+      }
+      return `${location}${label}: ${iss.message}`;
+    });
     throw new MetaParseError(filepath, msgs);
   }
 
