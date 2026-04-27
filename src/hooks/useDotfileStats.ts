@@ -12,21 +12,20 @@ type DotfileStats = {
 };
 
 export function useDotfileStats({ dotfiles }: DotfileStatsParams): DotfileStats {
-  const installedCount = useMemo(
-    () => dotfiles.filter((d) => d.installed).length,
-    [dotfiles]
-  );
-
-  const categoryCounts = useMemo(() => {
+  const { installedCount, categoryCounts } = useMemo(() => {
     const counts: Record<DotfileCategory, number> = Object.fromEntries(
       (Object.keys(CATEGORY_META) as DotfileCategory[]).map((cat) => [cat, 0])
     ) as Record<DotfileCategory, number>;
+    let installedCount = 0;
 
     for (const dotfile of dotfiles) {
+      if (dotfile.installed) {
+        installedCount += 1;
+      }
       counts[dotfile.category] += 1;
     }
 
-    return counts;
+    return { installedCount, categoryCounts: counts };
   }, [dotfiles]);
 
   return { installedCount, categoryCounts };
