@@ -60,20 +60,6 @@ export const UninstallRequest = z.object({
 });
 export type UninstallRequest = z.infer<typeof UninstallRequest>;
 
-export const ApiResponse = <T extends z.ZodType>(dataSchema: T) =>
-  z.object({
-    success: z.boolean(),
-    data: dataSchema.optional(),
-    error: z.string().optional(),
-  });
-
-export const PlatformInfo = z.object({
-  platform: z.string(),
-  supported: z.boolean(),
-  shell: ShellInfo.optional(),
-});
-export type PlatformInfo = z.infer<typeof PlatformInfo>;
-
 export const CreateDotfileRequest = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
