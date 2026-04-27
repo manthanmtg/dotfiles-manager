@@ -9,6 +9,7 @@ const SHELL_CONFIG_MAP: Record<string, string> = {
   bash: ".bashrc",
   fish: path.join(".config", "fish", "config.fish"),
 };
+const SAFE_DOTFILE_NAME = /^[a-zA-Z0-9._-]+$/;
 
 export function detectShell(): ShellInfo {
   const home = os.homedir();
@@ -38,6 +39,8 @@ export function detectShell(): ShellInfo {
 }
 
 export function isSourced(configPath: string, dotfileName: string): boolean {
+  assertSafeDotfileName(dotfileName);
+
   if (!fs.existsSync(configPath)) return false;
 
   const content = fs.readFileSync(configPath, "utf-8");
@@ -45,6 +48,8 @@ export function isSourced(configPath: string, dotfileName: string): boolean {
 }
 
 export function addSource(configPath: string, dotfileName: string): void {
+  assertSafeDotfileName(dotfileName);
+
   const dotfilesDir = path.join(os.homedir(), ".dotfiles-manager");
   const sourceLine = `\nsource ${dotfilesDir}/${dotfileName}\n`;
 
@@ -56,6 +61,8 @@ export function addSource(configPath: string, dotfileName: string): void {
 }
 
 export function removeSource(configPath: string, dotfileName: string): void {
+  assertSafeDotfileName(dotfileName);
+
   if (!fs.existsSync(configPath)) {
     throw new Error(`Config file not found: ${configPath}`);
   }
@@ -83,4 +90,10 @@ function getManagedSourceLinePattern(
 
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function assertSafeDotfileName(dotfileName: string): void {
+  if (!SAFE_DOTFILE_NAME.test(dotfileName)) {
+    throw new Error(`Invalid dotfile name: ${dotfileName}`);
+  }
 }
