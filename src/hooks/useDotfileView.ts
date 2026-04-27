@@ -19,25 +19,37 @@ export function useDotfileView({
 }: DotfileViewFilters): DotfileViewResult {
   const query = search.trim().toLowerCase();
 
+  const searchableDotfiles = useMemo(() => {
+    return dotfiles.map((dotfile) => ({
+      dotfile,
+      searchableName: dotfile.name.toLowerCase(),
+      searchableDescription: dotfile.description.toLowerCase(),
+      searchableFilename: dotfile.filename.toLowerCase(),
+      searchableTags: dotfile.tags.map((tag) => tag.toLowerCase()),
+    }));
+  }, [dotfiles]);
+
   const filtered = useMemo(() => {
-    let result = dotfiles;
+    let result = searchableDotfiles;
 
     if (activeCategory !== "all") {
-      result = result.filter((dotfile) => dotfile.category === activeCategory);
+      result = result.filter(
+        ({ dotfile }) => dotfile.category === activeCategory
+      );
     }
 
     if (!query) {
-      return result;
+      return result.map(({ dotfile }) => dotfile);
     }
 
     return result.filter(
-      (dotfile) =>
-        dotfile.name.toLowerCase().includes(query) ||
-        dotfile.description.toLowerCase().includes(query) ||
-        dotfile.filename.toLowerCase().includes(query) ||
-        dotfile.tags.some((tag) => tag.toLowerCase().includes(query))
-    );
-  }, [dotfiles, activeCategory, query]);
+      ({ searchableName, searchableDescription, searchableFilename, searchableTags }) =>
+        searchableName.includes(query) ||
+        searchableDescription.includes(query) ||
+        searchableFilename.includes(query) ||
+        searchableTags.some((tag) => tag.includes(query))
+    ).map(({ dotfile }) => dotfile);
+  }, [activeCategory, query, searchableDotfiles]);
 
   const grouped = useMemo(() => {
     if (activeCategory !== "all") {
