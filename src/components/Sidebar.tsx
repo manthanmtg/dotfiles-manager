@@ -43,6 +43,18 @@ const CATEGORY_TEXT_COLORS: Record<string, string> = {
   sky: "text-sky-400",
 };
 
+const CATEGORY_LEFT_BORDERS: Record<string, string> = {
+  cyan: "border-l-cyan-400",
+  emerald: "border-l-emerald-400",
+  purple: "border-l-purple-400",
+  rose: "border-l-rose-400",
+  amber: "border-l-amber-400",
+  sky: "border-l-sky-400",
+};
+
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
+
 export const Sidebar = memo(function Sidebar({
   platform,
   totalCount,
@@ -87,9 +99,9 @@ export const Sidebar = memo(function Sidebar({
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         <button
           onClick={() => onCategoryChange("all")}
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${focusRing} ${
             activeCategory === "all"
-              ? "bg-zinc-800/80 text-zinc-100"
+              ? "bg-zinc-800/80 text-zinc-100 border-l-2 border-l-cyan-400"
               : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
           }`}
         >
@@ -119,8 +131,8 @@ export const Sidebar = memo(function Sidebar({
               onClick={() => onCategoryChange(cat)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all border ${
                 activeCategory === cat
-                  ? `${CATEGORY_BG_COLORS[meta.color]} ${CATEGORY_BORDER_COLORS[meta.color]} ${CATEGORY_TEXT_COLORS[meta.color]}`
-                  : "border-transparent text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
+                  ? `${CATEGORY_BG_COLORS[meta.color]} ${CATEGORY_BORDER_COLORS[meta.color]} ${CATEGORY_TEXT_COLORS[meta.color]} border-l-2 ${CATEGORY_LEFT_BORDERS[meta.color]} ${focusRing}`
+                  : `border-transparent text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200 ${focusRing}`
               }`}
             >
               <DynamicIcon
