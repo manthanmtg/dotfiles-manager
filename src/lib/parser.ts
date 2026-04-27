@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { DotfileMetadata } from "./schemas";
 import { type DotfileVariable as DotfileVariableMeta } from "./schemas";
-import type { ZodError } from "zod/v4";
+import { ZodError } from "zod/v4";
 
 const META_START = "# @dotfiles-manager";
 const META_END = "# @end";
@@ -135,9 +135,10 @@ export function parseDotfileSource(
       tags,
       variables,
     });
-  } catch (e) {
-    const zodErr = e as ZodError;
-    const msgs = zodErr.issues.map((iss) => {
+  } catch (error) {
+    const messages =
+      error instanceof ZodError
+        ? error.issues.map((iss) => {
       const pathKey = String(iss.path[0] ?? "");
       let line: number | undefined;
       let fieldName = pathKey;
@@ -156,8 +157,14 @@ export function parseDotfileSource(
       const label = pathKey ? `Field "${fieldName}"` : "Meta block";
       const location = line ? `Line ${line}: ` : "";
       return `${location}${label}: ${iss.message}`;
-    });
-    throw new MetaParseError(filepath, msgs);
+    })
+        : [
+            `Unexpected metadata parse error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          ];
+
+    throw new MetaParseError(filepath, messages);
   }
 
   const contentLines = lines.slice(endIdx + 1);
@@ -259,17 +266,22 @@ export function validateAllDotfiles(
         } catch (e) {
           if (e instanceof MetaParseError) {
             errs.push({ file: rel, errors: e.errors });
-          } else {
-            errs.push({
-              file: rel,
-              errors: [(e as Error).message],
-            });
-          }
+        } else {
+          errs.push({
+            file: rel,
+            errors: [errorToMessage(e)],
+          });
         }
       }
+    }
     }
   }
 
   walk(dotfilesDir);
   return { valid, errors: errs };
+}
+
+function errorToMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
 }
