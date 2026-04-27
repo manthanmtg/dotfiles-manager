@@ -12,7 +12,7 @@ A locally-hosted Next.js web application and CLI for managing, discovering, and 
 - **Category Organization** — Dotfiles grouped by type: Aliases, Scripts, Prompts, Security, Environment, Functions
 - **Code Preview** — Syntax-highlighted preview of any dotfile before installing
 - **CLI Fallback** — Manage the same local dotfiles from your terminal when the web UI is not available
-- **12 Built-in Configs** — Ships with curated dotfiles for Git, Docker, Kubernetes, Node.js, and more
+- **13 Built-in Configs** — Ships with curated dotfiles for Git, Docker, Kubernetes, Node.js, and more
 
 ## Requirements
 
@@ -54,15 +54,13 @@ Install the command globally from this local checkout:
 
 ```bash
 pnpm install
-pnpm setup
 # Restart your shell, then return to this repository.
-pnpm link --global
+pnpm link --global .
 dotfiles-manager help
 ```
 
-`pnpm link --global` needs pnpm's global binary directory to exist and be in
-your `PATH`. On a fresh machine, `pnpm setup` creates that directory and updates
-your shell profile so commands such as `dotfiles-manager` can be found.
+`pnpm link --global .` installs a global `dotfiles-manager` command from this
+checkout.
 
 Useful commands:
 
