@@ -34,8 +34,42 @@ export async function POST(request: Request) {
       );
     }
 
-    if (parsed.variables && Object.keys(parsed.variables).length > 0) {
-      const updatedContent = applyVariables(dotfile.content, parsed.variables);
+    const providedVariables = parsed.variables ?? {};
+    const allowedVariables = new Set(
+      dotfile.variables.map((variable) => variable.name)
+    );
+
+    const invalidVariableNames = Object.keys(providedVariables).filter(
+      (name) => !allowedVariables.has(name)
+    );
+
+    if (invalidVariableNames.length > 0) {
+      throw new Error(
+        `Invalid variables: ${invalidVariableNames.join(", ")}`
+      );
+    }
+
+    const missingRequiredVariables = dotfile.variables
+      .filter((variable) => variable.required)
+      .filter((variable) => !(variable.name in providedVariables));
+
+    if (missingRequiredVariables.length > 0) {
+      const missingNames = missingRequiredVariables
+        .map((variable) => variable.name)
+        .join(", ");
+      throw new Error(`Missing required variables: ${missingNames}`);
+    }
+
+    const hasNewlineValues = Object.entries(providedVariables).some(
+      ([, value]) => /[\r\n]/.test(value)
+    );
+
+    if (hasNewlineValues) {
+      throw new Error("Variable values cannot contain newlines");
+    }
+
+    if (Object.keys(providedVariables).length > 0) {
+      const updatedContent = applyVariables(dotfile.content, providedVariables);
       updateDotfileContent(parsed.filename, updatedContent);
     }
 
