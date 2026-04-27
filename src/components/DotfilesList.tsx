@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { memo } from "react";
 import { PackageOpen } from "lucide-react";
 import { DotfileCard } from "@/components/DotfileCard";
 import { CategorySection } from "@/components/CategorySection";
@@ -19,7 +20,9 @@ interface DotfilesListProps {
   onPreview: (filename: string) => void;
 }
 
-export function DotfilesList({
+const CATEGORY_OPTIONS = Object.keys(CATEGORY_META) as DotfileCategory[];
+
+function DotfilesListInner({
   filtered,
   activeCategory,
   grouped,
@@ -84,7 +87,7 @@ export function DotfilesList({
           </AnimatePresence>
         </div>
       ) : (
-        (Object.keys(CATEGORY_META) as DotfileCategory[]).map((cat) => {
+        CATEGORY_OPTIONS.map((cat) => {
           const items = grouped[cat];
           if (!items || items.length === 0) return null;
           return (
@@ -109,3 +112,5 @@ export function DotfilesList({
     </div>
   );
 }
+
+export const DotfilesList = memo(DotfilesListInner);
