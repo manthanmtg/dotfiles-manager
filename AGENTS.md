@@ -11,6 +11,8 @@ Local-only Next.js web app for managing shell dotfiles stored at `~/.dotfiles-ma
 - `pnpm start` — start production server
 - `pnpm lint` — run ESLint
 - `pnpm validate` — check all `.sh` files in `dotfiles/` have valid meta comments
+- `pnpm test` — run the TypeScript test suite in `tests/**/*.test.ts`
+- `pnpm cli` — run the local command-line interface in `src/cli/index.ts`
 - `lsof -ti :3000 | xargs kill -9` — kill process on port 3000
 
 ## Architecture
@@ -41,6 +43,8 @@ scripts/
 └── validate.ts             # Runs pnpm validate — checks all .sh meta blocks
 
 src/
+├── cli/                   # CLI entrypoint modules
+│   └── core.ts            # Shared logic for CLI commands
 ├── app/
 │   ├── api/                # Next.js API routes (Node.js, fs-based)
 │   │   ├── shell/          # GET  — detect user shell + config path
@@ -54,7 +58,9 @@ src/
 ├── components/             # All "use client" React components
 ├── hooks/
 │   ├── useDotfiles.ts      # Central data-fetching hook (fetch, install, uninstall, terminal log)
-│   └── useDotfileView.ts   # Memoized filter/search helpers for list and category views
+│   ├── useDotfileActions.ts # Shared action hook for install/uninstall operations
+│   ├── useDotfileView.ts    # Memoized filter/search helpers for list and category views
+│   └── useTerminalLogger.ts # Terminal event stream utilities
 ├── lib/                    # Server-only utilities
 │   ├── schemas.ts          # Zod v4 schemas for all data types + API payloads
 │   ├── parser.ts           # Parses meta comment blocks from .sh files
