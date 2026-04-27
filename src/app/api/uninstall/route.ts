@@ -43,32 +43,65 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    if (error instanceof SyntaxError) {
+    const clientError = mapUninstallError(error);
+    if (clientError) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid JSON payload for uninstall request",
+          error: clientError.message,
         },
-        { status: 400 }
-      );
-    }
-
-    if (error instanceof ZodError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid uninstall request payload",
-        },
-        { status: 400 }
+        { status: clientError.status }
       );
     }
 
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: "Unable to complete uninstall request.",
       },
       { status: 500 }
     );
   }
+}
+
+function mapUninstallError(
+  error: unknown
+): { status: number; message: string } | null {
+  if (error instanceof SyntaxError) {
+    return {
+      status: 400,
+      message: "Invalid JSON payload for uninstall request",
+    };
+  }
+
+  if (error instanceof ZodError) {
+    return {
+      status: 400,
+      message: "Invalid uninstall request payload",
+    };
+  }
+
+  if (error instanceof Error && error.message.includes("Config file is not writable")) {
+    return {
+      status: 403,
+      message:
+        "Failed to update shell config. Check your shell config file permissions.",
+    };
+  }
+
+  if (error instanceof Error && error.message.includes("Config file not found")) {
+    return {
+      status: 500,
+      message: "Shell config file missing or inaccessible.",
+    };
+  }
+
+  if (error instanceof Error && error.message.includes("No managed source line found")) {
+    return {
+      status: 409,
+      message: "Dotfile is not currently installed in your shell configuration.",
+    };
+  }
+
+  return null;
 }
