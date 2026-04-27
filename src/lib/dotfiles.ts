@@ -7,6 +7,7 @@ import { isSourced } from "./shell";
 
 const DOTFILES_DIR = path.join(os.homedir(), ".dotfiles-manager");
 const METADATA_SUFFIX = ".meta.json";
+const SAFE_DOTFILE_NAME = /^[a-zA-Z0-9._-]+$/;
 
 function getDefaultMetadata(filename: string): DotfileMetadata {
   return {
@@ -72,6 +73,7 @@ export function getDotfile(
   filename: string,
   shellConfigPath: string
 ): DotfileEntry | null {
+  assertSafeDotfileName(filename);
   const filePath = path.join(DOTFILES_DIR, filename);
   if (!fs.existsSync(filePath)) return null;
 
@@ -94,6 +96,7 @@ export function createDotfile(
   content: string,
   metadata: DotfileMetadata
 ): void {
+  assertSafeDotfileName(filename);
   ensureDotfilesDir();
 
   const filePath = path.join(DOTFILES_DIR, filename);
@@ -107,6 +110,7 @@ export function updateDotfileContent(
   filename: string,
   content: string
 ): void {
+  assertSafeDotfileName(filename);
   const filePath = path.join(DOTFILES_DIR, filename);
   if (!fs.existsSync(filePath)) {
     throw new Error(`Dotfile not found: ${filename}`);
@@ -123,4 +127,10 @@ export function applyVariables(
     result = result.split(`{{${key}}}`).join(value);
   }
   return result;
+}
+
+function assertSafeDotfileName(dotfileName: string): void {
+  if (!SAFE_DOTFILE_NAME.test(dotfileName)) {
+    throw new Error(`Invalid dotfile name: ${dotfileName}`);
+  }
 }
