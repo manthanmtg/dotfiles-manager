@@ -3,7 +3,7 @@ import path from "path";
 import os from "os";
 import { DotfileMetadata } from "./schemas";
 import type { DotfileEntry } from "./schemas";
-import { isSourced } from "./shell";
+import { getSourcedDotfiles } from "./shell";
 
 const DOTFILES_DIR = path.join(os.homedir(), ".dotfiles-manager");
 const METADATA_SUFFIX = ".meta.json";
@@ -42,6 +42,8 @@ export function getDotfilesDir(): string {
 export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
   ensureDotfilesDir();
 
+  const sourcedDotfiles = getSourcedDotfiles(shellConfigPath);
+
   const files = fs.readdirSync(DOTFILES_DIR);
   const dotfileNames = files.filter(
     (f) =>
@@ -61,7 +63,7 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
       metadata = parseStoredMetadata(fs.readFileSync(metaPath, "utf-8"), filename);
     }
 
-    const installed = isSourced(shellConfigPath, filename);
+    const installed = sourcedDotfiles.has(filename);
 
     return {
       ...metadata,
@@ -89,7 +91,7 @@ export function getDotfile(
       metadata = parseStoredMetadata(fs.readFileSync(metaPath, "utf-8"), filename);
     }
 
-  const installed = isSourced(shellConfigPath, filename);
+  const installed = getSourcedDotfiles(shellConfigPath).has(filename);
 
   return { ...metadata, filename, content, installed };
 }
