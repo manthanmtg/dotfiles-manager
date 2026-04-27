@@ -6,30 +6,16 @@ import type {
   PlatformData,
   ApiResponse,
   InstallResult,
-  TerminalLine,
 } from "@/types";
+import { useTerminalLogger } from "@/hooks/useTerminalLogger";
 
 export function useDotfiles() {
   const [dotfiles, setDotfiles] = useState<DotfileEntry[]>([]);
   const [platform, setPlatform] = useState<PlatformData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
   const [seeded, setSeeded] = useState(false);
-
-  const addLine = useCallback(
-    (type: TerminalLine["type"], text: string) => {
-      setTerminalLines((prev) => [
-        ...prev,
-        { type, text, timestamp: Date.now() },
-      ]);
-    },
-    []
-  );
-
-  const clearTerminal = useCallback(() => {
-    setTerminalLines([]);
-  }, []);
+  const { terminalLines, addLine, clearTerminal } = useTerminalLogger();
 
   const fetchShell = useCallback(async () => {
     const res = await fetch("/api/shell");
