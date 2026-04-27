@@ -53,7 +53,8 @@ src/
 │   └── globals.css         # Tailwind v4 imports + custom scrollbar + grid bg
 ├── components/             # All "use client" React components
 ├── hooks/
-│   └── useDotfiles.ts     # Central data-fetching hook (fetch, install, uninstall, terminal log)
+│   ├── useDotfiles.ts      # Central data-fetching hook (fetch, install, uninstall, terminal log)
+│   └── useDotfileView.ts   # Memoized filter/search helpers for list and category views
 ├── lib/                    # Server-only utilities
 │   ├── schemas.ts          # Zod v4 schemas for all data types + API payloads
 │   ├── parser.ts           # Parses meta comment blocks from .sh files
