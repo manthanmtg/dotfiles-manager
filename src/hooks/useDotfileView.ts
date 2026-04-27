@@ -40,6 +40,10 @@ export function useDotfileView({
   }, [dotfiles, activeCategory, query]);
 
   const grouped = useMemo(() => {
+    if (activeCategory !== "all") {
+      return {};
+    }
+
     const groups: Partial<Record<DotfileCategory, DotfileEntry[]>> = {};
 
     for (const dotfile of filtered) {
@@ -50,7 +54,7 @@ export function useDotfileView({
     }
 
     return groups;
-  }, [filtered]);
+  }, [filtered, activeCategory]);
 
   return { filtered, grouped };
 }
