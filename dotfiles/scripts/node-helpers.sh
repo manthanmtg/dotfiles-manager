@@ -1,9 +1,9 @@
 # @dotfiles-manager
 # name: Node.js Helpers
-# description: Aliases and functions for Node.js development — nvm auto-switching, npm shortcuts, and project scaffolding.
+# description: Aliases and functions for Node.js development with npm and pnpm script shortcuts, plus package script inspection.
 # category: scripts
 # icon: Braces
-# tags: nodejs, npm, development
+# tags: nodejs, npm, pnpm, development
 # @end
 
 alias ni='npm install'
