@@ -12,7 +12,7 @@ A locally-hosted Next.js web application and CLI for managing, discovering, and 
 - **Category Organization** — Dotfiles grouped by type: Aliases, Scripts, Prompts, Security, Environment, Functions
 - **Code Preview** — Syntax-highlighted preview of any dotfile before installing
 - **CLI Fallback** — Manage the same local dotfiles from your terminal when the web UI is not available
-- **13 Built-in Configs** — Ships with curated dotfiles for Git, Docker, Kubernetes, Node.js, and more
+- **12 Built-in Configs** — Ships with curated dotfiles for Git, Docker, Kubernetes, Node.js, and more
 
 ## Requirements
 
@@ -88,7 +88,7 @@ If the web app is not available, use the CLI as the primary workflow:
 
 ## How It Works
 
-1. On first launch, seed dotfiles are created in `~/.dotfiles-manager/`
+1. Run `dotfiles-manager seed` (or use the seed action in the web UI) to create dotfiles in `~/.dotfiles-manager/`
 2. Each dotfile has a content file and a `.meta.json` metadata file
 3. Installing a dotfile appends `source ~/.dotfiles-manager/<filename>` to your shell config (e.g. `~/.zshrc`)
 4. Uninstalling removes only the relevant source line — no other config is touched
