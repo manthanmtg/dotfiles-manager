@@ -45,13 +45,26 @@ export function DotfilesList({
       {filtered.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-col items-center justify-center py-24 text-center"
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-2xl border border-zinc-800/70 bg-zinc-900/50 px-8 py-16 text-center"
         >
-          <PackageOpen size={48} className="text-zinc-700 mb-4" />
-          <p className="text-zinc-400 text-sm mb-1">No dotfiles found</p>
-          <p className="text-zinc-600 text-xs">
-            {search ? "Try adjusting your search query" : "Dotfiles will appear here once loaded"}
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-zinc-900/20 to-emerald-500/10" />
+          <motion.div
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
+            transition={{ repeat: Infinity, repeatType: "reverse", duration: 2.2 }}
+            className="relative inline-flex items-center justify-center p-3 rounded-full bg-zinc-900/80 border border-cyan-500/20 mb-4"
+          >
+            <PackageOpen
+              size={40}
+              className="text-cyan-400"
+            />
+          </motion.div>
+          <p className="relative text-zinc-100 font-medium text-sm mb-1">No dotfiles found</p>
+          <p className="relative text-zinc-500 text-xs max-w-sm">
+            {search
+              ? "Try adjusting your search query or switching categories."
+              : "Dotfiles will appear here once loaded."}
           </p>
         </motion.div>
       ) : activeCategory !== "all" ? (
