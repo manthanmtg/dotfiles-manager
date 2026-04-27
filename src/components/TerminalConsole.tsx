@@ -47,6 +47,8 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+          aria-expanded={collapsed ? "false" : "true"}
+          aria-controls="dotfiles-terminal-log"
         >
           <Terminal size={14} className="text-emerald-400" />
           <span className="font-mono text-xs">dotfiles-manager</span>
@@ -57,6 +59,7 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
         </button>
         <button
           onClick={onClear}
+          aria-label="Clear terminal log"
           className="text-zinc-500 hover:text-zinc-300 transition-colors p-1 rounded hover:bg-zinc-800"
           title="Clear terminal"
         >
@@ -74,6 +77,10 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
             className="overflow-hidden"
           >
             <div
+              id="dotfiles-terminal-log"
+              role="log"
+              aria-live="polite"
+              aria-label="Terminal log"
               ref={scrollRef}
               className="h-40 overflow-y-auto px-4 py-2 font-mono text-xs space-y-0.5 scrollbar-thin"
             >
