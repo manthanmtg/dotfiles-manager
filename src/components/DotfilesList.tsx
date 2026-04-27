@@ -39,6 +39,9 @@ function DotfilesListInner({
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
           className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm"
         >
           {error}
@@ -49,6 +52,9 @@ function DotfilesListInner({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, y: 0 }}
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
           className="relative overflow-hidden rounded-2xl border border-zinc-800/70 bg-zinc-900/50 px-8 py-16 text-center"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-zinc-900/20 to-emerald-500/10" />
