@@ -67,6 +67,8 @@ function DotfileCardInner({
     [dotfile.content]
   );
   const installed = dotfile.installed;
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
 
   return (
     <motion.div
@@ -133,19 +135,22 @@ function DotfileCardInner({
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <motion.button
             onClick={() => onPreview(filename)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 text-zinc-400 text-xs font-medium hover:bg-zinc-700/80 hover:text-zinc-200 transition-all"
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.98 }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 text-zinc-400 text-xs font-medium hover:bg-zinc-700/80 hover:text-zinc-200 transition-all ${focusRing}`}
           >
             <Eye size={13} />
             Preview
-          </button>
+          </motion.button>
 
           {installed ? (
-            <button
+            <motion.button
               onClick={() => onUninstall(filename)}
               disabled={installing}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium hover:bg-rose-500/20 transition-all disabled:opacity-50"
+              whileTap={{ scale: 0.98 }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium hover:bg-rose-500/20 transition-all disabled:opacity-50 ${focusRing}`}
             >
               {installing ? (
                 <Loader2 size={13} className="animate-spin" />
@@ -153,14 +158,14 @@ function DotfileCardInner({
                 <Trash2 size={13} />
               )}
               Uninstall
-            </button>
+            </motion.button>
           ) : (
             <motion.button
               onClick={() => onInstall(filename)}
               disabled={installing}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500/90 to-emerald-500/90 text-white text-xs font-medium hover:from-cyan-400 hover:to-emerald-400 transition-all shadow-lg shadow-cyan-500/10 disabled:opacity-50"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500/90 to-emerald-500/90 text-white text-xs font-medium hover:from-cyan-400 hover:to-emerald-400 transition-all shadow-lg shadow-cyan-500/10 disabled:opacity-50 ${focusRing}`}
             >
               {installing ? (
                 <Loader2 size={13} className="animate-spin" />
