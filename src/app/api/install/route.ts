@@ -45,8 +45,12 @@ export async function POST(request: Request) {
     );
 
     if (invalidVariableNames.length > 0) {
-      throw new Error(
-        `Invalid variables: ${invalidVariableNames.join(", ")}`
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Invalid variables: ${invalidVariableNames.join(", ")}`,
+        },
+        { status: 400 }
       );
     }
 
@@ -58,7 +62,13 @@ export async function POST(request: Request) {
       const missingNames = missingRequiredVariables
         .map((variable) => variable.name)
         .join(", ");
-      throw new Error(`Missing required variables: ${missingNames}`);
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Missing required variables: ${missingNames}`,
+        },
+        { status: 400 }
+      );
     }
 
     const hasNewlineValues = Object.entries(providedVariables).some(
@@ -66,7 +76,13 @@ export async function POST(request: Request) {
     );
 
     if (hasNewlineValues) {
-      throw new Error("Variable values cannot contain newlines");
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Variable values cannot contain newlines",
+        },
+        { status: 400 }
+      );
     }
 
     if (Object.keys(providedVariables).length > 0) {
