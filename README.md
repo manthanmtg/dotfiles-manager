@@ -54,9 +54,15 @@ Install the command globally from this local checkout:
 
 ```bash
 pnpm install
+pnpm setup
+# Restart your shell, then return to this repository.
 pnpm link --global
 dotfiles-manager help
 ```
+
+`pnpm link --global` needs pnpm's global binary directory to exist and be in
+your `PATH`. On a fresh machine, `pnpm setup` creates that directory and updates
+your shell profile so commands such as `dotfiles-manager` can be found.
 
 Useful commands:
 
