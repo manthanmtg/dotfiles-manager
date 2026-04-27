@@ -2,9 +2,9 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useDotfiles } from "@/hooks/useDotfiles";
+import { useDotfileView } from "@/hooks/useDotfileView";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
-import { DotfileCard } from "@/components/DotfileCard";
 import { DotfilesList } from "@/components/DotfilesList";
 import { TerminalConsole } from "@/components/TerminalConsole";
 import { VariableModal } from "@/components/VariableModal";
@@ -42,32 +42,11 @@ export default function Home() {
     return map;
   }, [dotfiles]);
 
-  const filtered = useMemo(() => {
-    let result = dotfiles;
-    if (activeCategory !== "all") {
-      result = result.filter((d) => d.category === activeCategory);
-    }
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (d) =>
-          d.name.toLowerCase().includes(q) ||
-          d.description.toLowerCase().includes(q) ||
-          d.filename.toLowerCase().includes(q) ||
-          d.tags.some((t) => t.toLowerCase().includes(q))
-      );
-    }
-    return result;
-  }, [dotfiles, activeCategory, search]);
-
-  const grouped = useMemo(() => {
-    const groups: Partial<Record<DotfileCategory, DotfileEntry[]>> = {};
-    for (const d of filtered) {
-      if (!groups[d.category]) groups[d.category] = [];
-      groups[d.category]!.push(d);
-    }
-    return groups;
-  }, [filtered]);
+  const { filtered, grouped } = useDotfileView({
+    dotfiles,
+    activeCategory,
+    search,
+  });
 
   const installedCount = useMemo(
     () => dotfiles.filter((d) => d.installed).length,
