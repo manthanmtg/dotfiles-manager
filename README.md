@@ -1,6 +1,6 @@
 # Dotfiles Manager
 
-A locally-hosted Next.js web application for managing, discovering, and installing shell configurations (dotfiles) through a premium terminal-inspired UI.
+A locally-hosted Next.js web application and CLI for managing, discovering, and installing shell configurations (dotfiles).
 
 ## Features
 
@@ -11,6 +11,7 @@ A locally-hosted Next.js web application for managing, discovering, and installi
 - **Live Terminal Console** — Real-time simulated terminal showing step-by-step installation progress
 - **Category Organization** — Dotfiles grouped by type: Aliases, Scripts, Prompts, Security, Environment, Functions
 - **Code Preview** — Syntax-highlighted preview of any dotfile before installing
+- **CLI Fallback** — Manage the same local dotfiles from your terminal when the web UI is not available
 - **12 Built-in Configs** — Ships with curated dotfiles for Git, Docker, Kubernetes, Node.js, and more
 
 ## Requirements
@@ -20,6 +21,8 @@ A locally-hosted Next.js web application for managing, discovering, and installi
 - **pnpm** (required package manager)
 
 ## Getting Started
+
+### Web App
 
 ```bash
 pnpm install
@@ -33,6 +36,51 @@ To stop the dev server, press `Ctrl+C` in the terminal. If the port is still in 
 ```bash
 lsof -ti :3000 | xargs kill -9
 ```
+
+### CLI
+
+The CLI uses the same `~/.dotfiles-manager/` storage directory and the same shell config safety checks as the web app.
+
+Run it from the repository:
+
+```bash
+pnpm cli -- help
+pnpm cli -- seed
+pnpm cli -- list
+pnpm cli -- install git-aliases
+```
+
+Install the command globally from this local checkout:
+
+```bash
+pnpm install
+pnpm link --global
+dotfiles-manager help
+```
+
+Useful commands:
+
+```bash
+dotfiles-manager shell
+dotfiles-manager seed
+dotfiles-manager list --available
+dotfiles-manager show git-aliases
+dotfiles-manager install git-aliases
+dotfiles-manager uninstall git-aliases
+```
+
+Dotfiles with variables require explicit `--set NAME=value` arguments:
+
+```bash
+dotfiles-manager install ssh-agent-setup --set SSH_KEY_PATH=~/.ssh/id_ed25519
+```
+
+If the web app is not available, use the CLI as the primary workflow:
+
+1. Run `dotfiles-manager seed` to copy bundled dotfiles into `~/.dotfiles-manager/`
+2. Run `dotfiles-manager list` to find the filename you want
+3. Run `dotfiles-manager install <filename>` to append the managed `source` line
+4. Run `source ~/.zshrc`, `source ~/.bashrc`, or restart your shell to apply changes
 
 ## How It Works
 
