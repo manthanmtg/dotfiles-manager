@@ -48,10 +48,24 @@ function isSupportedShell(
 export function isSourced(configPath: string, dotfileName: string): boolean {
   assertSafeDotfileName(dotfileName);
 
-  if (!fs.existsSync(configPath)) return false;
+  return getSourcedDotfiles(configPath).has(dotfileName);
+}
+
+export function getSourcedDotfiles(configPath: string): Set<string> {
+  const sourced = new Set<string>();
+  if (!fs.existsSync(configPath)) return sourced;
 
   const content = fs.readFileSync(configPath, "utf-8");
-  return getManagedSourceLinePattern(dotfileName).test(content);
+  const pattern = getManagedSourceLineCapturePattern();
+
+  for (const match of content.matchAll(pattern)) {
+    const name = match[1];
+    if (name && SAFE_DOTFILE_NAME.test(name)) {
+      sourced.add(name);
+    }
+  }
+
+  return sourced;
 }
 
 export function addSource(configPath: string, dotfileName: string): void {
@@ -114,6 +128,17 @@ function getManagedSourceLinePattern(
   const lineEnd = options.includeLineEnd ? "(?:\\r?\\n|$)" : "$";
 
   return new RegExp(`^\\s*source\\s+${dotfilesPathPattern}\\s*${lineEnd}`, "gm");
+}
+
+function getManagedSourceLineCapturePattern(): RegExp {
+  const dotfilesPathPattern = `(?:${escapeRegex(
+    path.join(os.homedir(), ".dotfiles-manager")
+  )}|~\\/\\.dotfiles-manager)`;
+
+  return new RegExp(
+    `^\\s*source\\s+${dotfilesPathPattern}\\/([^\\s#]+)\\s*(?:#.*)?$`,
+    "gm"
+  );
 }
 
 function escapeRegex(str: string): string {
