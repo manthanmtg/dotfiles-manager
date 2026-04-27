@@ -60,6 +60,16 @@ export function addSource(configPath: string, dotfileName: string): void {
   const dotfilesDir = path.join(os.homedir(), ".dotfiles-manager");
   const sourceLine = `\nsource ${dotfilesDir}/${dotfileName}\n`;
 
+  if (!fs.existsSync(configPath)) {
+    throw new Error(`Config file not found: ${configPath}`);
+  }
+
+  try {
+    fs.accessSync(configPath, fs.constants.W_OK);
+  } catch {
+    throw new Error(`Config file is not writable: ${configPath}`);
+  }
+
   if (isSourced(configPath, dotfileName)) {
     throw new Error(`${dotfileName} is already sourced in ${configPath}`);
   }
@@ -80,6 +90,11 @@ export function removeSource(configPath: string, dotfileName: string): void {
   });
 
   const newContent = content.replace(sourcePattern, "");
+
+  if (newContent === content) {
+    throw new Error(`No managed source line found for ${dotfileName} in ${configPath}`);
+  }
+
   fs.writeFileSync(configPath, newContent, "utf-8");
 }
 
