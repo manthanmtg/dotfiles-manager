@@ -32,11 +32,15 @@ export function Header({
 
         <div className="flex items-center gap-3">
           <div className="relative">
+            <label htmlFor="dotfile-search" className="sr-only">
+              Search dotfiles
+            </label>
             <Search
               size={15}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
             />
             <input
+              id="dotfile-search"
               type="text"
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}

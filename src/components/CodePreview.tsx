@@ -35,6 +35,7 @@ export function CodePreview({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          role="presentation"
           onClick={onClose}
         >
           <motion.div
@@ -43,21 +44,29 @@ export function CodePreview({
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="w-full max-w-2xl mx-4 bg-zinc-900 border border-zinc-700/50 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="code-preview-title"
+            aria-describedby="code-preview-path"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
               <div>
-                <h3 className="text-base font-semibold text-zinc-100">
+                <h3
+                  id="code-preview-title"
+                  className="text-base font-semibold text-zinc-100"
+                >
                   {title}
                 </h3>
-                <p className="text-xs text-zinc-500 font-mono mt-0.5">
+                <p id="code-preview-path" className="text-xs text-zinc-500 font-mono mt-0.5">
                   ~/.dotfiles-manager/{filename}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopy}
-                  className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  aria-label="Copy preview content to clipboard"
+                  className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                   title="Copy to clipboard"
                 >
                   {copied ? (
@@ -68,7 +77,8 @@ export function CodePreview({
                 </button>
                 <button
                   onClick={onClose}
-                  className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  aria-label="Close code preview"
+                  className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
                   <X size={18} />
                 </button>

@@ -46,6 +46,7 @@ export function VariableModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          role="presentation"
           onClick={onClose}
         >
           <motion.div
@@ -54,84 +55,111 @@ export function VariableModal({
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="w-full max-w-lg mx-4 bg-zinc-900 border border-zinc-700/50 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="variable-modal-title"
+            aria-describedby="variable-modal-description"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
               <div>
-                <h3 className="text-base font-semibold text-zinc-100">
+                <h3
+                  id="variable-modal-title"
+                  className="text-base font-semibold text-zinc-100"
+                >
                   Configure Variables
                 </h3>
-                <p className="text-xs text-zinc-500 font-mono mt-0.5">
+                <p
+                  id="variable-modal-description"
+                  className="text-xs text-zinc-500 font-mono mt-0.5"
+                >
                   {dotfileName}
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                aria-label="Close variable modal"
+                className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <X size={18} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {variables.map((v) => (
-                <div key={v.name}>
-                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">
-                    {v.label}
-                    {v.required && (
-                      <span className="text-rose-400 ml-1">*</span>
+              {variables.map((v) => {
+                const inputId = `variable-${v.name}`;
+                const descriptionId = `${inputId}-description`;
+
+                return (
+                  <div key={v.name}>
+                    <label
+                      htmlFor={inputId}
+                      className="block text-sm font-medium text-zinc-300 mb-1.5"
+                    >
+                      {v.label}
+                      {v.required && <span className="text-rose-400 ml-1">*</span>}
+                    </label>
+                    {v.description && (
+                      <p id={descriptionId} className="text-xs text-zinc-500 mb-2">
+                        {v.description}
+                      </p>
                     )}
-                  </label>
-                  {v.description && (
-                    <p className="text-xs text-zinc-500 mb-2">
-                      {v.description}
-                    </p>
-                  )}
-                  <div className="relative">
-                    <input
-                      type={
-                        v.sensitive && !showSensitive[v.name]
-                          ? "password"
-                          : "text"
-                      }
-                      value={values[v.name] || ""}
-                      onChange={(e) =>
-                        setValues((prev) => ({
-                          ...prev,
-                          [v.name]: e.target.value,
-                        }))
-                      }
-                      placeholder={v.default || `Enter ${v.label.toLowerCase()}`}
-                      required={v.required}
-                      className="w-full px-3 py-2.5 bg-zinc-800/60 border border-zinc-700/50 rounded-lg text-sm text-zinc-100 font-mono placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/40 transition-all"
-                    />
-                    {v.sensitive && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowSensitive((prev) => ({
+                    <div className="relative">
+                      <input
+                        id={inputId}
+                        type={
+                          v.sensitive && !showSensitive[v.name]
+                            ? "password"
+                            : "text"
+                        }
+                        value={values[v.name] || ""}
+                        onChange={(e) =>
+                          setValues((prev) => ({
                             ...prev,
-                            [v.name]: !prev[v.name],
+                            [v.name]: e.target.value,
                           }))
                         }
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
-                      >
-                        {showSensitive[v.name] ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
-                      </button>
-                    )}
+                        placeholder={v.default || `Enter ${v.label.toLowerCase()}`}
+                        required={v.required}
+                        aria-required={v.required}
+                        aria-describedby={
+                          v.description ? descriptionId : undefined
+                        }
+                        className="w-full px-3 py-2.5 bg-zinc-800/60 border border-zinc-700/50 rounded-lg text-sm text-zinc-100 font-mono placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/40 transition-all"
+                      />
+                      {v.sensitive && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowSensitive((prev) => ({
+                              ...prev,
+                              [v.name]: !prev[v.name],
+                            }))
+                          }
+                          aria-label={
+                            showSensitive[v.name]
+                              ? `Hide ${v.label}`
+                              : `Show ${v.label}`
+                          }
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                        >
+                          {showSensitive[v.name] ? (
+                            <EyeOff size={16} />
+                          ) : (
+                            <Eye size={16} />
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
                   Cancel
                 </button>
