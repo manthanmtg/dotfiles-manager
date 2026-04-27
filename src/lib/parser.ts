@@ -53,6 +53,7 @@ export function parseDotfileSource(
   const errors: string[] = [];
   const seenVariables = new Set<string>();
   const fieldLines: Record<string, number> = {};
+  const variableLines: number[] = [];
 
   for (let i = 0; i < metaLines.length; i++) {
     const line = metaLines[i];
@@ -79,6 +80,7 @@ export function parseDotfileSource(
         );
       } else {
         seenVariables.add(parsed.data!.name);
+        variableLines.push(lineNo);
         variables.push(parsed.data!);
       }
     } else if (!SUPPORTED_META_KEYS.has(key)) {
@@ -118,15 +120,22 @@ export function parseDotfileSource(
     const zodErr = e as ZodError;
     const msgs = zodErr.issues.map((iss) => {
       const pathKey = String(iss.path[0] ?? "");
-      const line = fieldLines[pathKey];
-      const label = pathKey ? `Field "${pathKey}"` : "Meta block";
+      let line: number | undefined;
+      let fieldName = pathKey;
+
+      if (iss.path[0] === "variables" && typeof iss.path[1] === "number") {
+        const variableIndex = iss.path[1];
+        line = variableLines[variableIndex];
+        const variableField = typeof iss.path[2] === "string" ? iss.path[2] : "entry";
+        fieldName = variableField
+          ? `variables[${variableIndex}].${variableField}`
+          : "variables";
+      } else if (pathKey) {
+        line = fieldLines[pathKey];
+      }
+
+      const label = pathKey ? `Field "${fieldName}"` : "Meta block";
       const location = line ? `Line ${line}: ` : "";
-      if (iss.code === "invalid_type" && pathKey && pathKey in fields) {
-        return `${location}${label}: ${iss.message}`;
-      }
-      if (iss.code === "invalid_union") {
-        return `${location}${label}: ${iss.message}`;
-      }
       return `${location}${label}: ${iss.message}`;
     });
     throw new MetaParseError(filepath, msgs);
@@ -158,6 +167,12 @@ function parseVariableLine(
 
   const [name, label, description, defaultVal, requiredStr, sensitiveStr] =
     parts;
+
+  if (!label) {
+    return {
+      error: `Line ${lineNum}: Variable label is required — got empty value in "${value}"`,
+    };
+  }
 
   if (!name || !/^[A-Z0-9_]+$/.test(name)) {
     return {
