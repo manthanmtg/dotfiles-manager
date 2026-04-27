@@ -6,6 +6,7 @@ import type { ZodError } from "zod/v4";
 
 const META_START = "# @dotfiles-manager";
 const META_END = "# @end";
+const REQUIRED_META_KEYS = ["name", "description", "category"] as const;
 const SUPPORTED_META_KEYS = new Set([
   "name",
   "description",
@@ -101,6 +102,18 @@ export function parseDotfileSource(
       }
       fieldLines[key] = lineNo;
       fields[key] = value;
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new MetaParseError(filepath, errors);
+  }
+
+  for (const key of REQUIRED_META_KEYS) {
+    if (typeof fields[key] === "undefined") {
+      errors.push(
+        `Line ${endIdx + 1}: Missing required meta field "${key}" before "${META_END}"`
+      );
     }
   }
 
