@@ -7,7 +7,10 @@
 # variable: SSH_KEY_PATH | SSH Key Path | Path to the SSH private key to auto-add | ~/.ssh/id_ed25519 | required
 # @end
 
-if [ -z "$SSH_AUTH_SOCK" ]; then
+if [ -z "${SSH_AUTH_SOCK:-}" ] && command -v ssh-agent >/dev/null 2>&1; then
   eval "$(ssh-agent -s)" > /dev/null 2>&1
-  ssh-add {{SSH_KEY_PATH}} 2>/dev/null
+
+  if command -v ssh-add >/dev/null 2>&1; then
+    ssh-add {{SSH_KEY_PATH}} </dev/null >/dev/null 2>&1 || true
+  fi
 fi
