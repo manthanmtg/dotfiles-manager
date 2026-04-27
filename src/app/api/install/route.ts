@@ -102,32 +102,56 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    if (error instanceof SyntaxError) {
+    const clientError = mapInstallError(error);
+    if (clientError) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid JSON payload for install request",
+          error: clientError.message,
         },
-        { status: 400 }
-      );
-    }
-
-    if (error instanceof ZodError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid install request payload",
-        },
-        { status: 400 }
+        { status: clientError.status }
       );
     }
 
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: "Unable to complete install request.",
       },
       { status: 500 }
     );
   }
+}
+
+function mapInstallError(error: unknown): { status: number; message: string } | null {
+  if (error instanceof SyntaxError) {
+    return {
+      status: 400,
+      message: "Invalid JSON payload for install request",
+    };
+  }
+
+  if (error instanceof ZodError) {
+    return {
+      status: 400,
+      message: "Invalid install request payload",
+    };
+  }
+
+  if (error instanceof Error && error.message.includes("Config file is not writable")) {
+    return {
+      status: 403,
+      message:
+        "Failed to write to shell config. Check your shell config file permissions.",
+    };
+  }
+
+  if (error instanceof Error && error.message.includes("Config file not found")) {
+    return {
+      status: 500,
+      message: "Shell config file missing or inaccessible.",
+    };
+  }
+
+  return null;
 }
