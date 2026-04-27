@@ -13,6 +13,11 @@ listening() {
     return 1
   fi
 
+  if ! echo "$1" | grep -Eq '^[0-9]+$'; then
+    echo "listening expects a numeric port"
+    return 1
+  fi
+
   if ! command -v lsof >/dev/null 2>&1; then
     echo "lsof is required for listening()"
     return 1
@@ -46,6 +51,8 @@ killport() {
     return 0
   fi
 
-  printf '%s\n' "$pids" | xargs kill -9
+  while IFS= read -r pid; do
+    kill -9 -- "$pid"
+  done <<< "$pids"
   echo "Killed process(es) on port $1: $pids"
 }
