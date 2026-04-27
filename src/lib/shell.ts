@@ -27,15 +27,22 @@ export function detectShell(): ShellInfo {
     }
   }
 
-  const shell = (["zsh", "bash", "fish"].includes(shellName)
-    ? shellName
-    : "unknown") as ShellInfo["shell"];
+  const normalizedShell = shellName.toLowerCase();
+  const shell: ShellInfo["shell"] = isSupportedShell(normalizedShell)
+    ? normalizedShell
+    : "unknown";
 
   const configFile = SHELL_CONFIG_MAP[shell] || ".bashrc";
   const configPath = path.join(home, configFile);
   const configExists = fs.existsSync(configPath);
 
   return { shell, configPath, configExists };
+}
+
+function isSupportedShell(
+  shellName: string
+): shellName is "zsh" | "bash" | "fish" {
+  return shellName === "zsh" || shellName === "bash" || shellName === "fish";
 }
 
 export function isSourced(configPath: string, dotfileName: string): boolean {
