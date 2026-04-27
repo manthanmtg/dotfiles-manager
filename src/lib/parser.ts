@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DotfileMetadata } from "./schemas";
+import { type DotfileVariable as DotfileVariableMeta } from "./schemas";
 import type { ZodError } from "zod/v4";
 
 const META_START = "# @dotfiles-manager";
@@ -40,8 +41,9 @@ export function parseDotfileSource(
 
   const metaLines = lines.slice(startIdx + 1, endIdx);
   const fields: Record<string, string> = {};
-  const variables: Array<Record<string, unknown>> = [];
+  const variables: Array<DotfileVariableMeta> = [];
   const errors: string[] = [];
+  const seenVariables = new Set<string>();
 
   for (let i = 0; i < metaLines.length; i++) {
     const line = metaLines[i];
@@ -61,7 +63,12 @@ export function parseDotfileSource(
       const parsed = parseVariableLine(value, startIdx + 2 + i);
       if (parsed.error) {
         errors.push(parsed.error);
+      } else if (seenVariables.has(parsed.data!.name)) {
+        errors.push(
+          `Line ${startIdx + 2 + i}: Duplicate variable "${parsed.data!.name}" in meta block`
+        );
       } else {
+        seenVariables.add(parsed.data!.name);
         variables.push(parsed.data!);
       }
     } else {
@@ -104,7 +111,7 @@ export function parseDotfileSource(
 function parseVariableLine(
   value: string,
   lineNum: number
-): { data?: Record<string, unknown>; error?: string } {
+): { data?: DotfileVariableMeta; error?: string } {
   const parts = value.split("|").map((p) => p.trim());
 
   if (parts.length < 2) {
@@ -113,8 +120,35 @@ function parseVariableLine(
     };
   }
 
+  if (parts.length > 6) {
+    return {
+      error: `Line ${lineNum}: Variable definition has too many fields — expected at most 6 "name | label | description | default | required | sensitive"`,
+    };
+  }
+
   const [name, label, description, defaultVal, requiredStr, sensitiveStr] =
     parts;
+
+  if (!name || !/^[A-Z0-9_]+$/.test(name)) {
+    return {
+      error: `Line ${lineNum}: Variable name must be uppercase with optional underscores and digits — got "${name}"`,
+    };
+  }
+
+  const requiredToken = requiredStr
+    ? requiredStr.trim().toLowerCase()
+    : "required";
+  if (requiredToken !== "required" && requiredToken !== "optional") {
+    return {
+      error: `Line ${lineNum}: Variable required flag must be "required" or "optional" — got "${requiredStr}"`,
+    };
+  }
+
+  if (sensitiveStr && sensitiveStr.toLowerCase() !== "sensitive") {
+    return {
+      error: `Line ${lineNum}: Variable flag can only be "sensitive" when provided — got "${sensitiveStr}"`,
+    };
+  }
 
   return {
     data: {
@@ -122,8 +156,8 @@ function parseVariableLine(
       label,
       description: description || undefined,
       default: defaultVal || undefined,
-      required: requiredStr ? requiredStr !== "optional" : true,
-      sensitive: sensitiveStr === "sensitive",
+      required: requiredToken !== "optional",
+      sensitive: sensitiveStr ? sensitiveStr.toLowerCase() === "sensitive" : false,
     },
   };
 }
