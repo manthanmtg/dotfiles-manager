@@ -7,6 +7,7 @@ import {
 } from "@/lib/dotfiles";
 import { assertSupported } from "@/lib/platform";
 import { InstallRequest } from "@/lib/schemas";
+import { ZodError } from "zod/v4";
 
 export async function POST(request: Request) {
   try {
@@ -85,6 +86,26 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid JSON payload for install request",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid install request payload",
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
