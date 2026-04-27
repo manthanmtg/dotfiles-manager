@@ -2,11 +2,16 @@
   "name": "dotfiles-manager",
   "version": "0.1.0",
   "private": true,
+  "bin": {
+    "dotfiles-manager": "./bin/dotfiles-manager.mjs"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "pnpm validate && next build",
     "start": "next start",
+    "cli": "tsx src/cli/index.ts",
     "lint": "eslint",
+    "test": "tsx --test tests/**/*.test.ts",
     "validate": "npx tsx scripts/validate.ts"
   },
   "dependencies": {
