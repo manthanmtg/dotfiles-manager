@@ -26,7 +26,7 @@ else
     ! -name "dotfile_generator_prompt.md" \
     ! -name "prompts_optimizer.md" \
     | sort \
-    | awk 'BEGIN{srand()} {a[NR]=$0} END{if (NR > 0) print a[int(rand()*NR)+1]}'
+    | awk 'BEGIN{srand()} {a[NR]=$0} END{if (NR > 0) print a[int((rand()*NR))+1]}'
 fi
 ```
 
