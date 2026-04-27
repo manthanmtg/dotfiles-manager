@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useDotfiles } from "@/hooks/useDotfiles";
+import { useDotfileActions } from "@/hooks/useDotfileActions";
 import { useDotfileView } from "@/hooks/useDotfileView";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
@@ -11,7 +12,7 @@ import { VariableModal } from "@/components/VariableModal";
 import { CodePreview } from "@/components/CodePreview";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { PlatformGuard } from "@/components/PlatformGuard";
-import type { DotfileCategory, DotfileEntry } from "@/types";
+import type { DotfileCategory } from "@/types";
 import { CATEGORY_META } from "@/types";
 
 export default function Home() {
@@ -31,22 +32,26 @@ export default function Home() {
     DotfileCategory | "all"
   >("all");
   const [search, setSearch] = useState("");
-  const [installingFile, setInstallingFile] = useState<string | null>(null);
-  const [variableModal, setVariableModal] = useState<DotfileEntry | null>(null);
-  const [previewModal, setPreviewModal] = useState<DotfileEntry | null>(null);
-
-  const dotfileByFilename = useMemo(() => {
-    const map = new Map<string, DotfileEntry>();
-    for (const dotfile of dotfiles) {
-      map.set(dotfile.filename, dotfile);
-    }
-    return map;
-  }, [dotfiles]);
-
   const { filtered, grouped } = useDotfileView({
     dotfiles,
     activeCategory,
     search,
+  });
+
+  const {
+    installingFile,
+    variableModal,
+    previewModal,
+    handleInstall,
+    handleVariableSubmit,
+    handleUninstall,
+    handlePreview,
+    closeVariableModal,
+    closePreviewModal,
+  } = useDotfileActions({
+    dotfiles,
+    install,
+    uninstall,
   });
 
   const installedCount = useMemo(
@@ -65,46 +70,6 @@ export default function Home() {
 
     return counts;
   }, [dotfiles]);
-
-  const handleInstall = useCallback(
-    async (filename: string) => {
-      const dotfile = dotfileByFilename.get(filename);
-      if (!dotfile) return;
-
-      if (dotfile.variables.length > 0) {
-        setVariableModal(dotfile);
-        return;
-      }
-      setInstallingFile(dotfile.filename);
-      await install(filename);
-      setInstallingFile(null);
-    },
-    [dotfileByFilename, install]
-  );
-
-  const handleVariableSubmit = useCallback(
-    async (values: Record<string, string>) => {
-      if (!variableModal) return;
-      setInstallingFile(variableModal.filename);
-      await install(variableModal.filename, values);
-      setInstallingFile(null);
-      setVariableModal(null);
-    },
-    [variableModal, install]
-  );
-
-  const handleUninstall = useCallback(
-    async (filename: string) => {
-      setInstallingFile(filename);
-      await uninstall(filename);
-      setInstallingFile(null);
-    },
-    [uninstall]
-  );
-
-  const handlePreview = useCallback((filename: string) => {
-    setPreviewModal(dotfileByFilename.get(filename) || null);
-  }, [dotfileByFilename]);
 
   if (loading) return <LoadingScreen />;
   if (platform && !platform.supported) return <PlatformGuard />;
@@ -148,11 +113,11 @@ export default function Home() {
 
       <TerminalConsole lines={terminalLines} onClear={clearTerminal} />
 
-      <VariableModal
+        <VariableModal
         open={!!variableModal}
         dotfileName={variableModal?.filename || ""}
         variables={variableModal?.variables || []}
-        onClose={() => setVariableModal(null)}
+        onClose={closeVariableModal}
         onSubmit={handleVariableSubmit}
         loading={installingFile === variableModal?.filename}
       />
@@ -162,7 +127,7 @@ export default function Home() {
         title={previewModal?.name || ""}
         filename={previewModal?.filename || ""}
         content={previewModal?.content || ""}
-        onClose={() => setPreviewModal(null)}
+        onClose={closePreviewModal}
       />
     </div>
   );
