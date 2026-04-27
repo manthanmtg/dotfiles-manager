@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useDotfiles } from "@/hooks/useDotfiles";
 import { useDotfileActions } from "@/hooks/useDotfileActions";
 import { useDotfileView } from "@/hooks/useDotfileView";
+import { useDotfileStats } from "@/hooks/useDotfileStats";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { DotfilesList } from "@/components/DotfilesList";
@@ -13,7 +14,6 @@ import { CodePreview } from "@/components/CodePreview";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { PlatformGuard } from "@/components/PlatformGuard";
 import type { DotfileCategory } from "@/types";
-import { CATEGORY_META } from "@/types";
 
 export default function Home() {
   const {
@@ -54,22 +54,7 @@ export default function Home() {
     uninstall,
   });
 
-  const installedCount = useMemo(
-    () => dotfiles.filter((d) => d.installed).length,
-    [dotfiles]
-  );
-
-  const categoryCounts = useMemo(() => {
-    const counts: Record<DotfileCategory, number> = Object.fromEntries(
-      (Object.keys(CATEGORY_META) as DotfileCategory[]).map((cat) => [cat, 0])
-    ) as Record<DotfileCategory, number>;
-
-    for (const dotfile of dotfiles) {
-      counts[dotfile.category] += 1;
-    }
-
-    return counts;
-  }, [dotfiles]);
+  const { installedCount, categoryCounts } = useDotfileStats({ dotfiles });
 
   if (loading) return <LoadingScreen />;
   if (platform && !platform.supported) return <PlatformGuard />;
