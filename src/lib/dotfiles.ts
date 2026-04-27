@@ -131,11 +131,23 @@ export function applyVariables(
   content: string,
   variables: Record<string, string>
 ): string {
+  validateVariableValues(variables);
+
   let result = content;
   for (const [key, value] of Object.entries(variables)) {
     result = result.split(`{{${key}}}`).join(value);
   }
   return result;
+}
+
+function validateVariableValues(variables: Record<string, string>): void {
+  for (const [key, value] of Object.entries(variables)) {
+    if (/[\\r\\n\\0]/.test(value)) {
+      throw new Error(
+        `Invalid value for variable ${key}: control characters are not allowed`
+      );
+    }
+  }
 }
 
 function assertSafeDotfileName(dotfileName: string): void {
