@@ -44,7 +44,10 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
 
   const files = fs.readdirSync(DOTFILES_DIR);
   const dotfileNames = files.filter(
-    (f) => !f.endsWith(METADATA_SUFFIX) && !f.startsWith(".")
+    (f) =>
+      SAFE_DOTFILE_NAME.test(f) &&
+      !f.endsWith(METADATA_SUFFIX) &&
+      !f.startsWith(".")
   );
 
   return dotfileNames.map((filename) => {
