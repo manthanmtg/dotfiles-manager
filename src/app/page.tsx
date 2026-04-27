@@ -12,6 +12,7 @@ import { CodePreview } from "@/components/CodePreview";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { PlatformGuard } from "@/components/PlatformGuard";
 import type { DotfileCategory, DotfileEntry } from "@/types";
+import { CATEGORY_META } from "@/types";
 
 export default function Home() {
   const {
@@ -52,6 +53,18 @@ export default function Home() {
     () => dotfiles.filter((d) => d.installed).length,
     [dotfiles]
   );
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<DotfileCategory, number> = Object.fromEntries(
+      (Object.keys(CATEGORY_META) as DotfileCategory[]).map((cat) => [cat, 0])
+    ) as Record<DotfileCategory, number>;
+
+    for (const dotfile of dotfiles) {
+      counts[dotfile.category] += 1;
+    }
+
+    return counts;
+  }, [dotfiles]);
 
   const handleInstall = useCallback(
     async (filename: string) => {
@@ -100,7 +113,9 @@ export default function Home() {
     <div className="flex h-screen overflow-hidden bg-zinc-950">
       <Sidebar
         platform={platform}
-        dotfiles={dotfiles}
+        totalCount={dotfiles.length}
+        installedCount={installedCount}
+        categoryCounts={categoryCounts}
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
       />

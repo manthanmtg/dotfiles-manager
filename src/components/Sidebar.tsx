@@ -1,14 +1,17 @@
 "use client";
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { Terminal, Cpu, Layers } from "lucide-react";
 import { DynamicIcon } from "./Icons";
 import { CATEGORY_META } from "@/types";
-import type { DotfileCategory, DotfileEntry, PlatformData } from "@/types";
+import type { DotfileCategory, PlatformData } from "@/types";
 
 interface SidebarProps {
   platform: PlatformData | null;
-  dotfiles: DotfileEntry[];
+  totalCount: number;
+  installedCount: number;
+  categoryCounts: Record<DotfileCategory, number>;
   activeCategory: DotfileCategory | "all";
   onCategoryChange: (cat: DotfileCategory | "all") => void;
 }
@@ -40,14 +43,14 @@ const CATEGORY_TEXT_COLORS: Record<string, string> = {
   sky: "text-sky-400",
 };
 
-export function Sidebar({
+export const Sidebar = memo(function Sidebar({
   platform,
-  dotfiles,
+  totalCount,
+  installedCount,
+  categoryCounts,
   activeCategory,
   onCategoryChange,
 }: SidebarProps) {
-  const installedCount = dotfiles.filter((d) => d.installed).length;
-
   return (
     <aside className="w-72 shrink-0 border-r border-zinc-800/60 bg-zinc-950/50 backdrop-blur-xl flex flex-col h-full">
       <div className="p-5 border-b border-zinc-800/60">
@@ -74,7 +77,7 @@ export function Sidebar({
             <div className="flex items-center gap-2 text-zinc-400">
               <Layers size={12} className="text-cyan-400" />
               <span>
-                {dotfiles.length} configs · {installedCount} active
+                {totalCount} configs · {installedCount} active
               </span>
             </div>
           </div>
@@ -93,7 +96,7 @@ export function Sidebar({
           <Layers size={16} />
           <span>All Configs</span>
           <span className="ml-auto text-xs font-mono text-zinc-500">
-            {dotfiles.length}
+            {totalCount}
           </span>
         </button>
 
@@ -105,7 +108,7 @@ export function Sidebar({
 
         {(Object.keys(CATEGORY_META) as DotfileCategory[]).map((cat) => {
           const meta = CATEGORY_META[cat];
-          const count = dotfiles.filter((d) => d.category === cat).length;
+          const count = categoryCounts[cat] || 0;
           if (count === 0) return null;
 
           return (
@@ -145,4 +148,6 @@ export function Sidebar({
       </div>
     </aside>
   );
-}
+});
+
+Sidebar.displayName = "Sidebar";
