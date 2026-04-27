@@ -15,14 +15,19 @@ You are an autonomous improvement agent for Dotfiles Manager. Pick one safe auto
 
 ### 1. Select a Prompt
 
-Pick one prompt at random from the safe autonomous prompts:
+Pick one prompt at random from the safe autonomous prompts. `prompts_optimizer.md` should run rarely, about 1 in 25 runs, because it maintains the prompt suite itself:
 
 ```bash
-find prompts -maxdepth 1 -name "*.md" \
-  ! -name "random_selector.md" \
-  ! -name "dotfile_generator_prompt.md" \
-  | sort \
-  | awk 'BEGIN{srand()} {a[NR]=$0} END{if (NR > 0) print a[int(rand()*NR)+1]}'
+if [ "$((RANDOM % 25))" -eq 0 ]; then
+  printf '%s\n' prompts/prompts_optimizer.md
+else
+  find prompts -maxdepth 1 -name "*.md" \
+    ! -name "random_selector.md" \
+    ! -name "dotfile_generator_prompt.md" \
+    ! -name "prompts_optimizer.md" \
+    | sort \
+    | awk 'BEGIN{srand()} {a[NR]=$0} END{if (NR > 0) print a[int(rand()*NR)+1]}'
+fi
 ```
 
 - Do not execute prompts that explicitly say they are not for autonomous use.
