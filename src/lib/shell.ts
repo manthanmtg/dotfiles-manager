@@ -84,6 +84,12 @@ export function removeSource(configPath: string, dotfileName: string): void {
     throw new Error(`Config file not found: ${configPath}`);
   }
 
+  try {
+    fs.accessSync(configPath, fs.constants.W_OK);
+  } catch {
+    throw new Error(`Config file is not writable: ${configPath}`);
+  }
+
   const content = fs.readFileSync(configPath, "utf-8");
   const sourcePattern = getManagedSourceLinePattern(dotfileName, {
     includeLineEnd: true,
