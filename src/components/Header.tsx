@@ -53,6 +53,7 @@ export function Header({
             whileHover={{ rotate: 90 }}
             whileTap={{ scale: 0.9 }}
             onClick={onRefresh}
+            aria-label="Refresh dotfile list"
             className="p-2 rounded-lg bg-zinc-800/50 border border-zinc-700/40 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
             title="Refresh"
           >
