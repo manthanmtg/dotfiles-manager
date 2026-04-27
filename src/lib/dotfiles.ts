@@ -31,7 +31,7 @@ function parseStoredMetadata(metaRaw: string, filename: string): DotfileMetadata
 
 export function ensureDotfilesDir(): void {
   if (!fs.existsSync(DOTFILES_DIR)) {
-    fs.mkdirSync(DOTFILES_DIR, { recursive: true });
+    fs.mkdirSync(DOTFILES_DIR, { recursive: true, mode: 0o700 });
   }
 }
 
@@ -105,8 +105,11 @@ export function createDotfile(
   const filePath = path.join(DOTFILES_DIR, filename);
   const metaPath = path.join(DOTFILES_DIR, `${filename}${METADATA_SUFFIX}`);
 
-  fs.writeFileSync(filePath, content, "utf-8");
-  fs.writeFileSync(metaPath, JSON.stringify(metadata, null, 2), "utf-8");
+  fs.writeFileSync(filePath, content, { encoding: "utf-8", mode: 0o600 });
+  fs.writeFileSync(metaPath, JSON.stringify(metadata, null, 2), {
+    encoding: "utf-8",
+    mode: 0o600,
+  });
 }
 
 export function updateDotfileContent(
@@ -118,7 +121,8 @@ export function updateDotfileContent(
   if (!fs.existsSync(filePath)) {
     throw new Error(`Dotfile not found: ${filename}`);
   }
-  fs.writeFileSync(filePath, content, "utf-8");
+  fs.writeFileSync(filePath, content, { encoding: "utf-8", mode: 0o600 });
+  fs.chmodSync(filePath, 0o600);
 }
 
 export function applyVariables(
