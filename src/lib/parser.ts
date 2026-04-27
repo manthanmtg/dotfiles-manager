@@ -37,6 +37,12 @@ export function parseDotfileSource(
       `Missing meta block. File must start with "${META_START}"`,
     ]);
   }
+  if (startIdx !== 0) {
+    const firstLine = lines[0]?.trim() || "<empty>";
+    throw new MetaParseError(filepath, [
+      `Line 1: Meta block must start at the top of the file. Found "${firstLine}" before "${META_START}"`,
+    ]);
+  }
 
   const endIdx = lines.findIndex(
     (l, i) => i > startIdx && l.trim() === META_END
