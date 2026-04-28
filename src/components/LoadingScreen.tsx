@@ -5,7 +5,13 @@ import { Terminal } from "lucide-react";
 
 export function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+    <div
+      className="min-h-screen bg-zinc-950 flex items-center justify-center"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-label="Application loading"
+    >
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -16,7 +22,7 @@ export function LoadingScreen() {
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/30"
         >
-          <Terminal size={24} className="text-white" />
+          <Terminal size={24} className="text-white" aria-hidden="true" />
         </motion.div>
         <div className="text-center">
           <p className="text-sm text-zinc-300 font-medium">
