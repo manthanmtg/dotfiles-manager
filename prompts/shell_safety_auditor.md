@@ -1,3 +1,10 @@
+---
+id: shell-safety-auditor
+title: Shell Safety Auditor Prompt
+category: code-quality
+enabled: true
+autonomousSafe: true
+---
 # Shell Safety Auditor Prompt
 
 ## Objective

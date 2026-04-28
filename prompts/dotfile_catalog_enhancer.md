@@ -1,3 +1,10 @@
+---
+id: dotfile-catalog-enhancer
+title: Dotfile Catalog Enhancer Prompt
+category: feature-quality
+enabled: true
+autonomousSafe: true
+---
 # Dotfile Catalog Enhancer Prompt
 
 ## Objective

@@ -1,3 +1,10 @@
+---
+id: metadata-validation-improver
+title: Metadata Validation Improver Prompt
+category: code-quality
+enabled: true
+autonomousSafe: true
+---
 # Metadata Validation Improver Prompt
 
 ## Objective

@@ -1,3 +1,10 @@
+---
+id: dotfile-generator-prompt
+title: Dotfile Generator Prompt
+category: code-quality
+enabled: true
+autonomousSafe: false
+---
 # Dotfile Generator Prompt
 
 > Not for autonomous use. This prompt creates new user-facing dotfiles and should only run when a human explicitly asks for a specific new config. If `random_selector.md` selects this prompt, no-op and select a different safe prompt.
