@@ -19,37 +19,40 @@ export function useDotfileView({
 }: DotfileViewFilters): DotfileViewResult {
   const query = search.trim().toLowerCase();
 
-  const searchableDotfiles = useMemo(() => {
-    return dotfiles.map((dotfile) => ({
+  const filtered = useMemo(() => {
+    let result = dotfiles;
+
+    if (activeCategory !== "all") {
+      result = result.filter((dotfile) => dotfile.category === activeCategory);
+    }
+
+    if (!query) {
+      return result;
+    }
+
+    const searchableDotfiles = result.map((dotfile) => ({
       dotfile,
       searchableName: dotfile.name.toLowerCase(),
       searchableDescription: dotfile.description.toLowerCase(),
       searchableFilename: dotfile.filename.toLowerCase(),
       searchableTags: dotfile.tags.map((tag) => tag.toLowerCase()),
     }));
-  }, [dotfiles]);
 
-  const filtered = useMemo(() => {
-    let result = searchableDotfiles;
-
-    if (activeCategory !== "all") {
-      result = result.filter(
-        ({ dotfile }) => dotfile.category === activeCategory
-      );
-    }
-
-    if (!query) {
-      return result.map(({ dotfile }) => dotfile);
-    }
-
-    return result.filter(
-      ({ searchableName, searchableDescription, searchableFilename, searchableTags }) =>
-        searchableName.includes(query) ||
-        searchableDescription.includes(query) ||
-        searchableFilename.includes(query) ||
-        searchableTags.some((tag) => tag.includes(query))
-    ).map(({ dotfile }) => dotfile);
-  }, [activeCategory, query, searchableDotfiles]);
+    return searchableDotfiles
+      .filter(
+        ({
+          searchableName,
+          searchableDescription,
+          searchableFilename,
+          searchableTags,
+        }) =>
+          searchableName.includes(query) ||
+          searchableDescription.includes(query) ||
+          searchableFilename.includes(query) ||
+          searchableTags.some((tag) => tag.includes(query))
+      )
+      .map(({ dotfile }) => dotfile);
+  }, [activeCategory, query, dotfiles]);
 
   const grouped = useMemo(() => {
     if (activeCategory !== "all") {
