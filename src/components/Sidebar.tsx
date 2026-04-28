@@ -99,6 +99,7 @@ export const Sidebar = memo(function Sidebar({
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         <button
           onClick={() => onCategoryChange("all")}
+          aria-current={activeCategory === "all" ? "page" : undefined}
           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${focusRing} ${
             activeCategory === "all"
               ? "bg-zinc-800/80 text-zinc-100 border-l-2 border-l-cyan-400"
@@ -129,6 +130,7 @@ export const Sidebar = memo(function Sidebar({
               whileHover={{ x: 2 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onCategoryChange(cat)}
+              aria-current={activeCategory === cat ? "page" : undefined}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all border ${
                 activeCategory === cat
                   ? `${CATEGORY_BG_COLORS[meta.color]} ${CATEGORY_BORDER_COLORS[meta.color]} ${CATEGORY_TEXT_COLORS[meta.color]} border-l-2 ${CATEGORY_LEFT_BORDERS[meta.color]} ${focusRing}`
