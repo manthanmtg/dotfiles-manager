@@ -27,7 +27,7 @@ export type DotfileVariable = z.infer<typeof DotfileVariable>;
 
 export const DotfileMetadata = z.object({
   name: z.string().min(1),
-  description: z.string(),
+  description: z.string().min(1),
   category: DotfileCategory,
   icon: z.string().optional(),
   variables: z.array(DotfileVariable).default([]),
