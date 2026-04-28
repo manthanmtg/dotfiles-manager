@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Play, Eye, EyeOff } from "lucide-react";
 import type { DotfileVariable } from "@/types";
@@ -32,11 +32,73 @@ export function VariableModal({
   const [showSensitive, setShowSensitive] = useState<Record<string, boolean>>(
     {}
   );
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const firstInputRef = useRef<HTMLInputElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(values);
   };
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    previouslyFocused.current = document.activeElement as HTMLElement | null;
+
+    const restoreFocus = () => {
+      if (previouslyFocused.current) {
+        previouslyFocused.current.focus();
+      }
+    };
+
+    const target = firstInputRef.current ?? closeButtonRef.current;
+    target?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const focusables =
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          "button:not([disabled]), input, [href], textarea, select"
+        ) ?? [];
+      if (focusables.length === 0) {
+        return;
+      }
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+        return;
+      }
+
+      if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      restoreFocus();
+    };
+  }, [open, onClose]);
 
   return (
     <AnimatePresence>
@@ -47,9 +109,10 @@ export function VariableModal({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm"
           role="presentation"
-          onClick={onClose}
-        >
+        onClick={onClose}
+      >
           <motion.div
+            ref={dialogRef}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -79,6 +142,7 @@ export function VariableModal({
               <button
                 onClick={onClose}
                 aria-label="Close variable modal"
+                ref={closeButtonRef}
                 className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <X size={18} />
@@ -86,7 +150,7 @@ export function VariableModal({
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {variables.map((v) => {
+              {variables.map((v, i) => {
                 const inputId = `variable-${v.name}`;
                 const descriptionId = `${inputId}-description`;
 
@@ -106,6 +170,7 @@ export function VariableModal({
                     )}
                     <div className="relative">
                       <input
+                        ref={i === 0 ? firstInputRef : undefined}
                         id={inputId}
                         type={
                           v.sensitive && !showSensitive[v.name]
