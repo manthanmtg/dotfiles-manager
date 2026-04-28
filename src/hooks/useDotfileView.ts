@@ -12,6 +12,14 @@ type DotfileViewResult = {
   grouped: Partial<Record<DotfileCategory, DotfileEntry[]>>;
 };
 
+type SearchableDotfile = {
+  dotfile: DotfileEntry;
+  searchableName: string;
+  searchableDescription: string;
+  searchableFilename: string;
+  searchableTags: string[];
+};
+
 export function useDotfileView({
   dotfiles,
   activeCategory,
@@ -19,40 +27,40 @@ export function useDotfileView({
 }: DotfileViewFilters): DotfileViewResult {
   const query = search.trim().toLowerCase();
 
-  const filtered = useMemo(() => {
-    let result = dotfiles;
-
-    if (activeCategory !== "all") {
-      result = result.filter((dotfile) => dotfile.category === activeCategory);
-    }
-
-    if (!query) {
-      return result;
-    }
-
-    const searchableDotfiles = result.map((dotfile) => ({
+  const searchableDotfiles = useMemo<SearchableDotfile[]>(() => {
+    return dotfiles.map((dotfile) => ({
       dotfile,
       searchableName: dotfile.name.toLowerCase(),
       searchableDescription: dotfile.description.toLowerCase(),
       searchableFilename: dotfile.filename.toLowerCase(),
       searchableTags: dotfile.tags.map((tag) => tag.toLowerCase()),
     }));
+  }, [dotfiles]);
+
+  const filtered = useMemo(() => {
+    if (!query) {
+      return searchableDotfiles
+        .filter((entry) =>
+          activeCategory === "all" ? true : entry.dotfile.category === activeCategory
+        )
+        .map((entry) => entry.dotfile);
+    }
 
     return searchableDotfiles
-      .filter(
-        ({
-          searchableName,
-          searchableDescription,
-          searchableFilename,
-          searchableTags,
-        }) =>
-          searchableName.includes(query) ||
-          searchableDescription.includes(query) ||
-          searchableFilename.includes(query) ||
-          searchableTags.some((tag) => tag.includes(query))
-      )
-      .map(({ dotfile }) => dotfile);
-  }, [activeCategory, query, dotfiles]);
+      .filter((entry) => {
+        if (activeCategory !== "all" && entry.dotfile.category !== activeCategory) {
+          return false;
+        }
+
+        return (
+          entry.searchableName.includes(query) ||
+          entry.searchableDescription.includes(query) ||
+          entry.searchableFilename.includes(query) ||
+          entry.searchableTags.some((tag) => tag.includes(query))
+        );
+      })
+      .map((entry) => entry.dotfile);
+  }, [activeCategory, query, searchableDotfiles]);
 
   const grouped = useMemo(() => {
     if (activeCategory !== "all") {
