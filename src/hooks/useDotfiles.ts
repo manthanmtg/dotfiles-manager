@@ -117,7 +117,13 @@ export function useDotfiles() {
         addLine("info", `Injecting source command for ${filename}...`);
         addLine("success", data.data!.message);
 
-        await fetchDotfiles();
+        setDotfiles((prev) =>
+          prev.map((dotfile) =>
+            dotfile.filename === filename
+              ? { ...dotfile, installed: true }
+              : dotfile
+          )
+        );
         return data.data!;
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Install failed";
@@ -125,7 +131,7 @@ export function useDotfiles() {
         return null;
       }
     },
-    [addLine, fetchDotfiles]
+    [addLine]
   );
 
   const uninstall = useCallback(
@@ -150,7 +156,13 @@ export function useDotfiles() {
         addLine("info", `Removing source line from ${data.data!.configPath}...`);
         addLine("success", data.data!.message);
 
-        await fetchDotfiles();
+        setDotfiles((prev) =>
+          prev.map((dotfile) =>
+            dotfile.filename === filename
+              ? { ...dotfile, installed: false }
+              : dotfile
+          )
+        );
         return data.data!;
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Uninstall failed";
@@ -158,7 +170,7 @@ export function useDotfiles() {
         return null;
       }
     },
-    [addLine, fetchDotfiles]
+    [addLine]
   );
 
   const refresh = useCallback(async () => {
