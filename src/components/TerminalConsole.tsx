@@ -30,6 +30,8 @@ const LINE_PREFIX: Record<TerminalLine["type"], string> = {
 export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
 
   useEffect(() => {
     if (scrollRef.current && !collapsed) {
@@ -46,9 +48,10 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
       <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800/50">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+          aria-label={collapsed ? "Expand terminal log" : "Collapse terminal log"}
           aria-expanded={collapsed ? "false" : "true"}
           aria-controls="dotfiles-terminal-log"
+          className={`flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors ${focusRing}`}
         >
           <Terminal size={14} className="text-emerald-400" />
           <span className="font-mono text-xs">dotfiles-manager</span>
@@ -60,7 +63,7 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
         <button
           onClick={onClear}
           aria-label="Clear terminal log"
-          className="text-zinc-500 hover:text-zinc-300 transition-colors p-1 rounded hover:bg-zinc-800"
+          className={`text-zinc-500 hover:text-zinc-300 transition-colors p-1 rounded hover:bg-zinc-800 ${focusRing}`}
           title="Clear terminal"
         >
           <Trash2 size={14} />
