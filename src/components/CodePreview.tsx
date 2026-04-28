@@ -109,6 +109,15 @@ export function CodePreview({
                 ))}
               </pre>
             </div>
+
+            <p
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              className="sr-only"
+            >
+              {copied ? "Preview copied to clipboard." : ""}
+            </p>
           </motion.div>
         </motion.div>
       )}
