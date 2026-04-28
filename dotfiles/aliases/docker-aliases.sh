@@ -1,9 +1,9 @@
 # @dotfiles-manager
 # name: Docker Aliases
-# description: Essential Docker shortcuts for managing containers, images, and volumes.
+# description: Quick Docker and docker compose shortcuts for container, image, and volume workflows.
 # category: aliases
 # icon: Box
-# tags: docker, containers, devops
+# tags: docker, containers, devops, compose, maintenance
 # @end
 
 alias d='docker'
