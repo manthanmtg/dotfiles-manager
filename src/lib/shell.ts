@@ -9,6 +9,9 @@ const SHELL_CONFIG_MAP: Record<string, string> = {
   bash: ".bashrc",
   fish: path.join(".config", "fish", "config.fish"),
 };
+const SAFE_DOTFILE_SOURCE_PATHS = Object.values(SHELL_CONFIG_MAP).map((configFile) =>
+  path.join(os.homedir(), configFile)
+);
 const SAFE_DOTFILE_NAME = /^[a-zA-Z0-9._-]+$/;
 
 export function detectShell(): ShellInfo {
@@ -46,12 +49,14 @@ function isSupportedShell(
 }
 
 export function isSourced(configPath: string, dotfileName: string): boolean {
+  assertSafeConfigPath(configPath);
   assertSafeDotfileName(dotfileName);
 
   return getSourcedDotfiles(configPath).has(dotfileName);
 }
 
 export function getSourcedDotfiles(configPath: string): Set<string> {
+  assertSafeConfigPath(configPath);
   const sourced = new Set<string>();
   if (!fs.existsSync(configPath)) return sourced;
 
@@ -70,6 +75,7 @@ export function getSourcedDotfiles(configPath: string): Set<string> {
 
 export function addSource(configPath: string, dotfileName: string): void {
   assertSafeDotfileName(dotfileName);
+  assertSafeConfigPath(configPath);
 
   const dotfilesDir = path.join(os.homedir(), ".dotfiles-manager");
   const sourceLine = `\nsource ${dotfilesDir}/${dotfileName}\n`;
@@ -93,6 +99,7 @@ export function addSource(configPath: string, dotfileName: string): void {
 
 export function removeSource(configPath: string, dotfileName: string): void {
   assertSafeDotfileName(dotfileName);
+  assertSafeConfigPath(configPath);
 
   if (!fs.existsSync(configPath)) {
     throw new Error(`Config file not found: ${configPath}`);
@@ -148,5 +155,12 @@ function escapeRegex(str: string): string {
 function assertSafeDotfileName(dotfileName: string): void {
   if (!SAFE_DOTFILE_NAME.test(dotfileName)) {
     throw new Error(`Invalid dotfile name: ${dotfileName}`);
+  }
+}
+
+function assertSafeConfigPath(configPath: string): void {
+  const normalized = path.resolve(configPath);
+  if (!SAFE_DOTFILE_SOURCE_PATHS.includes(normalized)) {
+    throw new Error(`Invalid shell config path: ${configPath}`);
   }
 }
