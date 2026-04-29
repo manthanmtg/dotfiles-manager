@@ -11,7 +11,29 @@ alias mv='mv -i'
 alias cp='cp -i'
 alias ln='ln -i'
 
-# Prevent accidental root operations
-alias chown='chown --preserve-root'
-alias chmod='chmod --preserve-root'
-alias chgrp='chgrp --preserve-root'
+# Preserve root for dangerous filesystem mutations when available
+__dnet_has_preserve_root() {
+  command "$1" --help 2>/dev/null | grep -q -- '--preserve-root'
+}
+
+__dnet_preserve_root() {
+  local cmd="$1"
+  shift
+  if __dnet_has_preserve_root "$cmd"; then
+    command "$cmd" --preserve-root "$@"
+  else
+    command "$cmd" "$@"
+  fi
+}
+
+chown() {
+  __dnet_preserve_root chown "$@"
+}
+
+chmod() {
+  __dnet_preserve_root chmod "$@"
+}
+
+chgrp() {
+  __dnet_preserve_root chgrp "$@"
+}
