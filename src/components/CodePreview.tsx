@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Copy, Check } from "lucide-react";
 
@@ -20,6 +20,9 @@ export function CodePreview({
   onClose,
 }: CodePreviewProps) {
   const [copied, setCopied] = useState(false);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(content);
@@ -32,16 +35,50 @@ export function CodePreview({
       return;
     }
 
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    closeButtonRef.current?.focus();
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const focusables =
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          "button:not([disabled]), a, input, textarea, select, [tabindex]:not([tabindex='-1'])"
+        ) ?? [];
+      if (focusables.length === 0) {
+        return;
+      }
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+        return;
+      }
+
+      if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
+      if (previousFocusRef.current) {
+        previousFocusRef.current.focus();
+      }
     };
   }, [onClose, open]);
 
@@ -57,6 +94,7 @@ export function CodePreview({
           onClick={onClose}
         >
           <motion.div
+            ref={dialogRef}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -95,6 +133,7 @@ export function CodePreview({
                 </button>
                 <button
                   onClick={onClose}
+                  ref={closeButtonRef}
                   aria-label="Close code preview"
                   className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
