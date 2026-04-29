@@ -233,7 +233,7 @@ function parseVariableLine(
   };
 }
 
-export class MetaParseError extends Error {
+class MetaParseError extends Error {
   public file: string;
   public errors: string[];
 

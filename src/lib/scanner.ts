@@ -5,7 +5,7 @@ import type { DotfileMetadata } from "./schemas";
 
 const DOTFILES_SOURCE_DIR = path.join(process.cwd(), "dotfiles");
 
-export interface ScannedDotfile {
+interface ScannedDotfile {
   filename: string;
   metadata: DotfileMetadata;
   content: string;

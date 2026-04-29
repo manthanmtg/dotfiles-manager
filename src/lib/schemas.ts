@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 
-export const DotfileFilename = z.string().regex(
+const DotfileFilename = z.string().regex(
   /^[a-zA-Z0-9._-]+$/,
   "filename must contain only alphanumeric characters, dots, hyphens, or underscores"
 );

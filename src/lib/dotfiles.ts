@@ -29,7 +29,7 @@ function parseStoredMetadata(metaRaw: string, filename: string): DotfileMetadata
   }
 }
 
-export function ensureDotfilesDir(): void {
+function ensureDotfilesDir(): void {
   if (!fs.existsSync(DOTFILES_DIR)) {
     fs.mkdirSync(DOTFILES_DIR, { recursive: true, mode: 0o700 });
   }
