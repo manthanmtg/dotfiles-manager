@@ -29,6 +29,14 @@ function parseStoredMetadata(metaRaw: string, filename: string): DotfileMetadata
   }
 }
 
+function readDotfileMetadata(metaPath: string, filename: string): DotfileMetadata {
+  try {
+    return parseStoredMetadata(fs.readFileSync(metaPath, "utf-8"), filename);
+  } catch {
+    return getDefaultMetadata(filename);
+  }
+}
+
 function ensureDotfilesDir(): void {
   if (!fs.existsSync(DOTFILES_DIR)) {
     fs.mkdirSync(DOTFILES_DIR, { recursive: true, mode: 0o700 });
@@ -56,12 +64,7 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
     const filePath = path.join(DOTFILES_DIR, filename);
     const metaPath = path.join(DOTFILES_DIR, `${filename}${METADATA_SUFFIX}`);
     const content = fs.readFileSync(filePath, "utf-8");
-
-    let metadata: DotfileMetadata = getDefaultMetadata(filename);
-
-    if (fs.existsSync(metaPath)) {
-      metadata = parseStoredMetadata(fs.readFileSync(metaPath, "utf-8"), filename);
-    }
+    const metadata = readDotfileMetadata(metaPath, filename);
 
     const installed = sourcedDotfiles.has(filename);
 
@@ -84,12 +87,7 @@ export function getDotfile(
 
   const metaPath = path.join(DOTFILES_DIR, `${filename}${METADATA_SUFFIX}`);
   const content = fs.readFileSync(filePath, "utf-8");
-
-    let metadata: DotfileMetadata = getDefaultMetadata(filename);
-
-  if (fs.existsSync(metaPath)) {
-      metadata = parseStoredMetadata(fs.readFileSync(metaPath, "utf-8"), filename);
-    }
+  const metadata = readDotfileMetadata(metaPath, filename);
 
   const installed = getSourcedDotfiles(shellConfigPath).has(filename);
 
