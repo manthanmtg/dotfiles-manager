@@ -31,12 +31,13 @@ export function Header({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="relative">
+          <div className="relative" role="search">
             <label htmlFor="dotfile-search" className="sr-only">
               Search dotfiles
             </label>
             <Search
               size={15}
+              aria-hidden="true"
               className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
             />
             <input
