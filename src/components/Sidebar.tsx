@@ -96,7 +96,10 @@ export const Sidebar = memo(function Sidebar({
         )}
       </div>
 
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <nav
+        className="flex-1 p-3 space-y-1 overflow-y-auto"
+        aria-label="Dotfile categories"
+      >
         <button
           onClick={() => onCategoryChange("all")}
           aria-current={activeCategory === "all" ? "page" : undefined}
