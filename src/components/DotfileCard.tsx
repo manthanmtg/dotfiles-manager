@@ -50,6 +50,15 @@ const INSTALLED_GRADIENT: Record<string, string> = {
   sky: "from-sky-500/5 to-transparent",
 };
 
+const HOVER_STATES: Record<string, string> = {
+  cyan: "border-cyan-400/45 shadow-cyan-500/25",
+  emerald: "border-emerald-400/45 shadow-emerald-500/25",
+  purple: "border-purple-400/45 shadow-purple-500/25",
+  rose: "border-rose-400/45 shadow-rose-500/25",
+  amber: "border-amber-400/45 shadow-amber-500/25",
+  sky: "border-sky-400/45 shadow-sky-500/25",
+};
+
 function DotfileCardInner({
   filename,
   dotfile,
@@ -79,9 +88,9 @@ function DotfileCardInner({
       whileHover={{ y: -2 }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      className={`group relative rounded-xl border border-zinc-800/60 bg-zinc-900/50 backdrop-blur-sm overflow-hidden transition-shadow duration-300 shadow-lg ${GLOW_COLORS[color]} ${
+      className={`group relative rounded-xl border border-zinc-800/60 bg-zinc-900/50 backdrop-blur-sm overflow-hidden transition-all duration-300 shadow-lg ${GLOW_COLORS[color]} ${
         dotfile.installed ? `bg-gradient-to-br ${INSTALLED_GRADIENT[color]}` : ""
-      }`}
+      } ${hovered ? HOVER_STATES[color] : ""}`}
     >
       {installed && (
         <div className="absolute top-3 right-3">
