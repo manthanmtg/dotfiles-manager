@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Terminal, Trash2, ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
 import type { TerminalLine } from "@/types";
 
 interface TerminalConsoleProps {
@@ -30,6 +29,8 @@ const LINE_PREFIX: Record<TerminalLine["type"], string> = {
 export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const previousLineCount = useRef(lines.length);
+  const clearAnnouncementRef = useRef<HTMLParagraphElement>(null);
   const focusRing =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
 
@@ -38,6 +39,17 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [lines, collapsed]);
+
+  useEffect(() => {
+    if (previousLineCount.current > 0 && lines.length === 0) {
+      if (clearAnnouncementRef.current) {
+        clearAnnouncementRef.current.textContent = "Terminal log cleared.";
+      }
+    } else if (clearAnnouncementRef.current) {
+      clearAnnouncementRef.current.textContent = "";
+    }
+    previousLineCount.current = lines.length;
+  }, [lines.length]);
 
   return (
     <motion.div
@@ -103,11 +115,18 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
                   </motion.div>
                 ))}
               </AnimatePresence>
-              {lines.length === 0 && (
+            {lines.length === 0 && (
                 <div className="text-zinc-600 italic">
                   Waiting for activity...
                 </div>
               )}
+              <p
+                ref={clearAnnouncementRef}
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                className="sr-only"
+              />
             </div>
           </motion.div>
         )}
