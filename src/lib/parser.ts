@@ -32,29 +32,13 @@ export function parseDotfileSource(
 ): ParseResult {
   const lines = raw.split("\n");
 
-  const startIdx = lines.findIndex((l) => l.trim() === META_START);
-  if (startIdx === -1) {
+  if (lines.length === 0 || lines[0].trim() !== META_START) {
     throw new MetaParseError(filepath, [
       `Missing meta block. File must start with "${META_START}"`,
     ]);
   }
-  if (startIdx !== 0) {
-    const firstLine = lines[0]?.trim() || "<empty>";
-    throw new MetaParseError(filepath, [
-      `Line 1: Meta block must start at the top of the file. Found "${firstLine}" before "${META_START}"`,
-    ]);
-  }
 
-  const endIdx = lines.findIndex(
-    (l, i) => i > startIdx && l.trim() === META_END
-  );
-  if (endIdx === -1) {
-    throw new MetaParseError(filepath, [
-      `Missing "${META_END}" — meta block was opened but never closed`,
-    ]);
-  }
-
-  const metaLines = lines.slice(startIdx + 1, endIdx);
+  let endIdx = -1;
   const fields: Record<string, string> = {};
   const variables: Array<DotfileVariableMeta> = [];
   const errors: string[] = [];
@@ -62,20 +46,27 @@ export function parseDotfileSource(
   const fieldLines: Record<string, number> = {};
   const variableLines: number[] = [];
 
-  for (let i = 0; i < metaLines.length; i++) {
-    const line = metaLines[i];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (trimmed === META_END) {
+      endIdx = i;
+      break;
+    }
+
     const stripped = line.replace(/^#\s*/, "").trim();
     if (!stripped) continue;
 
     const colonIdx = stripped.indexOf(":");
     if (colonIdx === -1) {
-      errors.push(`Line ${startIdx + 2 + i}: Invalid meta line "${stripped}" — expected "key: value"`);
+      errors.push(`Line ${i + 1}: Invalid meta line "${stripped}" — expected "key: value"`);
       continue;
     }
 
     const key = stripped.slice(0, colonIdx).trim().toLowerCase();
     const value = stripped.slice(colonIdx + 1).trim();
-    const lineNo = startIdx + 2 + i;
+    const lineNo = i + 1;
 
     if (key === "variable") {
       const parsed = parseVariableLine(value, lineNo);
@@ -103,6 +94,12 @@ export function parseDotfileSource(
       fieldLines[key] = lineNo;
       fields[key] = value;
     }
+  }
+
+  if (endIdx === -1) {
+    throw new MetaParseError(filepath, [
+      `Missing "${META_END}" — meta block was opened but never closed`,
+    ]);
   }
 
   if (errors.length > 0) {
