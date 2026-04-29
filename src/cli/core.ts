@@ -1,13 +1,13 @@
 import type { DotfileEntry, DotfileVariable } from "../lib/schemas";
 import { CATEGORY_META, type DotfileCategory } from "../types";
 
-export interface ParsedCliArgs {
+interface ParsedCliArgs {
   command: string;
   positionals: string[];
   flags: Record<string, boolean | string[]>;
 }
 
-export type VariableCollectionResult =
+type VariableCollectionResult =
   | { ok: true; values: Record<string, string> }
   | { ok: false; error: string };
 
