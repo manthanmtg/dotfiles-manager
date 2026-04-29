@@ -9,7 +9,7 @@ autonomousSafe: true
 
 ## Objective
 
-Keep `AGENTS.md`, `CLAUDE.md`, and the prompt set aligned with the actual repository workflow, safety rules, commands, and architecture.
+Keep `AGENTS.md`, `README.md`, and the prompt set aligned with the actual repository workflow, safety rules, commands, and architecture.
 
 ## Workflow
 
