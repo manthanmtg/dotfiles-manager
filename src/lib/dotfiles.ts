@@ -104,6 +104,8 @@ export function createDotfile(
 
   const filePath = path.join(DOTFILES_DIR, filename);
   const metaPath = path.join(DOTFILES_DIR, `${filename}${METADATA_SUFFIX}`);
+  assertNotSymbolicLink(filePath);
+  assertNotSymbolicLink(metaPath);
 
   fs.writeFileSync(filePath, content, { encoding: "utf-8", mode: 0o600 });
   fs.writeFileSync(metaPath, JSON.stringify(metadata, null, 2), {
@@ -118,6 +120,7 @@ export function updateDotfileContent(
 ): void {
   assertSafeDotfileName(filename);
   const filePath = path.join(DOTFILES_DIR, filename);
+  assertNotSymbolicLink(filePath);
   if (!fs.existsSync(filePath)) {
     throw new Error(`Dotfile not found: ${filename}`);
   }
@@ -151,5 +154,18 @@ function validateVariableValues(variables: Record<string, string>): void {
 function assertSafeDotfileName(dotfileName: string): void {
   if (!SAFE_DOTFILE_NAME.test(dotfileName)) {
     throw new Error(`Invalid dotfile name: ${dotfileName}`);
+  }
+}
+
+function assertNotSymbolicLink(filePath: string): void {
+  try {
+    if (fs.lstatSync(filePath).isSymbolicLink()) {
+      throw new Error(`Refusing to write symlinked file: ${path.basename(filePath)}`);
+    }
+  } catch (error) {
+    if (error instanceof Error && (error as NodeJS.ErrnoException).code === "ENOENT") {
+      return;
+    }
+    throw error;
   }
 }
