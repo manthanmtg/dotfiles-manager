@@ -65,12 +65,16 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
           aria-controls="dotfiles-terminal-log"
           className={`flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors ${focusRing}`}
         >
-          <Terminal size={14} className="text-emerald-400" />
+          <Terminal size={14} className="text-emerald-400" aria-hidden="true" />
           <span className="font-mono text-xs">dotfiles-manager</span>
           <span className="text-zinc-600 font-mono text-xs">
             — {lines.length} entries
           </span>
-          {collapsed ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          {collapsed ? (
+            <ChevronUp size={14} aria-hidden="true" />
+          ) : (
+            <ChevronDown size={14} aria-hidden="true" />
+          )}
         </button>
         <button
           onClick={onClear}
@@ -78,7 +82,7 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
           className={`text-zinc-500 hover:text-zinc-300 transition-colors p-1 rounded hover:bg-zinc-800 ${focusRing}`}
           title="Clear terminal"
         >
-          <Trash2 size={14} />
+          <Trash2 size={14} aria-hidden="true" />
         </button>
       </div>
 

@@ -58,7 +58,7 @@ export function Header({
             className="p-2 rounded-lg bg-zinc-800/50 border border-zinc-700/40 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
             title="Refresh"
           >
-            <RefreshCw size={16} />
+            <RefreshCw size={16} aria-hidden="true" />
           </motion.button>
         </div>
       </div>

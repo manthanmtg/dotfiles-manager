@@ -62,6 +62,7 @@ export function CategorySection({ category, children }: CategorySectionProps) {
             name={meta.icon}
             size={18}
             className={ACCENT_COLORS[meta.color].split(" ")[0]}
+            aria-hidden="true"
           />
         </motion.div>
         <motion.div

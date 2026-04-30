@@ -125,10 +125,10 @@ export function CodePreview({
                   className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                   title="Copy to clipboard"
                 >
-                  {copied ? (
-                    <Check size={16} className="text-emerald-400" />
+                    {copied ? (
+                    <Check size={16} className="text-emerald-400" aria-hidden="true" />
                   ) : (
-                    <Copy size={16} />
+                    <Copy size={16} aria-hidden="true" />
                   )}
                 </button>
                 <button
@@ -137,7 +137,7 @@ export function CodePreview({
                   aria-label="Close code preview"
                   className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
-                  <X size={18} />
+                  <X size={18} aria-hidden="true" />
                 </button>
               </div>
             </div>

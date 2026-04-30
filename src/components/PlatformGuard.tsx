@@ -12,7 +12,7 @@ export function PlatformGuard() {
         className="max-w-md w-full text-center"
       >
         <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-6">
-          <AlertTriangle size={32} className="text-amber-400" />
+          <AlertTriangle size={32} className="text-amber-400" aria-hidden="true" />
         </div>
         <h1 className="text-2xl font-bold text-zinc-100 mb-3">
           Unsupported Platform
@@ -30,7 +30,7 @@ export function PlatformGuard() {
           .
         </p>
         <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs font-mono">
-          <Monitor size={14} />
+          <Monitor size={14} aria-hidden="true" />
           <span>Supported: macOS, Linux</span>
         </div>
       </motion.div>
