@@ -67,6 +67,7 @@ function DotfilesListInner({
             <PackageOpen
               size={40}
               className="text-cyan-400"
+              aria-hidden="true"
             />
           </motion.div>
           <p className="relative text-zinc-100 font-medium text-sm mb-1">No dotfiles found</p>

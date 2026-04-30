@@ -68,7 +68,7 @@ export const Sidebar = memo(function Sidebar({
       <div className="p-5 border-b border-zinc-800/60">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <Terminal size={20} className="text-white" />
+            <Terminal size={20} className="text-white" aria-hidden="true" />
           </div>
           <div>
             <h1 className="text-base font-semibold text-zinc-100 tracking-tight">
@@ -81,13 +81,13 @@ export const Sidebar = memo(function Sidebar({
         {platform && (
           <div className="space-y-1.5 text-xs font-mono">
             <div className="flex items-center gap-2 text-zinc-400">
-              <Cpu size={12} className="text-emerald-400" />
+              <Cpu size={12} className="text-emerald-400" aria-hidden="true" />
               <span>
                 {platform.platform} / {platform.shell.shell}
               </span>
             </div>
             <div className="flex items-center gap-2 text-zinc-400">
-              <Layers size={12} className="text-cyan-400" />
+              <Layers size={12} className="text-cyan-400" aria-hidden="true" />
               <span>
                 {totalCount} configs · {installedCount} active
               </span>
@@ -109,7 +109,7 @@ export const Sidebar = memo(function Sidebar({
               : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
           }`}
         >
-          <Layers size={16} />
+              <Layers size={16} aria-hidden="true" />
           <span>All Configs</span>
           <span className="ml-auto text-xs font-mono text-zinc-500">
             {totalCount}
@@ -148,6 +148,7 @@ export const Sidebar = memo(function Sidebar({
                     ? CATEGORY_TEXT_COLORS[meta.color]
                     : ""
                 }
+                aria-hidden="true"
               />
               <span>{meta.label}</span>
               <span className="ml-auto text-xs font-mono text-zinc-500">

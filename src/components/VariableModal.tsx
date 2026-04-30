@@ -145,7 +145,7 @@ export function VariableModal({
                 ref={closeButtonRef}
                 className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
-                <X size={18} />
+                <X size={18} aria-hidden="true" />
               </button>
             </div>
 
@@ -209,9 +209,9 @@ export function VariableModal({
                           className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                         >
                           {showSensitive[v.name] ? (
-                            <EyeOff size={16} />
+                            <EyeOff size={16} aria-hidden="true" />
                           ) : (
-                            <Eye size={16} />
+                            <Eye size={16} aria-hidden="true" />
                           )}
                         </button>
                       )}
@@ -233,7 +233,7 @@ export function VariableModal({
                   disabled={loading}
                   className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white text-sm font-medium rounded-lg hover:from-cyan-400 hover:to-emerald-400 transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Play size={14} />
+                  <Play size={14} aria-hidden="true" />
                   {loading ? "Installing..." : "Install"}
                 </button>
               </div>
