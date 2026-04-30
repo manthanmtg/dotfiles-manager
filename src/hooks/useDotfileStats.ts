@@ -13,9 +13,15 @@ type DotfileStats = {
 
 export function useDotfileStats({ dotfiles }: DotfileStatsParams): DotfileStats {
   const { installedCount, categoryCounts } = useMemo(() => {
-    const counts: Record<DotfileCategory, number> = Object.fromEntries(
-      (Object.keys(CATEGORY_META) as DotfileCategory[]).map((cat) => [cat, 0])
-    ) as Record<DotfileCategory, number>;
+    const initialCategoryCounts: Record<DotfileCategory, number> = {
+      aliases: 0,
+      scripts: 0,
+      prompts: 0,
+      security: 0,
+      environment: 0,
+      functions: 0,
+    };
+    const counts: Record<DotfileCategory, number> = { ...initialCategoryCounts };
     let installedCount = 0;
 
     for (const dotfile of dotfiles) {
