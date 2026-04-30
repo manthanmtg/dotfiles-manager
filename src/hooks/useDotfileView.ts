@@ -17,57 +17,44 @@ export function useDotfileView({
   activeCategory,
   search,
 }: DotfileViewFilters): DotfileViewResult {
-  const searchableDotfiles = useMemo(
-    () =>
-      dotfiles.map((dotfile) => ({
-        dotfile,
-        searchableText: [
+  const query = useMemo(() => search.trim().toLowerCase(), [search]);
+
+  const { filtered, grouped } = useMemo(() => {
+    const filtered: DotfileEntry[] = [];
+    const grouped: Partial<Record<DotfileCategory, DotfileEntry[]>> =
+      activeCategory === "all" ? {} : {};
+
+    for (const dotfile of dotfiles) {
+      if (activeCategory !== "all" && dotfile.category !== activeCategory) {
+        continue;
+      }
+
+      if (query) {
+        const searchableText = [
           dotfile.name,
           dotfile.description,
           dotfile.filename,
           ...dotfile.tags,
         ]
           .join(" ")
-          .toLowerCase(),
-      })),
-    [dotfiles]
-  );
-
-  const query = useMemo(() => search.trim().toLowerCase(), [search]);
-
-  const filtered = useMemo(() => {
-    const categoryFiltered =
-      activeCategory === "all"
-        ? searchableDotfiles
-        : searchableDotfiles.filter(
-            (item) => item.dotfile.category === activeCategory
-          );
-
-    if (!query) {
-      return categoryFiltered.map((item) => item.dotfile);
-    }
-
-    return categoryFiltered
-      .filter((item) => item.searchableText.includes(query))
-      .map((item) => item.dotfile);
-  }, [activeCategory, query, searchableDotfiles]);
-
-  const grouped = useMemo(() => {
-    if (activeCategory !== "all") {
-      return {};
-    }
-
-    const groups: Partial<Record<DotfileCategory, DotfileEntry[]>> = {};
-
-    for (const dotfile of filtered) {
-      if (!groups[dotfile.category]) {
-        groups[dotfile.category] = [];
+          .toLowerCase();
+        if (!searchableText.includes(query)) {
+          continue;
+        }
       }
-      groups[dotfile.category]!.push(dotfile);
+
+      filtered.push(dotfile);
+
+      if (activeCategory === "all") {
+        if (!grouped[dotfile.category]) {
+          grouped[dotfile.category] = [];
+        }
+        grouped[dotfile.category]!.push(dotfile);
+      }
     }
 
-    return groups;
-  }, [filtered, activeCategory]);
+    return { filtered, grouped };
+  }, [activeCategory, dotfiles, query]);
 
   return { filtered, grouped };
 }
