@@ -13,6 +13,7 @@ const SAFE_DOTFILE_SOURCE_PATHS = Object.values(SHELL_CONFIG_MAP).map((configFil
   path.join(os.homedir(), configFile)
 );
 const SAFE_DOTFILE_NAME = /^[a-zA-Z0-9._-]+$/;
+const MANAGED_DOTFILE_SOURCE_PATH = "~/.dotfiles-manager";
 
 export function detectShell(): ShellInfo {
   const home = os.homedir();
@@ -77,8 +78,7 @@ export function addSource(configPath: string, dotfileName: string): void {
   assertSafeDotfileName(dotfileName);
   assertSafeConfigPath(configPath);
 
-  const dotfilesDir = path.join(os.homedir(), ".dotfiles-manager");
-  const sourceLine = `\nsource ${dotfilesDir}/${dotfileName}\n`;
+  const sourceLine = `\nsource ${MANAGED_DOTFILE_SOURCE_PATH}/${dotfileName}\n`;
 
   if (!fs.existsSync(configPath)) {
     throw new Error(`Config file not found: ${configPath}`);
@@ -129,21 +129,19 @@ function getManagedSourceLinePattern(
   dotfileName: string,
   options: { includeLineEnd?: boolean } = {}
 ): RegExp {
-  const dotfilesPathPattern = `(?:${escapeRegex(
-    path.join(os.homedir(), ".dotfiles-manager")
-  )}|~\\/\\.dotfiles-manager)\\/${escapeRegex(dotfileName)}`;
+  const dotfilesPathPattern = `${escapeRegex(MANAGED_DOTFILE_SOURCE_PATH)}/${escapeRegex(
+    dotfileName
+  )}`;
   const lineEnd = options.includeLineEnd ? "(?:\\r?\\n|$)" : "$";
 
-  return new RegExp(`^\\s*source\\s+${dotfilesPathPattern}\\s*${lineEnd}`, "gm");
+  return new RegExp(`^source\\s+${dotfilesPathPattern}${lineEnd}`, "gm");
 }
 
 function getManagedSourceLineCapturePattern(): RegExp {
-  const dotfilesPathPattern = `(?:${escapeRegex(
-    path.join(os.homedir(), ".dotfiles-manager")
-  )}|~\\/\\.dotfiles-manager)`;
+  const dotfilesPathPattern = escapeRegex(MANAGED_DOTFILE_SOURCE_PATH);
 
   return new RegExp(
-    `^\\s*source\\s+${dotfilesPathPattern}\\/([^\\s#]+)\\s*(?:#.*)?$`,
+    `^source\\s+${dotfilesPathPattern}\\/([^\\s]+)(?:\\r?\\n|$)`,
     "gm"
   );
 }
