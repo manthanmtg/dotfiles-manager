@@ -1,9 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { memo } from "react";
 import { PackageOpen } from "lucide-react";
-import { DotfileCard } from "@/components/DotfileCard";
+import { DotfilesGrid } from "@/components/DotfilesGrid";
 import { CategorySection } from "@/components/CategorySection";
 import { CATEGORY_META } from "@/types";
 import type { DotfileCategory, DotfileEntry } from "@/types";
@@ -77,42 +77,26 @@ function DotfilesListInner({
           </p>
         </motion.div>
       ) : activeCategory !== "all" ? (
-        <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((d) => (
-              <li key={d.filename}>
-                <DotfileCard
-                  filename={d.filename}
-                  dotfile={d}
-                  onInstall={onInstall}
-                  onUninstall={onUninstall}
-                  onPreview={onPreview}
-                  installing={installingFile === d.filename}
-                />
-              </li>
-            ))}
-          </AnimatePresence>
-        </ul>
+        <DotfilesGrid
+          dotfiles={filtered}
+          installingFile={installingFile}
+          onInstall={onInstall}
+          onUninstall={onUninstall}
+          onPreview={onPreview}
+        />
       ) : (
         CATEGORY_OPTIONS.map((cat) => {
           const items = grouped[cat];
           if (!items || items.length === 0) return null;
           return (
             <CategorySection key={cat} category={cat}>
-              <AnimatePresence mode="popLayout">
-                {items.map((d) => (
-                  <li key={d.filename}>
-                    <DotfileCard
-                      filename={d.filename}
-                      dotfile={d}
-                      onInstall={onInstall}
-                      onUninstall={onUninstall}
-                      onPreview={onPreview}
-                      installing={installingFile === d.filename}
-                    />
-                  </li>
-                ))}
-              </AnimatePresence>
+              <DotfilesGrid
+                dotfiles={items}
+                installingFile={installingFile}
+                onInstall={onInstall}
+                onUninstall={onUninstall}
+                onPreview={onPreview}
+              />
             </CategorySection>
           );
         })
