@@ -17,26 +17,40 @@ export function useDotfileView({
   activeCategory,
   search,
 }: DotfileViewFilters): DotfileViewResult {
+  const searchableDotfiles = useMemo(
+    () =>
+      dotfiles.map((dotfile) => ({
+        dotfile,
+        searchableText: [
+          dotfile.name,
+          dotfile.description,
+          dotfile.filename,
+          ...dotfile.tags,
+        ]
+          .join(" ")
+          .toLowerCase(),
+      })),
+    [dotfiles]
+  );
+
   const query = useMemo(() => search.trim().toLowerCase(), [search]);
 
   const filtered = useMemo(() => {
     const categoryFiltered =
       activeCategory === "all"
-        ? dotfiles
-        : dotfiles.filter((dotfile) => dotfile.category === activeCategory);
+        ? searchableDotfiles
+        : searchableDotfiles.filter(
+            (item) => item.dotfile.category === activeCategory
+          );
 
     if (!query) {
-      return categoryFiltered;
+      return categoryFiltered.map((item) => item.dotfile);
     }
 
-    return categoryFiltered.filter((dotfile) => {
-      if (dotfile.name.toLowerCase().includes(query)) return true;
-      if (dotfile.description.toLowerCase().includes(query)) return true;
-      if (dotfile.filename.toLowerCase().includes(query)) return true;
-
-      return dotfile.tags.some((tag) => tag.toLowerCase().includes(query));
-    });
-  }, [activeCategory, dotfiles, query]);
+    return categoryFiltered
+      .filter((item) => item.searchableText.includes(query))
+      .map((item) => item.dotfile);
+  }, [activeCategory, query, searchableDotfiles]);
 
   const grouped = useMemo(() => {
     if (activeCategory !== "all") {
