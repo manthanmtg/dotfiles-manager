@@ -63,6 +63,15 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
   return dotfileNames.map((filename) => {
     const filePath = path.join(DOTFILES_DIR, filename);
     const metaPath = path.join(DOTFILES_DIR, `${filename}${METADATA_SUFFIX}`);
+
+    if (!isRegularManagedFile(filePath)) {
+      return null;
+    }
+
+    if (fs.existsSync(metaPath) && !isRegularManagedFile(metaPath)) {
+      return null;
+    }
+
     const content = fs.readFileSync(filePath, "utf-8");
     const metadata = readDotfileMetadata(metaPath, filename);
 
@@ -74,7 +83,7 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
       content,
       installed,
     };
-  });
+  }).filter((entry): entry is DotfileEntry => entry !== null);
 }
 
 export function getDotfile(
@@ -83,7 +92,7 @@ export function getDotfile(
 ): DotfileEntry | null {
   assertSafeDotfileName(filename);
   const filePath = path.join(DOTFILES_DIR, filename);
-  if (!fs.existsSync(filePath)) return null;
+  if (!fs.existsSync(filePath) || !isRegularManagedFile(filePath)) return null;
 
   const metaPath = path.join(DOTFILES_DIR, `${filename}${METADATA_SUFFIX}`);
   const content = fs.readFileSync(filePath, "utf-8");
@@ -154,6 +163,15 @@ function validateVariableValues(variables: Record<string, string>): void {
 function assertSafeDotfileName(dotfileName: string): void {
   if (!SAFE_DOTFILE_NAME.test(dotfileName)) {
     throw new Error(`Invalid dotfile name: ${dotfileName}`);
+  }
+}
+
+function isRegularManagedFile(filePath: string): boolean {
+  try {
+    const stat = fs.lstatSync(filePath);
+    return stat.isFile() && !stat.isSymbolicLink();
+  } catch {
+    return false;
   }
 }
 
