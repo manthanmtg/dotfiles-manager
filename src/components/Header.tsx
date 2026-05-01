@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Search, RefreshCw } from "lucide-react";
+import { memo } from "react";
 
 interface HeaderProps {
   search: string;
@@ -11,7 +12,7 @@ interface HeaderProps {
   installedCount: number;
 }
 
-export function Header({
+export const Header = memo(function Header({
   search,
   onSearchChange,
   onRefresh,
@@ -64,4 +65,6 @@ export function Header({
       </div>
     </header>
   );
-}
+});
+
+Header.displayName = "Header";
