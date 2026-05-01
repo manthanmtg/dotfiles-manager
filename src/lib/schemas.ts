@@ -49,11 +49,40 @@ export const ShellInfo = z.object({
 });
 export type ShellInfo = z.infer<typeof ShellInfo>;
 
+export const PlatformData = z.object({
+  platform: z.string(),
+  supported: z.boolean(),
+  shell: ShellInfo,
+});
+export type PlatformData = z.infer<typeof PlatformData>;
+
+export const ApiResponse = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    success: z.boolean(),
+    data: dataSchema.optional(),
+    error: z.string().optional(),
+  });
+
 export const InstallRequest = z.object({
   filename: DotfileFilename,
   variables: z.record(z.string(), z.string()).optional(),
 });
 export type InstallRequest = z.infer<typeof InstallRequest>;
+
+export const InstallResult = z.object({
+  filename: z.string(),
+  configPath: z.string(),
+  shell: z.string(),
+  message: z.string(),
+});
+export type InstallResult = z.infer<typeof InstallResult>;
+
+export const SeedResult = z.object({
+  seeded: z.number(),
+  updated: z.number(),
+  skipped: z.number(),
+});
+export type SeedResult = z.infer<typeof SeedResult>;
 
 export const UninstallRequest = z.object({
   filename: DotfileFilename,

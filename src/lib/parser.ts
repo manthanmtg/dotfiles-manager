@@ -17,7 +17,7 @@ const SUPPORTED_META_KEYS = new Set([
 ]);
 
 interface ParseResult {
-  metadata: ReturnType<typeof DotfileMetadata.parse>;
+  metadata: DotfileMetadata;
   content: string;
 }
 

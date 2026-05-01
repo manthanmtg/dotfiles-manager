@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { detectShell } from "@/lib/shell";
 import { listDotfiles, createDotfile } from "@/lib/dotfiles";
 import { assertSupported } from "@/lib/platform";
-import { CreateDotfileRequest } from "@/lib/schemas";
+import { CreateDotfileRequest, DotfileEntry } from "@/lib/schemas";
+import { z } from "zod/v4";
 
 export async function GET() {
   try {
@@ -10,7 +11,9 @@ export async function GET() {
     const shell = detectShell();
     const dotfiles = listDotfiles(shell.configPath);
 
-    return NextResponse.json({ success: true, data: dotfiles });
+    const data = z.array(DotfileEntry).parse(dotfiles);
+
+    return NextResponse.json({ success: true, data });
   } catch (error) {
     return NextResponse.json(
       {

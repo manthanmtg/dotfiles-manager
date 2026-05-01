@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { detectShell, removeSource, isSourced } from "@/lib/shell";
 import { getDotfile } from "@/lib/dotfiles";
 import { assertSupported } from "@/lib/platform";
-import { UninstallRequest } from "@/lib/schemas";
+import { UninstallRequest, InstallResult } from "@/lib/schemas";
 import { ZodError } from "zod/v4";
 
 export async function POST(request: Request) {
@@ -33,14 +33,16 @@ export async function POST(request: Request) {
 
     removeSource(shell.configPath, parsed.filename);
 
+    const data = InstallResult.parse({
+      filename: parsed.filename,
+      configPath: shell.configPath,
+      shell: shell.shell,
+      message: `Successfully uninstalled ${dotfile.name}. Run \`source ${shell.configPath}\` to apply.`,
+    });
+
     return NextResponse.json({
       success: true,
-      data: {
-        filename: parsed.filename,
-        configPath: shell.configPath,
-        shell: shell.shell,
-        message: `Successfully uninstalled ${dotfile.name}. Run \`source ${shell.configPath}\` to apply.`,
-      },
+      data,
     });
   } catch (error) {
     const clientError = mapUninstallError(error);
