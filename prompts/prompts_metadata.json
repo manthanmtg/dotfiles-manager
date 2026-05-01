@@ -30,13 +30,13 @@
       "category": "reliability",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 0,
-      "totalCompleted": 0,
+      "totalSelected": 1,
+      "totalCompleted": 1,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": null,
-      "lastCompletedAt": null,
-      "lastOutcome": null
+      "lastOutcome": "completed",
+      "lastSelectedAt": "2026-05-01T14:00:00.000Z",
+      "lastCompletedAt": "2026-05-01T14:05:00.000Z"
     },
     "architecture_refactoring_agent.md": {
       "id": "architecture-refactoring-agent",
@@ -280,5 +280,5 @@
       "lastOutcome": "completed"
     }
   },
-  "updatedAt": "2026-05-01T18:47:56.949Z"
+  "updatedAt": "2026-05-01T14:05:00.000Z"
 }
