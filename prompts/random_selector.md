@@ -34,11 +34,7 @@ You are an autonomous improvement agent for Dotfiles Manager. Pick one safe auto
 Pick one prompt at random from the safe autonomous prompts. `prompts_optimizer.md` should run rarely, about 1 in 25 runs, because it maintains the prompt suite itself:
 
 ```bash
-if [ "$((RANDOM % 25))" -eq 0 ]; then
-  printf '%s\n' prompts/prompts_optimizer.md
-else
-  node -e 'const fs=require("fs"); const metadata=JSON.parse(fs.readFileSync("prompts/prompts_metadata.json","utf8")); const candidates=Object.values(metadata.prompts).filter((prompt)=>prompt.enabled&&prompt.autonomousSafe&&prompt.file!=="prompts_optimizer.md").map((prompt)=>`prompts/${prompt.file}`).sort(); if(candidates.length===0){console.error("No eligible prompts found in prompts/prompts_metadata.json."); process.exit(1);} console.log(candidates[Math.floor(Math.random()*candidates.length)]);'
-fi
+node -e 'const fs=require("fs"); const metadata=JSON.parse(fs.readFileSync("prompts/prompts_metadata.json","utf8")); let selected; if (Math.random() < 0.04) { selected = "prompts/prompts_optimizer.md"; } else { const candidates=Object.values(metadata.prompts).filter((p)=>p.enabled&&p.autonomousSafe&&p.file!=="prompts_optimizer.md").map((p)=>`prompts/${p.file}`).sort(); if(candidates.length===0){console.error("No eligible prompts found."); process.exit(1);} selected = candidates[Math.floor(Math.random()*candidates.length)]; } console.log(selected);'
 ```
 
 - Do not execute prompts that explicitly say they are not for autonomous use.
@@ -47,6 +43,7 @@ fi
 ### 2. Prepare
 
 - Read `AGENTS.md` first and treat it as the project authority.
+- Create a new branch named `auto/<prompt-slug>-<YYYYMMDD-HHMM>`.
 - Check `git status -sb` before editing. Leave unrelated user changes untouched.
 - Search `issues_to_look/` if it exists so you do not duplicate a known investigation.
 - Keep the scope to one small, self-contained improvement.
@@ -88,12 +85,15 @@ Run the applicable checks:
 
 Do not start the dev server unless the selected prompt explicitly requires visual verification.
 
-### 6. Commit
+### 6. Deliver
 
 - Commit only files changed by this run.
 - Use a lowercase, factual commit message, for example: `fix(shell): tighten source line detection`.
 - Include the selected prompt name in the commit body.
-- Do not push directly to `main` unless a human explicitly authorizes it.
+- Create a pull request using the GitHub CLI (`gh pr create`) with a clear title and detailed description.
+- Monitor and rebase if there are conflicts.
+- Once checks (if any) or mergeability are confirmed, merge using `gh pr merge --squash --delete-branch`.
+- Pull the merged changes back into `main`.
 
 ## Issue Management
 
