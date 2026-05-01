@@ -71,20 +71,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const hasNewlineValues = Object.entries(providedVariables).some(
-      ([, value]) => /[\r\n]/.test(value)
-    );
-
-    if (hasNewlineValues) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Variable values cannot contain newlines",
-        },
-        { status: 400 }
-      );
-    }
-
     if (Object.keys(providedVariables).length > 0) {
       const updatedContent = applyVariables(dotfile.content, providedVariables);
       updateDotfileContent(parsed.filename, updatedContent);

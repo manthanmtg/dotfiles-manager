@@ -21,8 +21,7 @@ export function useDotfileView({
 
   const { filtered, grouped } = useMemo(() => {
     const filtered: DotfileEntry[] = [];
-    const grouped: Partial<Record<DotfileCategory, DotfileEntry[]>> =
-      activeCategory === "all" ? {} : {};
+    const grouped: Partial<Record<DotfileCategory, DotfileEntry[]>> = {};
 
     for (const dotfile of dotfiles) {
       if (activeCategory !== "all" && dotfile.category !== activeCategory) {

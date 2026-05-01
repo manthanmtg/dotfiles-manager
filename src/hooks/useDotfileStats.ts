@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import type { DotfileCategory, DotfileEntry } from "@/types";
-import { CATEGORY_META } from "@/types";
 
 type DotfileStatsParams = {
   dotfiles: DotfileEntry[];
@@ -13,7 +12,7 @@ type DotfileStats = {
 
 export function useDotfileStats({ dotfiles }: DotfileStatsParams): DotfileStats {
   const { installedCount, categoryCounts } = useMemo(() => {
-    const initialCategoryCounts: Record<DotfileCategory, number> = {
+    const counts: Record<DotfileCategory, number> = {
       aliases: 0,
       scripts: 0,
       prompts: 0,
@@ -21,7 +20,6 @@ export function useDotfileStats({ dotfiles }: DotfileStatsParams): DotfileStats 
       environment: 0,
       functions: 0,
     };
-    const counts: Record<DotfileCategory, number> = { ...initialCategoryCounts };
     let installedCount = 0;
 
     for (const dotfile of dotfiles) {
