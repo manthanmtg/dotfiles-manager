@@ -81,15 +81,28 @@ export function useDotfileActions({
     setPreviewModal(null);
   }, []);
 
-  return {
-    installingFile,
-    variableModal,
-    previewModal,
-    handleInstall,
-    handleVariableSubmit,
-    handleUninstall,
-    handlePreview,
-    closeVariableModal,
-    closePreviewModal,
-  };
+  return useMemo(
+    () => ({
+      installingFile,
+      variableModal,
+      previewModal,
+      handleInstall,
+      handleVariableSubmit,
+      handleUninstall,
+      handlePreview,
+      closeVariableModal,
+      closePreviewModal,
+    }),
+    [
+      installingFile,
+      variableModal,
+      previewModal,
+      handleInstall,
+      handleVariableSubmit,
+      handleUninstall,
+      handlePreview,
+      closeVariableModal,
+      closePreviewModal,
+    ]
+  );
 }

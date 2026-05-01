@@ -19,7 +19,7 @@ export function useDotfileView({
 }: DotfileViewFilters): DotfileViewResult {
   const query = useMemo(() => search.trim().toLowerCase(), [search]);
 
-  const { filtered, grouped } = useMemo(() => {
+  return useMemo(() => {
     const filtered: DotfileEntry[] = [];
     const grouped: Partial<Record<DotfileCategory, DotfileEntry[]>> = {};
 
@@ -54,6 +54,4 @@ export function useDotfileView({
 
     return { filtered, grouped };
   }, [activeCategory, dotfiles, query]);
-
-  return { filtered, grouped };
 }

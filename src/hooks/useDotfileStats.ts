@@ -11,7 +11,7 @@ type DotfileStats = {
 };
 
 export function useDotfileStats({ dotfiles }: DotfileStatsParams): DotfileStats {
-  const { installedCount, categoryCounts } = useMemo(() => {
+  return useMemo(() => {
     const counts: Record<DotfileCategory, number> = {
       aliases: 0,
       scripts: 0,
@@ -31,6 +31,4 @@ export function useDotfileStats({ dotfiles }: DotfileStatsParams): DotfileStats 
 
     return { installedCount, categoryCounts: counts };
   }, [dotfiles]);
-
-  return { installedCount, categoryCounts };
 }
