@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Copy, Check } from "lucide-react";
 
@@ -12,7 +12,7 @@ interface CodePreviewProps {
   onClose: () => void;
 }
 
-export function CodePreview({
+export const CodePreview = memo(function CodePreview({
   open,
   title,
   filename,
@@ -180,4 +180,6 @@ export function CodePreview({
       )}
     </AnimatePresence>
   );
-}
+});
+
+CodePreview.displayName = "CodePreview";
