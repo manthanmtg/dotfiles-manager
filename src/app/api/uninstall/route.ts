@@ -12,6 +12,26 @@ export async function POST(request: Request) {
     const parsed = UninstallRequest.parse(body);
 
     const shell = detectShell();
+    if (shell.shell === "unknown") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Your shell is not supported. Only zsh, bash, and fish are supported.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!shell.configExists) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Shell configuration file not found: ${shell.configPath}. Please create it first.`,
+        },
+        { status: 400 }
+      );
+    }
+
     const dotfile = getDotfile(parsed.filename, shell.configPath);
 
     if (!dotfile) {
@@ -102,6 +122,13 @@ function mapUninstallError(
     return {
       status: 409,
       message: "Dotfile is not currently installed in your shell configuration.",
+    };
+  }
+
+  if (error instanceof Error && error.message.includes("Refusing to write symlinked file")) {
+    return {
+      status: 403,
+      message: "Security error: Dotfile storage uses symbolic links which is not allowed.",
     };
   }
 

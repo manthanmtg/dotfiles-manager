@@ -16,6 +16,26 @@ export async function POST(request: Request) {
     const parsed = InstallRequest.parse(body);
 
     const shell = detectShell();
+    if (shell.shell === "unknown") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Your shell is not supported. Only zsh, bash, and fish are supported.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!shell.configExists) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Shell configuration file not found: ${shell.configPath}. Please create it first.`,
+        },
+        { status: 400 }
+      );
+    }
+
     const dotfile = getDotfile(parsed.filename, shell.configPath);
 
     if (!dotfile) {
@@ -138,6 +158,20 @@ function mapInstallError(error: unknown): { status: number; message: string } | 
     return {
       status: 500,
       message: "Shell config file missing or inaccessible.",
+    };
+  }
+
+  if (error instanceof Error && error.message.includes("Invalid value for variable")) {
+    return {
+      status: 400,
+      message: error.message,
+    };
+  }
+
+  if (error instanceof Error && error.message.includes("Refusing to write symlinked file")) {
+    return {
+      status: 403,
+      message: "Security error: Dotfile storage uses symbolic links which is not allowed.",
     };
   }
 
