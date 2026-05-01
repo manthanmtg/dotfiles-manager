@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import os from "os";
+import { z } from "zod/v4";
 import { DotfileMetadata } from "./schemas";
 import type { DotfileEntry } from "./schemas";
 import { getSourcedDotfiles } from "./shell";
@@ -8,6 +9,7 @@ import { getSourcedDotfiles } from "./shell";
 const DOTFILES_DIR = path.join(os.homedir(), ".dotfiles-manager");
 const METADATA_SUFFIX = ".meta.json";
 const SAFE_DOTFILE_NAME = /^[a-zA-Z0-9._-]+$/;
+const STORED_METADATA = z.string().transform((value) => JSON.parse(value)).pipe(DotfileMetadata);
 
 function getDefaultMetadata(filename: string): DotfileMetadata {
   return {
@@ -20,13 +22,11 @@ function getDefaultMetadata(filename: string): DotfileMetadata {
 }
 
 function parseStoredMetadata(metaRaw: string, filename: string): DotfileMetadata {
-  try {
-    const parsed = DotfileMetadata.safeParse(JSON.parse(metaRaw));
-    if (!parsed.success) return getDefaultMetadata(filename);
-    return parsed.data;
-  } catch {
+  const parsed = STORED_METADATA.safeParse(metaRaw);
+  if (!parsed.success) {
     return getDefaultMetadata(filename);
   }
+  return parsed.data;
 }
 
 function readDotfileMetadata(metaPath: string, filename: string): DotfileMetadata {
