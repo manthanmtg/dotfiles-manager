@@ -257,12 +257,12 @@
       "enabled": true,
       "autonomousSafe": true,
       "totalSelected": 2,
-      "totalCompleted": 1,
+      "totalCompleted": 2,
       "totalNoop": 0,
       "totalFailed": 0,
       "lastSelectedAt": "2026-05-01T00:00:50.158Z",
-      "lastCompletedAt": "2026-04-30T22:00:51.622Z",
-      "lastOutcome": "selected"
+      "lastCompletedAt": "2026-05-01T00:01:13.637Z",
+      "lastOutcome": "completed"
     },
     "visual_polish_artist_prompt.md": {
       "id": "visual-polish-artist-prompt",
@@ -280,5 +280,5 @@
       "lastOutcome": "completed"
     }
   },
-  "updatedAt": "2026-05-01T00:00:50.158Z"
+  "updatedAt": "2026-05-01T00:01:13.637Z"
 }
