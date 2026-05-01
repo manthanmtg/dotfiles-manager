@@ -1,55 +1,23 @@
-export type DotfileCategory =
-  | "aliases"
-  | "scripts"
-  | "prompts"
-  | "security"
-  | "environment"
-  | "functions";
+import {
+  DotfileCategory as DotfileCategoryType,
+  DotfileVariable as DotfileVariableType,
+  DotfileEntry as DotfileEntryType,
+  ShellInfo as ShellInfoType,
+  PlatformData as PlatformDataType,
+  InstallResult as InstallResultType,
+} from "@/lib/schemas";
 
-export interface DotfileVariable {
-  name: string;
-  label: string;
-  description?: string;
-  default?: string;
-  required: boolean;
-  sensitive: boolean;
-}
-
-export interface DotfileEntry {
-  name: string;
-  description: string;
-  category: DotfileCategory;
-  icon?: string;
-  variables: DotfileVariable[];
-  tags: string[];
-  filename: string;
-  content: string;
-  installed: boolean;
-}
-
-export interface ShellInfo {
-  shell: "zsh" | "bash" | "fish" | "unknown";
-  configPath: string;
-  configExists: boolean;
-}
-
-export interface PlatformData {
-  platform: string;
-  supported: boolean;
-  shell: ShellInfo;
-}
+export type DotfileCategory = DotfileCategoryType;
+export type DotfileVariable = DotfileVariableType;
+export type DotfileEntry = DotfileEntryType;
+export type ShellInfo = ShellInfoType;
+export type PlatformData = PlatformDataType;
+export type InstallResult = InstallResultType;
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
-}
-
-export interface InstallResult {
-  filename: string;
-  configPath: string;
-  shell: string;
-  message: string;
 }
 
 export interface TerminalLine {

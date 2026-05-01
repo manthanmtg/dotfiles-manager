@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type {
+import {
   DotfileEntry,
   PlatformData,
-  ApiResponse,
   InstallResult,
-} from "@/types";
+  SeedResult,
+} from "@/lib/schemas";
+import { z } from "zod/v4";
 import { useTerminalLogger } from "@/hooks/useTerminalLogger";
 
 export function useDotfiles() {
@@ -19,35 +20,33 @@ export function useDotfiles() {
 
   const fetchShell = useCallback(async () => {
     const res = await fetch("/api/shell");
-    const data: ApiResponse<PlatformData> = await res.json();
-    if (data.success && data.data) {
-      setPlatform(data.data);
-      return data.data;
+    const json = await res.json();
+    if (json.success) {
+      const data = PlatformData.parse(json.data);
+      setPlatform(data);
+      return data;
     }
-    throw new Error(data.error || "Failed to detect shell");
+    throw new Error(json.error || "Failed to detect shell");
   }, []);
 
   const seedDefaults = useCallback(async () => {
     const res = await fetch("/api/seed", { method: "POST" });
-    const data: ApiResponse<{
-      seeded: number;
-      updated: number;
-      skipped: number;
-    }> = await res.json();
-    if (data.success && data.data) {
-      return data.data;
+    const json = await res.json();
+    if (json.success) {
+      return SeedResult.parse(json.data);
     }
-    throw new Error(data.error || "Failed to seed dotfiles");
+    throw new Error(json.error || "Failed to seed dotfiles");
   }, []);
 
   const fetchDotfiles = useCallback(async () => {
     const res = await fetch("/api/dotfiles");
-    const data: ApiResponse<DotfileEntry[]> = await res.json();
-    if (data.success && data.data) {
-      setDotfiles(data.data);
-      return data.data;
+    const json = await res.json();
+    if (json.success) {
+      const data = z.array(DotfileEntry).parse(json.data);
+      setDotfiles(data);
+      return data;
     }
-    throw new Error(data.error || "Failed to fetch dotfiles");
+    throw new Error(json.error || "Failed to fetch dotfiles");
   }, []);
 
   const initialize = useCallback(async () => {
@@ -106,16 +105,18 @@ export function useDotfiles() {
           body: JSON.stringify({ filename, variables }),
         });
 
-        const data: ApiResponse<InstallResult> = await res.json();
+        const json = await res.json();
 
-        if (!data.success) {
-          addLine("error", data.error || "Installation failed");
+        if (!json.success) {
+          addLine("error", json.error || "Installation failed");
           return null;
         }
 
-        addLine("info", `Locating ${data.data!.configPath}...`);
+        const data = InstallResult.parse(json.data);
+
+        addLine("info", `Locating ${data.configPath}...`);
         addLine("info", `Injecting source command for ${filename}...`);
-        addLine("success", data.data!.message);
+        addLine("success", data.message);
 
         setDotfiles((prev) =>
           prev.map((dotfile) =>
@@ -124,7 +125,7 @@ export function useDotfiles() {
               : dotfile
           )
         );
-        return data.data!;
+        return data;
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Install failed";
         addLine("error", msg);
@@ -146,15 +147,17 @@ export function useDotfiles() {
           body: JSON.stringify({ filename }),
         });
 
-        const data: ApiResponse<InstallResult> = await res.json();
+        const json = await res.json();
 
-        if (!data.success) {
-          addLine("error", data.error || "Uninstallation failed");
+        if (!json.success) {
+          addLine("error", json.error || "Uninstallation failed");
           return null;
         }
 
-        addLine("info", `Removing source line from ${data.data!.configPath}...`);
-        addLine("success", data.data!.message);
+        const data = InstallResult.parse(json.data);
+
+        addLine("info", `Removing source line from ${data.configPath}...`);
+        addLine("success", data.message);
 
         setDotfiles((prev) =>
           prev.map((dotfile) =>
@@ -163,7 +166,7 @@ export function useDotfiles() {
               : dotfile
           )
         );
-        return data.data!;
+        return data;
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Uninstall failed";
         addLine("error", msg);

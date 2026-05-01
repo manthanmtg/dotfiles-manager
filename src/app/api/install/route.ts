@@ -6,7 +6,7 @@ import {
   applyVariables,
 } from "@/lib/dotfiles";
 import { assertSupported } from "@/lib/platform";
-import { InstallRequest } from "@/lib/schemas";
+import { InstallRequest, InstallResult } from "@/lib/schemas";
 import { ZodError } from "zod/v4";
 
 export async function POST(request: Request) {
@@ -78,14 +78,16 @@ export async function POST(request: Request) {
 
     addSource(shell.configPath, parsed.filename);
 
+    const data = InstallResult.parse({
+      filename: parsed.filename,
+      configPath: shell.configPath,
+      shell: shell.shell,
+      message: `Successfully installed ${dotfile.name}. Run \`source ${shell.configPath}\` to apply.`,
+    });
+
     return NextResponse.json({
       success: true,
-      data: {
-        filename: parsed.filename,
-        configPath: shell.configPath,
-        shell: shell.shell,
-        message: `Successfully installed ${dotfile.name}. Run \`source ${shell.configPath}\` to apply.`,
-      },
+      data,
     });
   } catch (error) {
     const clientError = mapInstallError(error);
