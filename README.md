@@ -12,13 +12,22 @@ A locally-hosted Next.js web application and CLI for managing, discovering, and 
 - **Category Organization** — Dotfiles grouped by type: Aliases, Scripts, Prompts, Security, Environment, Functions
 - **Code Preview** — Syntax-highlighted preview of any dotfile before installing
 - **CLI Fallback** — Manage the same local dotfiles from your terminal when the web UI is not available
-- **13 Built-in Configs** — Ships with curated dotfiles for Git, Docker, Kubernetes, Node.js, and more
+- **Built-in Configs** — Ships with a curated collection of dotfiles for Git, Docker, Kubernetes, Node.js, and more
 
 ## Requirements
 
 - **macOS or Linux** (Windows is not supported)
 - **Node.js** >= 18
 - **pnpm** (required package manager)
+
+## Development
+
+```bash
+pnpm lint      # Run ESLint
+pnpm test      # Run TypeScript tests
+pnpm validate  # Validate all dotfile meta blocks
+pnpm build     # Full validation and production build
+```
 
 ## Getting Started
 
