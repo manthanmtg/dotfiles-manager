@@ -151,12 +151,12 @@
       "enabled": true,
       "autonomousSafe": true,
       "totalSelected": 5,
-      "totalCompleted": 3,
+      "totalCompleted": 4,
       "totalNoop": 0,
       "totalFailed": 0,
       "lastSelectedAt": "2026-05-02T11:31:01.466Z",
-      "lastOutcome": "selected",
-      "lastCompletedAt": "2026-04-29T14:01:12.750Z"
+      "lastOutcome": "completed",
+      "lastCompletedAt": "2026-05-02T11:38:31.977Z"
     },
     "project_guidelines_sync.md": {
       "id": "project-guidelines-sync",
@@ -280,5 +280,5 @@
       "lastOutcome": "completed"
     }
   },
-  "updatedAt": "2026-05-02T11:31:01.466Z"
+  "updatedAt": "2026-05-02T11:38:31.977Z"
 }
