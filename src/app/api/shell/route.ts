@@ -19,7 +19,7 @@ export async function GET() {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: error instanceof Error ? error.message : "An unexpected error occurred while detecting shell environment.",
       },
       { status: 500 }
     );
