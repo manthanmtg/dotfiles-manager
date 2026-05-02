@@ -248,7 +248,6 @@
       "lastSelectedAt": "2026-05-01T14:15:32.617Z",
       "lastCompletedAt": "2026-05-01T14:29:55.307Z",
       "lastOutcome": "completed"
-    },
     "type_safety_enforcer.md": {
       "id": "type-safety-enforcer",
       "file": "type_safety_enforcer.md",
@@ -256,16 +255,16 @@
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 3,
-      "totalCompleted": 3,
+      "totalSelected": 4,
+      "totalCompleted": 4,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-01T18:45:31.835Z",
-      "lastCompletedAt": "2026-05-01T18:47:56.948Z",
+      "lastSelectedAt": "2026-05-02T08:00:00.000Z",
+      "lastCompletedAt": "2026-05-02T08:10:00.000Z",
       "lastOutcome": "completed"
+    }
     },
-    "visual_polish_artist_prompt.md": {
-      "id": "visual-polish-artist-prompt",
+    "updatedAt": "2026-05-02T08:10:00.000Z"      "id": "visual-polish-artist-prompt",
       "file": "visual_polish_artist_prompt.md",
       "title": "Visual Polish Artist Prompt",
       "category": "ui-quality",

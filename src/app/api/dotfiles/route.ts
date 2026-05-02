@@ -28,7 +28,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     assertSupported();
-    const body = await request.json();
+    const body: unknown = await request.json();
     const parsed = CreateDotfileRequest.parse(body);
 
     const filename = parsed.name
