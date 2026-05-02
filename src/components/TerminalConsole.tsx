@@ -57,7 +57,7 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
       animate={{ opacity: 1, y: 0 }}
       className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800/80 bg-zinc-950/95 backdrop-blur-xl"
     >
-      <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800/50">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800/50 bg-gradient-to-r from-zinc-900/20 to-transparent">
         <button
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? "Expand terminal log" : "Collapse terminal log"}
@@ -93,15 +93,18 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
             animate={{ height: 160 }}
             exit={{ height: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden"
+            className="relative overflow-hidden"
           >
+            {/* Subtle terminal glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.03),transparent_70%)] pointer-events-none" />
+            
             <div
               id="dotfiles-terminal-log"
               role="log"
               aria-live="polite"
               aria-label="Terminal log"
               ref={scrollRef}
-              className="h-40 overflow-y-auto px-4 py-2 font-mono text-xs space-y-0.5 scrollbar-thin"
+              className="relative h-40 overflow-y-auto px-4 py-2 font-mono text-xs space-y-0.5 scrollbar-thin"
             >
               <AnimatePresence mode="popLayout">
                 {lines.map((line, i) => (
@@ -115,15 +118,34 @@ export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
                     <span className="opacity-60 shrink-0 w-12 text-right">
                       {LINE_PREFIX[line.type]}
                     </span>
-                    <span>{line.text}</span>
+                    <span className="break-all">{line.text}</span>
                   </motion.div>
                 ))}
               </AnimatePresence>
-            {lines.length === 0 && (
-                <div className="text-zinc-600 italic">
-                  Waiting for activity...
+              
+              <div className="flex gap-2 pt-0.5">
+                <span className="opacity-60 shrink-0 w-12 text-right text-emerald-500/50">
+                  ❯
+                </span>
+                <div className="flex items-center gap-2">
+                  {lines.length === 0 && (
+                    <span className="text-zinc-600 italic">
+                      Waiting for activity...
+                    </span>
+                  )}
+                  <motion.span
+                    animate={{ opacity: [1, 1, 0, 0] }}
+                    transition={{ 
+                      duration: 0.8, 
+                      repeat: Infinity, 
+                      times: [0, 0.5, 0.5, 1],
+                      ease: "linear"
+                    }}
+                    className="w-1.5 h-3.5 bg-emerald-500/40"
+                  />
                 </div>
-              )}
+              </div>
+
               <p
                 ref={clearAnnouncementRef}
                 role="status"
