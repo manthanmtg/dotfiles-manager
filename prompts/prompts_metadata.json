@@ -272,13 +272,13 @@
       "enabled": true,
       "autonomousSafe": true,
       "totalSelected": 3,
-      "totalCompleted": 2,
+      "totalCompleted": 3,
       "totalNoop": 0,
       "totalFailed": 0,
       "lastSelectedAt": "2026-05-02T04:40:00.000Z",
-      "lastCompletedAt": "2026-04-29T16:01:00.646Z",
-      "lastOutcome": "selected"
+      "lastCompletedAt": "2026-05-02T04:53:00.000Z",
+      "lastOutcome": "completed"
     }
   },
-  "updatedAt": "2026-05-02T04:40:00.000Z"
+  "updatedAt": "2026-05-02T04:53:00.000Z"
 }
