@@ -52,38 +52,52 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
 
   const sourcedDotfiles = getSourcedDotfiles(shellConfigPath);
 
-  const files = fs.readdirSync(DOTFILES_DIR);
-  const dotfileNames = files.filter(
-    (f) =>
-      SAFE_DOTFILE_NAME.test(f) &&
-      !f.endsWith(METADATA_SUFFIX) &&
-      !f.startsWith(".")
-  );
+  // Use withFileTypes to get file info in a single readdir call, avoiding many subsequent lstatSync calls
+  const entries = fs.readdirSync(DOTFILES_DIR, { withFileTypes: true });
+  const entryMap = new Map<string, fs.Dirent>();
+  for (const entry of entries) {
+    entryMap.set(entry.name, entry);
+  }
 
-  return dotfileNames.map((filename) => {
-    const filePath = path.join(DOTFILES_DIR, filename);
-    const metaPath = path.join(DOTFILES_DIR, `${filename}${METADATA_SUFFIX}`);
+  const dotfileNames = entries
+    .filter(
+      (entry) =>
+        entry.isFile() && // isFile() is true only for regular files (excludes symlinks/dirs)
+        SAFE_DOTFILE_NAME.test(entry.name) &&
+        !entry.name.endsWith(METADATA_SUFFIX) &&
+        !entry.name.startsWith(".")
+    )
+    .map((entry) => entry.name);
 
-    if (!isRegularManagedFile(filePath)) {
-      return null;
-    }
+  return dotfileNames
+    .map((filename) => {
+      const filePath = path.join(DOTFILES_DIR, filename);
+      const metaFilename = `${filename}${METADATA_SUFFIX}`;
+      const metaPath = path.join(DOTFILES_DIR, metaFilename);
 
-    if (fs.existsSync(metaPath) && !isRegularManagedFile(metaPath)) {
-      return null;
-    }
+      // We already know filePath is a regular file from the filter above
 
-    const content = fs.readFileSync(filePath, "utf-8");
-    const metadata = readDotfileMetadata(metaPath, filename);
+      // Check if meta file exists and is a regular file using our pre-built map
+      const metaEntry = entryMap.get(metaFilename);
+      if (metaEntry && !metaEntry.isFile()) {
+        return null;
+      }
 
-    const installed = sourcedDotfiles.has(filename);
+      const content = fs.readFileSync(filePath, "utf-8");
+      const metadata = metaEntry
+        ? readDotfileMetadata(metaPath, filename)
+        : getDefaultMetadata(filename);
 
-    return {
-      ...metadata,
-      filename,
-      content,
-      installed,
-    };
-  }).filter((entry): entry is DotfileEntry => entry !== null);
+      const installed = sourcedDotfiles.has(filename);
+
+      return {
+        ...metadata,
+        filename,
+        content,
+        installed,
+      };
+    })
+    .filter((entry): entry is DotfileEntry => entry !== null);
 }
 
 export function getDotfile(
