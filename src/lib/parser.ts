@@ -30,7 +30,23 @@ export function parseDotfileSource(
   raw: string,
   filepath: string
 ): ParseResult {
-  const lines = raw.split("\n");
+  // Optimization: Find meta block boundaries first to avoid splitting huge files into thousands of strings
+  const endIdxPos = raw.indexOf(META_END);
+
+  if (endIdxPos === -1) {
+    // Check for start to give a better error message
+    if (!raw.trimStart().startsWith(META_START)) {
+      throw new MetaParseError(filepath, [
+        `Missing meta block. File must start with "${META_START}"`,
+      ]);
+    }
+    throw new MetaParseError(filepath, [
+      `Missing "${META_END}" — meta block was opened but never closed`,
+    ]);
+  }
+
+  const metaPart = raw.slice(0, endIdxPos);
+  const lines = metaPart.split("\n");
 
   if (lines.length === 0 || lines[0].trim() !== META_START) {
     throw new MetaParseError(filepath, [
@@ -38,7 +54,6 @@ export function parseDotfileSource(
     ]);
   }
 
-  let endIdx = -1;
   const fields: Record<string, string> = {};
   const variables: Array<DotfileVariableMeta> = [];
   const errors: string[] = [];
@@ -48,13 +63,8 @@ export function parseDotfileSource(
 
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i];
-    const trimmed = line.trim();
 
-    if (trimmed === META_END) {
-      endIdx = i;
-      break;
-    }
-
+    // trimmed === META_END check is no longer needed here as we split by META_END
     const stripped = line.replace(/^#\s*/, "").trim();
     if (!stripped) continue;
 
@@ -96,12 +106,6 @@ export function parseDotfileSource(
     }
   }
 
-  if (endIdx === -1) {
-    throw new MetaParseError(filepath, [
-      `Missing "${META_END}" — meta block was opened but never closed`,
-    ]);
-  }
-
   if (errors.length > 0) {
     throw new MetaParseError(filepath, errors);
   }
@@ -109,7 +113,7 @@ export function parseDotfileSource(
   for (const key of REQUIRED_META_KEYS) {
     if (typeof fields[key] === "undefined") {
       errors.push(
-        `Line ${endIdx + 1}: Missing required meta field "${key}" before "${META_END}"`
+        `Line ${lines.length + 1}: Missing required meta field "${key}" before "${META_END}"`
       );
     }
   }
@@ -164,11 +168,12 @@ export function parseDotfileSource(
     throw new MetaParseError(filepath, messages);
   }
 
-  const contentLines = lines.slice(endIdx + 1);
-  const content = contentLines.join("\n").replace(/^\n+/, "");
+  // content starts after META_END
+  const content = raw.slice(endIdxPos + META_END.length).replace(/^\n+/, "");
 
   return { metadata, content };
 }
+
 
 function parseVariableLine(
   value: string,
