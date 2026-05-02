@@ -12,7 +12,7 @@ import { ZodError } from "zod/v4";
 export async function POST(request: Request) {
   try {
     assertSupported();
-    const body = await request.json();
+    const body: unknown = await request.json();
     const parsed = InstallRequest.parse(body);
 
     const shell = detectShell();

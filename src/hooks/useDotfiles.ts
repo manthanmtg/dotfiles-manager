@@ -18,36 +18,48 @@ export function useDotfiles() {
   const [seeded, setSeeded] = useState(false);
   const { terminalLines, addLine, clearTerminal } = useTerminalLogger();
 
+  const fetchApi = useCallback(
+    async <T>(
+      url: string,
+      schema: z.ZodType<T>,
+      options?: RequestInit
+    ): Promise<T> => {
+      const res = await fetch(url, options);
+      const json: unknown = await res.json();
+
+      // We use a loose schema for the initial envelope check to avoid any
+      const envelopeSchema = z.object({
+        success: z.boolean(),
+        data: z.unknown().optional(),
+        error: z.string().optional(),
+      });
+
+      const envelope = envelopeSchema.parse(json);
+
+      if (envelope.success && envelope.data !== undefined) {
+        return schema.parse(envelope.data);
+      }
+
+      throw new Error(envelope.error || `API request failed: ${url}`);
+    },
+    []
+  );
+
   const fetchShell = useCallback(async () => {
-    const res = await fetch("/api/shell");
-    const json = await res.json();
-    if (json.success) {
-      const data = PlatformData.parse(json.data);
-      setPlatform(data);
-      return data;
-    }
-    throw new Error(json.error || "Failed to detect shell");
-  }, []);
+    const data = await fetchApi("/api/shell", PlatformData);
+    setPlatform(data);
+    return data;
+  }, [fetchApi]);
 
   const seedDefaults = useCallback(async () => {
-    const res = await fetch("/api/seed", { method: "POST" });
-    const json = await res.json();
-    if (json.success) {
-      return SeedResult.parse(json.data);
-    }
-    throw new Error(json.error || "Failed to seed dotfiles");
-  }, []);
+    return fetchApi("/api/seed", SeedResult, { method: "POST" });
+  }, [fetchApi]);
 
   const fetchDotfiles = useCallback(async () => {
-    const res = await fetch("/api/dotfiles");
-    const json = await res.json();
-    if (json.success) {
-      const data = z.array(DotfileEntry).parse(json.data);
-      setDotfiles(data);
-      return data;
-    }
-    throw new Error(json.error || "Failed to fetch dotfiles");
-  }, []);
+    const data = await fetchApi("/api/dotfiles", z.array(DotfileEntry));
+    setDotfiles(data);
+    return data;
+  }, [fetchApi]);
 
   const initialize = useCallback(async () => {
     setLoading(true);
@@ -67,7 +79,11 @@ export function useDotfiles() {
       if (!seeded) {
         addLine("info", "Seeding default dotfiles...");
         const seedResult = await seedDefaults();
-        const parts = [`${seedResult.seeded} new`, `${seedResult.updated} updated`, `${seedResult.skipped} unchanged`];
+        const parts = [
+          `${seedResult.seeded} new`,
+          `${seedResult.updated} updated`,
+          `${seedResult.skipped} unchanged`,
+        ];
         addLine("success", `Sync complete: ${parts.join(", ")}`);
         setSeeded(true);
       }
@@ -99,20 +115,11 @@ export function useDotfiles() {
         addLine("command", `Installing ${filename}...`);
         addLine("info", "Checking installation state...");
 
-        const res = await fetch("/api/install", {
+        const data = await fetchApi("/api/install", InstallResult, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ filename, variables }),
         });
-
-        const json = await res.json();
-
-        if (!json.success) {
-          addLine("error", json.error || "Installation failed");
-          return null;
-        }
-
-        const data = InstallResult.parse(json.data);
 
         addLine("info", `Locating ${data.configPath}...`);
         addLine("info", `Injecting source command for ${filename}...`);
@@ -132,7 +139,7 @@ export function useDotfiles() {
         return null;
       }
     },
-    [addLine]
+    [addLine, fetchApi]
   );
 
   const uninstall = useCallback(
@@ -141,20 +148,11 @@ export function useDotfiles() {
         addLine("command", `Uninstalling ${filename}...`);
         addLine("info", "Locating source entry...");
 
-        const res = await fetch("/api/uninstall", {
+        const data = await fetchApi("/api/uninstall", InstallResult, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ filename }),
         });
-
-        const json = await res.json();
-
-        if (!json.success) {
-          addLine("error", json.error || "Uninstallation failed");
-          return null;
-        }
-
-        const data = InstallResult.parse(json.data);
 
         addLine("info", `Removing source line from ${data.configPath}...`);
         addLine("success", data.message);
@@ -173,7 +171,7 @@ export function useDotfiles() {
         return null;
       }
     },
-    [addLine]
+    [addLine, fetchApi]
   );
 
   const refresh = useCallback(async () => {
