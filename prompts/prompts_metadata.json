@@ -271,14 +271,14 @@
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 2,
+      "totalSelected": 3,
       "totalCompleted": 2,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-04-29T16:00:35.052Z",
+      "lastSelectedAt": "2026-05-02T04:40:00.000Z",
       "lastCompletedAt": "2026-04-29T16:01:00.646Z",
-      "lastOutcome": "completed"
+      "lastOutcome": "selected"
     }
   },
-  "updatedAt": "2026-05-02T04:37:27.809Z"
+  "updatedAt": "2026-05-02T04:40:00.000Z"
 }
