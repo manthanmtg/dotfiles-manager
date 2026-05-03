@@ -14,6 +14,13 @@ const SAFE_DOTFILE_SOURCE_PATHS = Object.values(SHELL_CONFIG_MAP).map((configFil
 );
 const SAFE_DOTFILE_NAME = /^[a-zA-Z0-9._-]+$/;
 const MANAGED_DOTFILE_SOURCE_PATH = "~/.dotfiles-manager";
+const MANAGED_DOTFILE_SOURCE_PATH_REGEX = escapeRegex(MANAGED_DOTFILE_SOURCE_PATH);
+
+// Pre-compile the capture pattern as it is constant
+const SOURCE_CAPTURE_PATTERN = new RegExp(
+  `^[ \\t]*source\\s+${MANAGED_DOTFILE_SOURCE_PATH_REGEX}\\/([^\\s#]+)(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
+  "gm"
+);
 
 export function detectShell(): ShellInfo {
   const home = os.homedir();
@@ -58,13 +65,22 @@ export function isSourced(configPath: string, dotfileName: string): boolean {
 
 export function getSourcedDotfiles(configPath: string): Set<string> {
   assertSafeConfigPath(configPath);
-  const sourced = new Set<string>();
-  if (!fs.existsSync(configPath)) return sourced;
+  if (!fs.existsSync(configPath)) return new Set<string>();
 
   const content = fs.readFileSync(configPath, "utf-8");
-  const pattern = getManagedSourceLineCapturePattern();
+  return getSourcedDotfilesFromContent(content);
+}
 
-  for (const match of content.matchAll(pattern)) {
+/**
+ * Parses sourced dotfiles from the raw content of a shell config file.
+ * Optimization: Uses a pre-compiled regex for better performance in batch operations.
+ */
+export function getSourcedDotfilesFromContent(content: string): Set<string> {
+  const sourced = new Set<string>();
+  
+  // Reset lastIndex for global regex use across calls
+  SOURCE_CAPTURE_PATTERN.lastIndex = 0;
+  for (const match of content.matchAll(SOURCE_CAPTURE_PATTERN)) {
     const name = match[1];
     if (name && SAFE_DOTFILE_NAME.test(name)) {
       sourced.add(name);
@@ -88,11 +104,12 @@ export function addSource(configPath: string, dotfileName: string): void {
     throw new Error(`Config file is not writable: ${configPath}`);
   }
 
-  if (isSourced(configPath, dotfileName)) {
+  // Optimization: Read once and use the content to check if already sourced
+  const content = fs.readFileSync(configPath, "utf-8");
+  if (getSourcedDotfilesFromContent(content).has(dotfileName)) {
     throw new Error(`${dotfileName} is already sourced in ${configPath}`);
   }
 
-  const content = fs.readFileSync(configPath, "utf-8");
   const needsLeadingNewline = content.length > 0 && !content.endsWith("\n");
   const sourceLine = `${needsLeadingNewline ? "\n" : ""}source ${MANAGED_DOTFILE_SOURCE_PATH}/${dotfileName}\n`;
 
@@ -138,15 +155,6 @@ function getManagedSourceLinePattern(
   const lineEnd = options.includeLineEnd ? "(?:\\r?\\n|$)" : "$";
 
   return new RegExp(`^[ \\t]*source\\s+${dotfilesPathPattern}${trailingContent}${lineEnd}`, "gm");
-}
-
-function getManagedSourceLineCapturePattern(): RegExp {
-  const dotfilesPathPattern = escapeRegex(MANAGED_DOTFILE_SOURCE_PATH);
-
-  return new RegExp(
-    `^[ \\t]*source\\s+${dotfilesPathPattern}\\/([^\\s#]+)(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
-    "gm"
-  );
 }
 
 function escapeRegex(str: string): string {

@@ -65,7 +65,11 @@ export function parseDotfileSource(
     const line = lines[i];
 
     // trimmed === META_END check is no longer needed here as we split by META_END
-    const stripped = line.replace(/^#\s*/, "").trim();
+    // Faster path for common meta lines starting with "# " or "#"
+    const stripped = line.startsWith("#") 
+      ? line.slice(1).trim() 
+      : line.trim();
+    
     if (!stripped) continue;
 
     const colonIdx = stripped.indexOf(":");
