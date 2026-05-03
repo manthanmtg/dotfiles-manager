@@ -3,15 +3,25 @@
 import React, { createContext, useContext, useCallback, useState } from "react";
 import type { TerminalLine } from "@/types";
 
-interface TerminalContextType {
+interface TerminalState {
   lines: TerminalLine[];
+}
+
+interface TerminalActions {
   addLine: (type: TerminalLine["type"], text: string) => void;
   clearTerminal: () => void;
 }
 
-const TerminalContext = createContext<TerminalContextType | null>(null);
+const TerminalStateContext = createContext<TerminalState | null>(null);
+const TerminalActionsContext = createContext<TerminalActions | null>(null);
 
-export function TerminalProvider({ children, maxLines = 100 }: { children: React.ReactNode; maxLines?: number }) {
+export function TerminalProvider({
+  children,
+  maxLines = 100,
+}: {
+  children: React.ReactNode;
+  maxLines?: number;
+}) {
   const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
 
   const addLine = useCallback(
@@ -33,16 +43,29 @@ export function TerminalProvider({ children, maxLines = 100 }: { children: React
   }, []);
 
   return (
-    <TerminalContext.Provider value={{ lines: terminalLines, addLine, clearTerminal }}>
-      {children}
-    </TerminalContext.Provider>
+    <TerminalStateContext.Provider value={{ lines: terminalLines }}>
+      <TerminalActionsContext.Provider value={{ addLine, clearTerminal }}>
+        {children}
+      </TerminalActionsContext.Provider>
+    </TerminalStateContext.Provider>
   );
 }
 
 export function useTerminal() {
-  const context = useContext(TerminalContext);
-  if (!context) {
+  const state = useContext(TerminalStateContext);
+  const actions = useContext(TerminalActionsContext);
+
+  if (!state || !actions) {
     throw new Error("useTerminal must be used within a TerminalProvider");
   }
-  return context;
+
+  return { ...state, ...actions };
+}
+
+export function useTerminalActions() {
+  const actions = useContext(TerminalActionsContext);
+  if (!actions) {
+    throw new Error("useTerminalActions must be used within a TerminalProvider");
+  }
+  return actions;
 }

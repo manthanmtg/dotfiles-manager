@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import type { DotfileEntry, InstallResult } from "@/types";
 
 interface UseDotfileActionsParams {
@@ -75,15 +75,28 @@ export function useDotfileActions({
     setPreviewModal(null);
   }, []);
 
-  return {
-    installingFile,
-    variableModal,
-    previewModal,
-    handleInstall,
-    handleVariableSubmit,
-    handleUninstall,
-    handlePreview,
-    closeVariableModal,
-    closePreviewModal,
-  };
+  return useMemo(
+    () => ({
+      installingFile,
+      variableModal,
+      previewModal,
+      handleInstall,
+      handleVariableSubmit,
+      handleUninstall,
+      handlePreview,
+      closeVariableModal,
+      closePreviewModal,
+    }),
+    [
+      installingFile,
+      variableModal,
+      previewModal,
+      handleInstall,
+      handleVariableSubmit,
+      handleUninstall,
+      handlePreview,
+      closeVariableModal,
+      closePreviewModal,
+    ]
+  );
 }

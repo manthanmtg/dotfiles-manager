@@ -8,7 +8,7 @@ import {
   SeedResult,
 } from "@/lib/schemas";
 import { z } from "zod/v4";
-import { useTerminal } from "@/context/TerminalContext";
+import { useTerminalActions } from "@/context/TerminalContext";
 
 export function useDotfiles() {
   const [dotfiles, setDotfiles] = useState<DotfileEntry[]>([]);
@@ -16,7 +16,7 @@ export function useDotfiles() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [seeded, setSeeded] = useState(false);
-  const { addLine, clearTerminal } = useTerminal();
+  const { addLine, clearTerminal } = useTerminalActions();
 
   const fetchApi = useCallback(
     async <T>(
