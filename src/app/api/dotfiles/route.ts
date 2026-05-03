@@ -15,10 +15,21 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data });
   } catch (error) {
+    const clientError = mapDotfileError(error);
+    if (clientError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: clientError.message,
+        },
+        { status: clientError.status }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "An unexpected error occurred while listing dotfiles.",
+        error: "An unexpected error occurred while listing dotfiles.",
       },
       { status: 500 }
     );
