@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Local-only Next.js web app for managing shell dotfiles stored at `~/.dotfiles-manager/`. Users install/uninstall configs by injecting `source` lines into their shell rc file (`.zshrc`, `.bashrc`, etc.). No cloud, no remote, no Windows.
+Local-only Next.js web app for managing shell dotfiles stored at `~/.dotfiles-manager/`. Users install/uninstall configs by injecting `source` lines into their shell rc file (`.zshrc`, `.bashrc`, `.config/fish/config.fish`, etc.). No cloud, no remote, no Windows.
 
 ## Commands
 
@@ -151,7 +151,7 @@ The filename (minus `.sh`) becomes the identifier used in `~/.dotfiles-manager/`
 - **Client components in `src/components/`** — must have `"use client"` directive. Use Framer Motion for animations, Lucide React for icons.
 - **Tailwind CSS v4** — uses `@theme inline` for CSS variables. Dark mode only (zinc base, neon accents: cyan, emerald, purple, rose, amber, sky).
 - **No `app/api/[dynamic]` routes** — each operation has its own route file for clarity.
-- **Dotfile runtime storage** — each dotfile is a pair: `~/.dotfiles-manager/<filename>` (content) + `<filename>.meta.json` (metadata).
+- **Dotfile runtime storage** — each dotfile is stored in `~/.dotfiles-manager/` as a pair: `<filename>` (content) + `<filename>.meta.json` (metadata).
 - **Install = append** `source ~/.dotfiles-manager/<filename>` to shell config. **Uninstall = regex removal** of that exact line.
 - **Variable substitution** — dotfile content uses `{{VAR_NAME}}` placeholders. Variables are defined in the meta comment and prompted via modal before install.
 
