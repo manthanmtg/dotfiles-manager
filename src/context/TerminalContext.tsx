@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useCallback, useState } from "react";
+import React, { createContext, useContext, useCallback, useState, useMemo } from "react";
 import type { TerminalLine } from "@/types";
 
 interface TerminalState {
@@ -42,9 +42,12 @@ export function TerminalProvider({
     setTerminalLines([]);
   }, []);
 
+  const stateValue = useMemo(() => ({ lines: terminalLines }), [terminalLines]);
+  const actionsValue = useMemo(() => ({ addLine, clearTerminal }), [addLine, clearTerminal]);
+
   return (
-    <TerminalStateContext.Provider value={{ lines: terminalLines }}>
-      <TerminalActionsContext.Provider value={{ addLine, clearTerminal }}>
+    <TerminalStateContext.Provider value={stateValue}>
+      <TerminalActionsContext.Provider value={actionsValue}>
         {children}
       </TerminalActionsContext.Provider>
     </TerminalStateContext.Provider>

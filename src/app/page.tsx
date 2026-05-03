@@ -13,7 +13,9 @@ import { VariableModal } from "@/components/VariableModal";
 import { CodePreview } from "@/components/CodePreview";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { PlatformGuard } from "@/components/PlatformGuard";
-import type { DotfileCategory } from "@/types";
+import type { DotfileCategory, DotfileVariable } from "@/types";
+
+const EMPTY_VARIABLES: DotfileVariable[] = [];
 
 export default function Home() {
   const {
@@ -99,7 +101,7 @@ export default function Home() {
         <VariableModal
         open={!!variableModal}
         dotfileName={variableModal?.filename || ""}
-        variables={variableModal?.variables || []}
+        variables={variableModal?.variables || EMPTY_VARIABLES}
         onClose={closeVariableModal}
         onSubmit={handleVariableSubmit}
         loading={installingFile === variableModal?.filename}

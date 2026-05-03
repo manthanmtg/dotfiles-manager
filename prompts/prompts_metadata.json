@@ -233,6 +233,7 @@
       "lastSelectedAt": "2026-05-03T05:00:33.140Z",
       "lastCompletedAt": "2026-05-03T05:01:59.267Z",
       "lastOutcome": "completed"
+    },
     "state_management_optimizer.md": {
       "id": "state-management-optimizer",
       "file": "state_management_optimizer.md",
@@ -240,17 +241,17 @@
       "category": "reliability",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 7,
-      "totalCompleted": 7,
+      "totalSelected": 8,
+      "totalCompleted": 8,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-03T14:20:00.000Z",
-      "lastCompletedAt": "2026-05-03T14:35:00.000Z",
+      "lastSelectedAt": "2026-05-03T09:31:31.306Z",
+      "lastCompletedAt": "2026-05-03T09:33:47.946Z",
       "lastOutcome": "completed"
     },
-    },
-    "updatedAt": "2026-05-03T14:35:00.000Z"
-    }      "file": "type_safety_enforcer.md",
+    "type_safety_enforcer.md": {
+      "id": "type-safety-enforcer",
+      "file": "type_safety_enforcer.md",
       "title": "Type Safety Enforcer",
       "category": "verification",
       "enabled": true,
@@ -279,5 +280,5 @@
       "lastOutcome": "completed"
     }
   },
-  "updatedAt": "2026-05-03T14:15:00.000Z"
+  "updatedAt": "2026-05-03T09:33:47.946Z"
 }
