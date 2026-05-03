@@ -18,7 +18,7 @@ Pick one file and remove weak TypeScript boundaries such as `any`, unsafe casts,
 Search for:
 
 ```bash
-rg "\bany\b|@ts-ignore|@ts-expect-error|as unknown as|JSON\.parse" src scripts
+grep -rE "\bany\b|@ts-ignore|@ts-expect-error|as unknown as|JSON\.parse" src scripts
 ```
 
 Prioritize `src/lib/`, API routes, and `src/hooks/useDotfiles.ts`.
