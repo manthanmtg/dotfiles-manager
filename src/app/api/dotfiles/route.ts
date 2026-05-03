@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { detectShell } from "@/lib/shell";
-import { listDotfiles, createDotfile } from "@/lib/dotfiles";
+import { listDotfiles, createDotfile, getDotfile } from "@/lib/dotfiles";
 import { assertSupported } from "@/lib/platform";
 import { CreateDotfileRequest, DotfileEntry } from "@/lib/schemas";
 import { z, ZodError } from "zod/v4";
@@ -44,8 +44,32 @@ export async function POST(request: Request) {
 
     const filename = parsed.name
       .toLowerCase()
+      .trim()
       .replace(/[^a-z0-9-]/g, "-")
-      .replace(/-+/g, "-");
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    if (!filename || filename === "-") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid dotfile name. Name must contain alphanumeric characters.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const shell = detectShell();
+    const existing = getDotfile(filename, shell.configPath);
+    if (existing) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `A dotfile named "${filename}" already exists.`,
+        },
+        { status: 409 }
+      );
+    }
 
     createDotfile(filename, parsed.content, {
       name: parsed.name,

@@ -22,25 +22,52 @@ export function useDotfiles() {
     async <T>(
       url: string,
       schema: z.ZodType<T>,
-      options?: RequestInit
+      options?: RequestInit & { timeout?: number }
     ): Promise<T> => {
-      const res = await fetch(url, options);
-      const json: unknown = await res.json();
+      const { timeout = 10000, ...fetchOptions } = options || {};
 
-      // We use a loose schema for the initial envelope check to avoid any
-      const envelopeSchema = z.object({
-        success: z.boolean(),
-        data: z.unknown().optional(),
-        error: z.string().optional(),
-      });
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
 
-      const envelope = envelopeSchema.parse(json);
+      try {
+        const res = await fetch(url, {
+          ...fetchOptions,
+          signal: controller.signal,
+        });
 
-      if (envelope.success && envelope.data !== undefined) {
-        return schema.parse(envelope.data);
+        clearTimeout(id);
+
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const text = await res.text();
+          throw new Error(
+            `Server returned non-JSON response (${res.status}): ${text.slice(0, 100)}...`
+          );
+        }
+
+        const json: unknown = await res.json();
+
+        // We use a loose schema for the initial envelope check to avoid any
+        const envelopeSchema = z.object({
+          success: z.boolean(),
+          data: z.unknown().optional(),
+          error: z.string().optional(),
+        });
+
+        const envelope = envelopeSchema.parse(json);
+
+        if (envelope.success && envelope.data !== undefined) {
+          return schema.parse(envelope.data);
+        }
+
+        throw new Error(envelope.error || `API request failed: ${url}`);
+      } catch (err) {
+        clearTimeout(id);
+        if (err instanceof Error && err.name === "AbortError") {
+          throw new Error(`Request timed out after ${timeout}ms: ${url}`);
+        }
+        throw err;
       }
-
-      throw new Error(envelope.error || `API request failed: ${url}`);
     },
     []
   );
@@ -71,10 +98,7 @@ export function useDotfiles() {
         "success",
         `Detected shell: ${platformData.shell.shell} (${platformData.platform})`
       );
-      addLine(
-        "info",
-        `Config file: ${platformData.shell.configPath}`
-      );
+      addLine("info", `Config file: ${platformData.shell.configPath}`);
 
       if (!seeded) {
         addLine("info", "Seeding default dotfiles...");
@@ -179,6 +203,10 @@ export function useDotfiles() {
     return fetchDotfiles();
   }, [seedDefaults, fetchDotfiles]);
 
+  const retry = useCallback(() => {
+    initialize();
+  }, [initialize]);
+
   return {
     dotfiles,
     platform,
@@ -187,6 +215,7 @@ export function useDotfiles() {
     install,
     uninstall,
     refresh,
+    retry,
     addLine,
     clearTerminal,
   };
