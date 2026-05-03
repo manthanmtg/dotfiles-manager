@@ -132,16 +132,17 @@ function getManagedSourceLinePattern(
   const dotfilesPathPattern = `${escapeRegex(MANAGED_DOTFILE_SOURCE_PATH)}/${escapeRegex(
     dotfileName
   )}`;
+  const trailingContent = "(?:[\\t ]*(?:#.*)?)?";
   const lineEnd = options.includeLineEnd ? "(?:\\r?\\n|$)" : "$";
 
-  return new RegExp(`^source\\s+${dotfilesPathPattern}${lineEnd}`, "gm");
+  return new RegExp(`^source\\s+${dotfilesPathPattern}${trailingContent}${lineEnd}`, "gm");
 }
 
 function getManagedSourceLineCapturePattern(): RegExp {
   const dotfilesPathPattern = escapeRegex(MANAGED_DOTFILE_SOURCE_PATH);
 
   return new RegExp(
-    `^source\\s+${dotfilesPathPattern}\\/([^\\s]+)(?:\\r?\\n|$)`,
+    `^source\\s+${dotfilesPathPattern}\\/([^\\s#]+)(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
     "gm"
   );
 }
