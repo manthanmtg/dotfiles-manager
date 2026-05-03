@@ -3,12 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Terminal, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { useTerminal } from "@/context/TerminalContext";
 import type { TerminalLine } from "@/types";
-
-interface TerminalConsoleProps {
-  lines: TerminalLine[];
-  onClear: () => void;
-}
 
 const LINE_COLORS: Record<TerminalLine["type"], string> = {
   info: "text-zinc-400",
@@ -26,7 +22,8 @@ const LINE_PREFIX: Record<TerminalLine["type"], string> = {
   command: "❯",
 };
 
-export function TerminalConsole({ lines, onClear }: TerminalConsoleProps) {
+export function TerminalConsole() {
+  const { lines, clearTerminal: onClear } = useTerminal();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
   const previousLineCount = useRef(lines.length);

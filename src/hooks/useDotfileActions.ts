@@ -1,6 +1,4 @@
-"use client";
-
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { DotfileEntry, InstallResult } from "@/types";
 
 interface UseDotfileActionsParams {
@@ -21,17 +19,15 @@ export function useDotfileActions({
   const [variableModal, setVariableModal] = useState<DotfileEntry | null>(null);
   const [previewModal, setPreviewModal] = useState<DotfileEntry | null>(null);
 
-  const dotfileByFilename = useMemo(() => {
-    const map = new Map<string, DotfileEntry>();
-    for (const dotfile of dotfiles) {
-      map.set(dotfile.filename, dotfile);
-    }
-    return map;
+  // Use a ref for dotfiles to keep callbacks stable across dotfile updates
+  const dotfilesRef = useRef(dotfiles);
+  useEffect(() => {
+    dotfilesRef.current = dotfiles;
   }, [dotfiles]);
 
   const handleInstall = useCallback(
     async (filename: string) => {
-      const dotfile = dotfileByFilename.get(filename);
+      const dotfile = dotfilesRef.current.find((d) => d.filename === filename);
       if (!dotfile) return;
 
       if (dotfile.variables.length > 0) {
@@ -43,7 +39,7 @@ export function useDotfileActions({
       await install(filename);
       setInstallingFile(null);
     },
-    [dotfileByFilename, install]
+    [install]
   );
 
   const handleVariableSubmit = useCallback(
@@ -66,12 +62,10 @@ export function useDotfileActions({
     [uninstall]
   );
 
-  const handlePreview = useCallback(
-    (filename: string) => {
-      setPreviewModal(dotfileByFilename.get(filename) || null);
-    },
-    [dotfileByFilename]
-  );
+  const handlePreview = useCallback((filename: string) => {
+    const dotfile = dotfilesRef.current.find((d) => d.filename === filename);
+    setPreviewModal(dotfile || null);
+  }, []);
 
   const closeVariableModal = useCallback(() => {
     setVariableModal(null);
@@ -81,28 +75,15 @@ export function useDotfileActions({
     setPreviewModal(null);
   }, []);
 
-  return useMemo(
-    () => ({
-      installingFile,
-      variableModal,
-      previewModal,
-      handleInstall,
-      handleVariableSubmit,
-      handleUninstall,
-      handlePreview,
-      closeVariableModal,
-      closePreviewModal,
-    }),
-    [
-      installingFile,
-      variableModal,
-      previewModal,
-      handleInstall,
-      handleVariableSubmit,
-      handleUninstall,
-      handlePreview,
-      closeVariableModal,
-      closePreviewModal,
-    ]
-  );
+  return {
+    installingFile,
+    variableModal,
+    previewModal,
+    handleInstall,
+    handleVariableSubmit,
+    handleUninstall,
+    handlePreview,
+    closeVariableModal,
+    closePreviewModal,
+  };
 }

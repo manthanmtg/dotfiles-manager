@@ -19,47 +19,49 @@ export function useDotfileView({
 }: DotfileViewFilters): DotfileViewResult {
   const query = useMemo(() => search.trim().toLowerCase(), [search]);
 
-  // Pre-calculate searchable text once when dotfiles change to optimize filtering during search
-  const enrichedDotfiles = useMemo(() => {
-    return dotfiles.map((dotfile) => ({
-      ...dotfile,
-      _searchable: [
-        dotfile.name,
-        dotfile.description,
+  // Pre-calculate searchable text index using a Map to avoid re-mapping dotfiles into new objects
+  const searchableIndex = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const dotfile of dotfiles) {
+      map.set(
         dotfile.filename,
-        ...dotfile.tags,
-      ]
-        .join(" ")
-        .toLowerCase(),
-    }));
+        [
+          dotfile.name,
+          dotfile.description,
+          dotfile.filename,
+          ...dotfile.tags,
+        ]
+          .join(" ")
+          .toLowerCase()
+      );
+    }
+    return map;
   }, [dotfiles]);
 
   return useMemo(() => {
     const filtered: DotfileEntry[] = [];
     const grouped: Partial<Record<DotfileCategory, DotfileEntry[]>> = {};
 
-    for (const dotfile of enrichedDotfiles) {
+    for (const dotfile of dotfiles) {
       if (activeCategory !== "all" && dotfile.category !== activeCategory) {
         continue;
       }
 
-      if (query && !dotfile._searchable.includes(query)) {
+      const searchableText = searchableIndex.get(dotfile.filename);
+      if (query && searchableText && !searchableText.includes(query)) {
         continue;
       }
 
-      // Remove the internal _searchable property before adding to results
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { _searchable, ...entry } = dotfile;
-      filtered.push(entry as DotfileEntry);
+      filtered.push(dotfile);
 
       if (activeCategory === "all") {
         if (!grouped[dotfile.category]) {
           grouped[dotfile.category] = [];
         }
-        grouped[dotfile.category]!.push(entry as DotfileEntry);
+        grouped[dotfile.category]!.push(dotfile);
       }
     }
 
     return { filtered, grouped };
-  }, [activeCategory, enrichedDotfiles, query]);
+  }, [activeCategory, dotfiles, query, searchableIndex]);
 }

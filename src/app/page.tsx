@@ -21,11 +21,9 @@ export default function Home() {
     platform,
     loading,
     error,
-    terminalLines,
     install,
     uninstall,
     refresh,
-    clearTerminal,
   } = useDotfiles();
 
   const [activeCategory, setActiveCategory] = useState<
@@ -96,7 +94,7 @@ export default function Home() {
         </div>
       </main>
 
-      <TerminalConsole lines={terminalLines} onClear={clearTerminal} />
+      <TerminalConsole />
 
         <VariableModal
         open={!!variableModal}
