@@ -78,8 +78,6 @@ export function addSource(configPath: string, dotfileName: string): void {
   assertSafeDotfileName(dotfileName);
   assertSafeConfigPath(configPath);
 
-  const sourceLine = `\nsource ${MANAGED_DOTFILE_SOURCE_PATH}/${dotfileName}\n`;
-
   if (!fs.existsSync(configPath)) {
     throw new Error(`Config file not found: ${configPath}`);
   }
@@ -93,6 +91,10 @@ export function addSource(configPath: string, dotfileName: string): void {
   if (isSourced(configPath, dotfileName)) {
     throw new Error(`${dotfileName} is already sourced in ${configPath}`);
   }
+
+  const content = fs.readFileSync(configPath, "utf-8");
+  const needsLeadingNewline = content.length > 0 && !content.endsWith("\n");
+  const sourceLine = `${needsLeadingNewline ? "\n" : ""}source ${MANAGED_DOTFILE_SOURCE_PATH}/${dotfileName}\n`;
 
   fs.appendFileSync(configPath, sourceLine, "utf-8");
 }
@@ -135,14 +137,14 @@ function getManagedSourceLinePattern(
   const trailingContent = "(?:[\\t ]*(?:#.*)?)?";
   const lineEnd = options.includeLineEnd ? "(?:\\r?\\n|$)" : "$";
 
-  return new RegExp(`^source\\s+${dotfilesPathPattern}${trailingContent}${lineEnd}`, "gm");
+  return new RegExp(`^[ \\t]*source\\s+${dotfilesPathPattern}${trailingContent}${lineEnd}`, "gm");
 }
 
 function getManagedSourceLineCapturePattern(): RegExp {
   const dotfilesPathPattern = escapeRegex(MANAGED_DOTFILE_SOURCE_PATH);
 
   return new RegExp(
-    `^source\\s+${dotfilesPathPattern}\\/([^\\s#]+)(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
+    `^[ \\t]*source\\s+${dotfilesPathPattern}\\/([^\\s#]+)(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
     "gm"
   );
 }
