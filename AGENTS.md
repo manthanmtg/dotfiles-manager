@@ -57,11 +57,13 @@ src/
 │   └── globals.css         # Tailwind v4 imports + custom scrollbar + grid bg
 ├── components/             # All "use client" React components
 ├── hooks/
-│   ├── useDotfiles.ts      # Central data-fetching hook (fetch, install, uninstall, terminal log)
-│   ├── useDotfileActions.ts # Shared action hook for install/uninstall operations
-│   ├── useDotfileView.ts    # Memoized filter/search helpers for list and category views
-│   └── useTerminalLogger.ts # Terminal event stream utilities
-├── lib/                    # Server-only utilities
+L60- │   ├── useDotfiles.ts      # Central data-fetching hook (fetch, install, uninstall)
+L61- │   ├── useDotfileActions.ts # Shared action hook for install/uninstall operations
+L62- │   ├── useDotfileView.ts    # Memoized filter/search helpers for list and category views
+L63- │   └── useTerminal.ts       # (Moved to TerminalContext)
+L64- ├── context/
+L65- │   └── TerminalContext.tsx # Terminal event stream utilities via React Context
+L66- ├── lib/                    # Server-only utilities
 │   ├── schemas.ts          # Zod v4 schemas for all data types + API payloads
 │   ├── parser.ts           # Parses meta comment blocks from .sh files
 │   ├── scanner.ts          # Recursively discovers all .sh files in dotfiles/
