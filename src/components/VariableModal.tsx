@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Play, Eye, EyeOff } from "lucide-react";
 import type { DotfileVariable } from "@/types";
@@ -14,7 +14,7 @@ interface VariableModalProps {
   loading: boolean;
 }
 
-export function VariableModal({
+export const VariableModal = memo(function VariableModal({
   open,
   dotfileName,
   variables,
@@ -243,4 +243,6 @@ export function VariableModal({
       )}
     </AnimatePresence>
   );
-}
+});
+
+VariableModal.displayName = "VariableModal";
