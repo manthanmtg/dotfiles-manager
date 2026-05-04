@@ -9,7 +9,13 @@ import { getSourcedDotfiles } from "./shell";
 const DOTFILES_DIR = path.join(os.homedir(), ".dotfiles-manager");
 const METADATA_SUFFIX = ".meta.json";
 const SAFE_DOTFILE_NAME = /^[a-zA-Z0-9._-]+$/;
-const STORED_METADATA = z.string().transform((value) => JSON.parse(value)).pipe(DotfileMetadata);
+const STORED_METADATA = z.string().transform((value): unknown => {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}).pipe(DotfileMetadata);
 
 function getDefaultMetadata(filename: string): DotfileMetadata {
   return {
@@ -195,9 +201,13 @@ function assertNotSymbolicLink(filePath: string): void {
       throw new Error(`Refusing to write symlinked file: ${path.basename(filePath)}`);
     }
   } catch (error) {
-    if (error instanceof Error && (error as NodeJS.ErrnoException).code === "ENOENT") {
+    if (isErrnoException(error) && error.code === "ENOENT") {
       return;
     }
     throw error;
   }
+}
+
+function isErrnoException(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error && "code" in error;
 }
