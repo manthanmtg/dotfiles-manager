@@ -7,7 +7,7 @@ import {
 } from "@/lib/dotfiles";
 import { assertSupported } from "@/lib/platform";
 import { InstallRequest, InstallResult } from "@/lib/schemas";
-import { ZodError } from "zod/v4";
+import { handleApiError } from "@/lib/errors";
 
 export async function POST(request: Request) {
   try {
@@ -60,6 +60,16 @@ export async function POST(request: Request) {
       dotfile.variables.map((variable) => variable.name)
     );
 
+    if (Object.keys(providedVariables).length > 0 && allowedVariables.size === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Dotfile "${parsed.filename}" does not accept variables.`,
+        },
+        { status: 400 }
+      );
+    }
+
     const invalidVariableNames = Object.keys(providedVariables).filter(
       (name) => !allowedVariables.has(name)
     );
@@ -110,70 +120,6 @@ export async function POST(request: Request) {
       data,
     });
   } catch (error) {
-    const clientError = mapInstallError(error);
-    if (clientError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: clientError.message,
-        },
-        { status: clientError.status }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Unable to complete install request.",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error, "Unable to complete install request.");
   }
-}
-
-function mapInstallError(error: unknown): { status: number; message: string } | null {
-  if (error instanceof SyntaxError) {
-    return {
-      status: 400,
-      message: "Invalid JSON payload for install request",
-    };
-  }
-
-  if (error instanceof ZodError) {
-    return {
-      status: 400,
-      message: "Invalid install request payload",
-    };
-  }
-
-  if (error instanceof Error && error.message.includes("Config file is not writable")) {
-    return {
-      status: 403,
-      message:
-        "Failed to write to shell config. Check your shell config file permissions.",
-    };
-  }
-
-  if (error instanceof Error && error.message.includes("Config file not found")) {
-    return {
-      status: 500,
-      message: "Shell config file missing or inaccessible.",
-    };
-  }
-
-  if (error instanceof Error && error.message.includes("Invalid value for variable")) {
-    return {
-      status: 400,
-      message: error.message,
-    };
-  }
-
-  if (error instanceof Error && error.message.includes("Refusing to write symlinked file")) {
-    return {
-      status: 403,
-      message: "Security error: Dotfile storage uses symbolic links which is not allowed.",
-    };
-  }
-
-  return null;
 }

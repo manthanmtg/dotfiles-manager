@@ -55,17 +55,38 @@ export function useDotfiles() {
           error: z.string().optional(),
         });
 
-        const envelope = envelopeSchema.parse(json);
+        const envelopeResult = envelopeSchema.safeParse(json);
+        if (!envelopeResult.success) {
+          throw new Error(
+            `Malformed API response from ${url}: Response did not match expected envelope format.`
+          );
+        }
+
+        const envelope = envelopeResult.data;
 
         if (envelope.success && envelope.data !== undefined) {
-          return schema.parse(envelope.data);
+          const dataResult = schema.safeParse(envelope.data);
+          if (!dataResult.success) {
+            console.error(`Validation error for ${url}:`, dataResult.error);
+            throw new Error(
+              `API validation error: The server returned data in an unexpected format for ${url}.`
+            );
+          }
+          return dataResult.data;
         }
 
         throw new Error(envelope.error || `API request failed: ${url}`);
       } catch (err) {
         clearTimeout(id);
-        if (err instanceof Error && err.name === "AbortError") {
-          throw new Error(`Request timed out after ${timeout}ms: ${url}`);
+        if (err instanceof Error) {
+          if (err.name === "AbortError") {
+            throw new Error(`Request timed out after ${timeout}ms: ${url}`);
+          }
+          if (err.message.includes("Failed to fetch")) {
+            throw new Error(
+              `Network error: Unable to reach the server. Please check if the development server is running.`
+            );
+          }
         }
         throw err;
       }
