@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDotfiles } from "@/hooks/useDotfiles";
 import { useDotfileActions } from "@/hooks/useDotfileActions";
 import { useDotfileView } from "@/hooks/useDotfileView";
@@ -55,6 +55,18 @@ export default function Home() {
   });
 
   const { installedCount, categoryCounts } = useDotfileStats({ dotfiles });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "/" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) {
+        e.preventDefault();
+        document.getElementById("dotfile-search")?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   if (loading) return <LoadingScreen />;
   if (platform && !platform.supported) return <PlatformGuard />;
