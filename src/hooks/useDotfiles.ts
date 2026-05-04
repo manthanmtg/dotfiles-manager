@@ -9,6 +9,7 @@ import {
 } from "@/lib/schemas";
 import { z } from "zod/v4";
 import { useTerminalActions } from "@/context/TerminalContext";
+import { fetchApi } from "@/lib/api";
 
 export function useDotfiles() {
   const [dotfiles, setDotfiles] = useState<DotfileEntry[]>([]);
@@ -18,97 +19,21 @@ export function useDotfiles() {
   const [seeded, setSeeded] = useState(false);
   const { addLine, clearTerminal } = useTerminalActions();
 
-  const fetchApi = useCallback(
-    async <T>(
-      url: string,
-      schema: z.ZodType<T>,
-      options?: RequestInit & { timeout?: number }
-    ): Promise<T> => {
-      const { timeout = 10000, ...fetchOptions } = options || {};
-
-      const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), timeout);
-
-      try {
-        const res = await fetch(url, {
-          ...fetchOptions,
-          signal: controller.signal,
-        });
-
-        clearTimeout(id);
-
-        const contentType = res.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          const text = await res.text();
-          throw new Error(
-            `Server returned non-JSON response (${res.status}): ${text.slice(0, 100)}...`
-          );
-        }
-
-        const json: unknown = await res.json();
-
-        // We use a loose schema for the initial envelope check to avoid any
-        // runtime errors if the API response doesn't follow the standard shape.
-        const envelopeSchema = z.object({
-          success: z.boolean(),
-          data: z.unknown().optional(),
-          error: z.string().optional(),
-        });
-
-        const envelopeResult = envelopeSchema.safeParse(json);
-        if (!envelopeResult.success) {
-          throw new Error(
-            `Malformed API response from ${url}: Response did not match expected envelope format.`
-          );
-        }
-
-        const envelope = envelopeResult.data;
-
-        if (envelope.success && envelope.data !== undefined) {
-          const dataResult = schema.safeParse(envelope.data);
-          if (!dataResult.success) {
-            console.error(`Validation error for ${url}:`, dataResult.error);
-            throw new Error(
-              `API validation error: The server returned data in an unexpected format for ${url}.`
-            );
-          }
-          return dataResult.data;
-        }
-
-        throw new Error(envelope.error || `API request failed: ${url}`);
-      } catch (err) {
-        clearTimeout(id);
-        if (err instanceof Error) {
-          if (err.name === "AbortError") {
-            throw new Error(`Request timed out after ${timeout}ms: ${url}`);
-          }
-          if (err.message.includes("Failed to fetch")) {
-            throw new Error(
-              `Network error: Unable to reach the server. Please check if the development server is running.`
-            );
-          }
-        }
-        throw err;
-      }
-    },
-    []
-  );
-
   const fetchShell = useCallback(async () => {
     const data = await fetchApi("/api/shell", PlatformData);
     setPlatform(data);
     return data;
-  }, [fetchApi]);
+  }, []);
 
   const seedDefaults = useCallback(async () => {
     return fetchApi("/api/seed", SeedResult, { method: "POST" });
-  }, [fetchApi]);
+  }, []);
 
   const fetchDotfiles = useCallback(async () => {
     const data = await fetchApi("/api/dotfiles", z.array(DotfileEntry));
     setDotfiles(data);
     return data;
-  }, [fetchApi]);
+  }, []);
 
   const initialize = useCallback(async () => {
     setLoading(true);
@@ -185,7 +110,7 @@ export function useDotfiles() {
         return null;
       }
     },
-    [addLine, fetchApi]
+    [addLine]
   );
 
   const uninstall = useCallback(
@@ -217,7 +142,7 @@ export function useDotfiles() {
         return null;
       }
     },
-    [addLine, fetchApi]
+    [addLine]
   );
 
   const refresh = useCallback(async () => {
