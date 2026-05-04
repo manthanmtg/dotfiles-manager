@@ -117,7 +117,11 @@ export const Sidebar = memo(function Sidebar({
         </button>
 
         <div className="pt-2 pb-1 px-3">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
+          <span 
+            role="heading" 
+            aria-level={2}
+            className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600"
+          >
             Categories
           </span>
         </div>

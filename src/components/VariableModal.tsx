@@ -190,7 +190,7 @@ export const VariableModal = memo(function VariableModal({
                         aria-describedby={
                           v.description ? descriptionId : undefined
                         }
-                        className="w-full px-3 py-2.5 bg-zinc-800/60 border border-zinc-700/50 rounded-lg text-sm text-zinc-100 font-mono placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/40 transition-all"
+                        className="w-full px-3 py-2.5 bg-zinc-800/60 border border-zinc-700/50 rounded-lg text-sm text-zinc-100 font-mono placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 focus-visible:border-cyan-500/40 transition-all"
                       />
                       {v.sensitive && (
                         <button
@@ -234,7 +234,9 @@ export const VariableModal = memo(function VariableModal({
                   className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white text-sm font-medium rounded-lg hover:from-cyan-400 hover:to-emerald-400 transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Play size={14} aria-hidden="true" />
-                  {loading ? "Installing..." : "Install"}
+                  <span aria-live="polite">
+                    {loading ? "Installing..." : "Install"}
+                  </span>
                 </button>
               </div>
             </form>

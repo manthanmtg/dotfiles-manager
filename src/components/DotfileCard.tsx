@@ -92,104 +92,110 @@ function DotfileCardInner({
         dotfile.installed ? `bg-gradient-to-br ${INSTALLED_GRADIENT[color]}` : ""
       } ${hovered ? HOVER_STATES[color] : ""}`}
     >
-      {installed && (
-        <div className="absolute top-3 right-3">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30"
-          >
-            <CheckCircle2 size={12} className="text-emerald-400" aria-hidden="true" />
-            <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
-              Active
-            </span>
-          </motion.div>
-        </div>
-      )}
-
-      <div className="p-5">
-        <div className="flex items-start gap-3 mb-3">
-          <div
-            className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${ICON_BG_COLORS[color]}`}
-          >
-            <DynamicIcon
-              name={dotfile.icon || catMeta.icon}
-              size={20}
-              aria-hidden="true"
-            />
+      <article className="h-full flex flex-col">
+        {installed && (
+          <div className="absolute top-3 right-3">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30"
+            >
+              <CheckCircle2 size={12} className="text-emerald-400" aria-hidden="true" />
+              <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
+                Active
+              </span>
+            </motion.div>
           </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold text-zinc-100 truncate pr-16">
-              {dotfile.name}
-            </h3>
-            <p className="text-xs text-zinc-500 font-mono truncate">
-              {dotfile.filename}
-            </p>
+        )}
+
+        <div className="p-5 flex-1">
+          <div className="flex items-start gap-3 mb-3">
+            <div
+              className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${ICON_BG_COLORS[color]}`}
+            >
+              <DynamicIcon
+                name={dotfile.icon || catMeta.icon}
+                size={20}
+                aria-hidden="true"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold text-zinc-100 truncate pr-16">
+                {dotfile.name}
+              </h3>
+              <p className="text-xs text-zinc-500 font-mono truncate">
+                {dotfile.filename}
+              </p>
+            </div>
+          </div>
+
+          <p className="text-xs text-zinc-400 leading-relaxed mb-3 line-clamp-2">
+            {dotfile.description}
+          </p>
+
+          <div className="flex items-center gap-2 flex-wrap mb-4">
+            {dotfile.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-800/80 text-[10px] font-mono text-zinc-500"
+              >
+                <Tag size={8} aria-hidden="true" />
+                {tag}
+              </span>
+            ))}
+            <span className="text-[10px] font-mono text-zinc-600">
+              {lineCount} lines
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <motion.button
+              onClick={() => onPreview(filename)}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 text-zinc-400 text-xs font-medium hover:bg-zinc-700/80 hover:text-zinc-200 transition-all ${focusRing}`}
+            >
+              <Eye size={13} aria-hidden="true" />
+              Preview
+            </motion.button>
+
+            {installed ? (
+              <motion.button
+                onClick={() => onUninstall(filename)}
+                disabled={installing}
+                whileTap={{ scale: 0.98 }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium hover:bg-rose-500/20 transition-all disabled:opacity-50 ${focusRing}`}
+              >
+                {installing ? (
+                  <Loader2 size={13} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Trash2 size={13} aria-hidden="true" />
+                )}
+                <span aria-live="polite">
+                  {installing ? "Uninstalling..." : "Uninstall"}
+                </span>
+              </motion.button>
+            ) : (
+              <motion.button
+                onClick={() => onInstall(filename)}
+                disabled={installing}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500/90 to-emerald-500/90 text-white text-xs font-medium hover:from-cyan-400 hover:to-emerald-400 transition-all shadow-lg shadow-cyan-500/10 disabled:opacity-50 ${focusRing}`}
+              >
+                {installing ? (
+                  <Loader2 size={13} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Download size={13} aria-hidden="true" />
+                )}
+                <span aria-live="polite">
+                  {installing ? "Installing..." : "Install"}
+                </span>
+              </motion.button>
+            )}
           </div>
         </div>
-
-        <p className="text-xs text-zinc-400 leading-relaxed mb-3 line-clamp-2">
-          {dotfile.description}
-        </p>
-
-        <div className="flex items-center gap-2 flex-wrap mb-4">
-          {dotfile.tags.slice(0, 3).map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-800/80 text-[10px] font-mono text-zinc-500"
-            >
-              <Tag size={8} aria-hidden="true" />
-              {tag}
-            </span>
-          ))}
-          <span className="text-[10px] font-mono text-zinc-600">
-            {lineCount} lines
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <motion.button
-            onClick={() => onPreview(filename)}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 text-zinc-400 text-xs font-medium hover:bg-zinc-700/80 hover:text-zinc-200 transition-all ${focusRing}`}
-          >
-            <Eye size={13} aria-hidden="true" />
-            Preview
-          </motion.button>
-
-          {installed ? (
-            <motion.button
-              onClick={() => onUninstall(filename)}
-              disabled={installing}
-              whileTap={{ scale: 0.98 }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium hover:bg-rose-500/20 transition-all disabled:opacity-50 ${focusRing}`}
-            >
-              {installing ? (
-                <Loader2 size={13} className="animate-spin" aria-hidden="true" />
-              ) : (
-                <Trash2 size={13} aria-hidden="true" />
-              )}
-              Uninstall
-            </motion.button>
-          ) : (
-            <motion.button
-              onClick={() => onInstall(filename)}
-              disabled={installing}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500/90 to-emerald-500/90 text-white text-xs font-medium hover:from-cyan-400 hover:to-emerald-400 transition-all shadow-lg shadow-cyan-500/10 disabled:opacity-50 ${focusRing}`}
-            >
-              {installing ? (
-                <Loader2 size={13} className="animate-spin" aria-hidden="true" />
-              ) : (
-                <Download size={13} aria-hidden="true" />
-              )}
-              Install
-            </motion.button>
-          )}
-        </div>
-      </div>
+      </article>
 
       <motion.div
         animate={{ opacity: hovered ? 1 : 0 }}
