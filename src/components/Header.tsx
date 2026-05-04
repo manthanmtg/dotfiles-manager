@@ -32,7 +32,7 @@ export const Header = memo(function Header({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="relative" role="search">
+          <div className="relative group" role="search">
             <label htmlFor="dotfile-search" className="sr-only">
               Search dotfiles
             </label>
@@ -47,8 +47,11 @@ export const Header = memo(function Header({
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search dotfiles..."
-              className="pl-9 pr-4 py-2 w-64 bg-zinc-800/50 border border-zinc-700/40 rounded-lg text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all font-mono"
+              className="pl-9 pr-12 py-2 w-64 bg-zinc-800/50 border border-zinc-700/40 rounded-lg text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all font-mono"
             />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-zinc-700/50 bg-zinc-900/50 text-[10px] font-mono text-zinc-500 pointer-events-none group-focus-within:opacity-0 transition-opacity">
+              /
+            </div>
           </div>
 
           <motion.button
