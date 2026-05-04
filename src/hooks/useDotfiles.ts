@@ -48,6 +48,7 @@ export function useDotfiles() {
         const json: unknown = await res.json();
 
         // We use a loose schema for the initial envelope check to avoid any
+        // runtime errors if the API response doesn't follow the standard shape.
         const envelopeSchema = z.object({
           success: z.boolean(),
           data: z.unknown().optional(),

@@ -84,16 +84,18 @@ export function parseDotfileSource(
 
     if (key === "variable") {
       const parsed = parseVariableLine(value, lineNo);
-      if (parsed.error) {
-        errors.push(parsed.error);
-      } else if (seenVariables.has(parsed.data!.name)) {
-        errors.push(
-          `Line ${lineNo}: Duplicate variable "${parsed.data!.name}" in meta block`
-        );
+      if (parsed.success) {
+        if (seenVariables.has(parsed.data.name)) {
+          errors.push(
+            `Line ${lineNo}: Duplicate variable "${parsed.data.name}" in meta block`
+          );
+        } else {
+          seenVariables.add(parsed.data.name);
+          variableLines.push(lineNo);
+          variables.push(parsed.data);
+        }
       } else {
-        seenVariables.add(parsed.data!.name);
-        variableLines.push(lineNo);
-        variables.push(parsed.data!);
+        errors.push(parsed.error);
       }
     } else if (!SUPPORTED_META_KEYS.has(key)) {
       errors.push(
@@ -130,7 +132,7 @@ export function parseDotfileSource(
     ? fields.tags.split(",").map((t) => t.trim()).filter(Boolean)
     : [];
 
-  let metadata;
+  let metadata: DotfileMetadata;
   try {
     metadata = DotfileMetadata.parse({
       name: fields.name,
@@ -182,17 +184,19 @@ export function parseDotfileSource(
 function parseVariableLine(
   value: string,
   lineNum: number
-): { data?: DotfileVariableMeta; error?: string } {
+): { success: true; data: DotfileVariableMeta } | { success: false; error: string } {
   const parts = value.split("|").map((p) => p.trim());
 
   if (parts.length < 2) {
     return {
+      success: false,
       error: `Line ${lineNum}: Variable needs at least "name | label" — got "${value}"`,
     };
   }
 
   if (parts.length > 6) {
     return {
+      success: false,
       error: `Line ${lineNum}: Variable definition has too many fields — expected at most 6 "name | label | description | default | required | sensitive"`,
     };
   }
@@ -202,12 +206,14 @@ function parseVariableLine(
 
   if (!label) {
     return {
+      success: false,
       error: `Line ${lineNum}: Variable label is required — got empty value in "${value}"`,
     };
   }
 
   if (!name || !/^[A-Z0-9_]+$/.test(name)) {
     return {
+      success: false,
       error: `Line ${lineNum}: Variable name must be uppercase with optional underscores and digits — got "${name}"`,
     };
   }
@@ -217,17 +223,20 @@ function parseVariableLine(
     : "required";
   if (requiredToken !== "required" && requiredToken !== "optional") {
     return {
+      success: false,
       error: `Line ${lineNum}: Variable required flag must be "required" or "optional" — got "${requiredStr}"`,
     };
   }
 
   if (sensitiveStr && sensitiveStr.toLowerCase() !== "sensitive") {
     return {
+      success: false,
       error: `Line ${lineNum}: Variable flag can only be "sensitive" when provided — got "${sensitiveStr}"`,
     };
   }
 
   return {
+    success: true,
     data: {
       name,
       label,
