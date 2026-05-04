@@ -56,13 +56,6 @@ export const PlatformData = z.object({
 });
 export type PlatformData = z.infer<typeof PlatformData>;
 
-export const ApiResponse = <T extends z.ZodTypeAny>(dataSchema: T) =>
-  z.object({
-    success: z.boolean(),
-    data: dataSchema.optional(),
-    error: z.string().optional(),
-  });
-
 export const InstallRequest = z.object({
   filename: DotfileFilename,
   variables: z.record(z.string(), z.string()).optional(),

@@ -2,7 +2,6 @@ import {
   DotfileCategory as DotfileCategoryType,
   DotfileVariable as DotfileVariableType,
   DotfileEntry as DotfileEntryType,
-  ShellInfo as ShellInfoType,
   PlatformData as PlatformDataType,
   InstallResult as InstallResultType,
 } from "@/lib/schemas";
@@ -10,15 +9,8 @@ import {
 export type DotfileCategory = DotfileCategoryType;
 export type DotfileVariable = DotfileVariableType;
 export type DotfileEntry = DotfileEntryType;
-export type ShellInfo = ShellInfoType;
 export type PlatformData = PlatformDataType;
 export type InstallResult = InstallResultType;
-
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
 
 export interface TerminalLine {
   type: "info" | "success" | "error" | "warning" | "command";
