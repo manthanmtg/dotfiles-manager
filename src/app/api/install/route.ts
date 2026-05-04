@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { detectShell, addSource, isSourced } from "@/lib/shell";
+import { detectShell, addSource, isSourced, assertSafeConfigPath } from "@/lib/shell";
 import {
   getDotfile,
   updateDotfileContent,
@@ -25,6 +25,8 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    assertSafeConfigPath(shell.configPath);
 
     if (!shell.configExists) {
       return NextResponse.json(
