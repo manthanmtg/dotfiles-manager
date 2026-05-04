@@ -26,31 +26,31 @@ export const DotfileVariable = z.object({
 export type DotfileVariable = z.infer<typeof DotfileVariable>;
 
 export const DotfileMetadata = z.object({
-  name: z.string().min(1),
-  description: z.string().min(1),
+  name: z.string().min(1).max(100),
+  description: z.string().min(1).max(500),
   category: DotfileCategory,
-  icon: z.string().optional(),
-  variables: z.array(DotfileVariable).default([]),
-  tags: z.array(z.string()).default([]),
+  icon: z.string().max(50).optional(),
+  variables: z.array(DotfileVariable).max(20).default([]),
+  tags: z.array(z.string().max(30)).max(10).default([]),
 });
 export type DotfileMetadata = z.infer<typeof DotfileMetadata>;
 
 export const DotfileEntry = DotfileMetadata.extend({
   filename: DotfileFilename,
-  content: z.string(),
+  content: z.string().max(1024 * 100), // 100KB limit
   installed: z.boolean().default(false),
 });
 export type DotfileEntry = z.infer<typeof DotfileEntry>;
 
 export const ShellInfo = z.object({
   shell: z.enum(["zsh", "bash", "fish", "unknown"]),
-  configPath: z.string(),
+  configPath: z.string().max(1024),
   configExists: z.boolean(),
 });
 export type ShellInfo = z.infer<typeof ShellInfo>;
 
 export const PlatformData = z.object({
-  platform: z.string(),
+  platform: z.string().max(50),
   supported: z.boolean(),
   shell: ShellInfo,
 });
@@ -58,15 +58,15 @@ export type PlatformData = z.infer<typeof PlatformData>;
 
 export const InstallRequest = z.object({
   filename: DotfileFilename,
-  variables: z.record(z.string(), z.string()).optional(),
+  variables: z.record(z.string().max(100), z.string().max(2048)).optional(),
 });
 export type InstallRequest = z.infer<typeof InstallRequest>;
 
 export const InstallResult = z.object({
-  filename: z.string(),
-  configPath: z.string(),
-  shell: z.string(),
-  message: z.string(),
+  filename: z.string().max(255),
+  configPath: z.string().max(1024),
+  shell: z.string().max(50),
+  message: z.string().max(1024),
 });
 export type InstallResult = z.infer<typeof InstallResult>;
 
@@ -83,11 +83,11 @@ export const UninstallRequest = z.object({
 export type UninstallRequest = z.infer<typeof UninstallRequest>;
 
 export const CreateDotfileRequest = z.object({
-  name: z.string().min(1),
-  description: z.string().min(1),
+  name: z.string().min(1).max(100),
+  description: z.string().min(1).max(500),
   category: DotfileCategory,
-  content: z.string().min(1),
-  variables: z.array(DotfileVariable).default([]),
-  tags: z.array(z.string()).default([]),
+  content: z.string().min(1).max(1024 * 100), // 100KB limit
+  variables: z.array(DotfileVariable).max(20).default([]),
+  tags: z.array(z.string().max(30)).max(10).default([]),
 });
 export type CreateDotfileRequest = z.infer<typeof CreateDotfileRequest>;

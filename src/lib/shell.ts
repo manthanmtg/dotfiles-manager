@@ -167,7 +167,7 @@ function assertSafeDotfileName(dotfileName: string): void {
   }
 }
 
-function assertSafeConfigPath(configPath: string): void {
+export function assertSafeConfigPath(configPath: string): void {
   const normalized = path.resolve(configPath);
   if (!SAFE_DOTFILE_SOURCE_PATHS.includes(normalized)) {
     throw new Error(`Invalid shell config path: ${configPath}`);

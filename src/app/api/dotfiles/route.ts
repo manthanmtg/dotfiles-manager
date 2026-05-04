@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { detectShell } from "@/lib/shell";
+import { detectShell, assertSafeConfigPath } from "@/lib/shell";
 import { listDotfiles, createDotfile, getDotfile } from "@/lib/dotfiles";
 import { assertSupported } from "@/lib/platform";
 import { CreateDotfileRequest, DotfileEntry } from "@/lib/schemas";
@@ -10,6 +10,7 @@ export async function GET() {
   try {
     assertSupported();
     const shell = detectShell();
+    assertSafeConfigPath(shell.configPath);
     const dotfiles = listDotfiles(shell.configPath);
 
     const data = z.array(DotfileEntry).parse(dotfiles);
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
     }
 
     const shell = detectShell();
+    assertSafeConfigPath(shell.configPath);
     const existing = getDotfile(filename, shell.configPath);
     if (existing) {
       return NextResponse.json(

@@ -27,9 +27,13 @@ function mapErrorToStatus(error: unknown, fallbackMessage: string): { status: nu
   }
 
   if (error instanceof ZodError) {
+    const issues = error.issues.map((issue) => {
+      const path = issue.path.join(".");
+      return `${path}: ${issue.message}`;
+    });
     return {
       status: 400,
-      message: "Invalid request payload format.",
+      message: `Invalid request payload: ${issues.join("; ")}`,
     };
   }
 
