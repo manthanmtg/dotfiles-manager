@@ -2,12 +2,9 @@ import fs from "fs";
 import path from "path";
 import { createDotfile, getDotfilesDir } from "./dotfiles";
 import { scanDotfiles } from "./scanner";
+import type { SeedResult } from "./schemas";
 
-export function seedDotfiles(): {
-  seeded: number;
-  updated: number;
-  skipped: number;
-} {
+export function seedDotfiles(): SeedResult {
   const dir = getDotfilesDir();
   let seeded = 0;
   let updated = 0;

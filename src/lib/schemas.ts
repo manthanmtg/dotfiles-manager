@@ -91,3 +91,9 @@ export const CreateDotfileRequest = z.object({
   tags: z.array(z.string().max(30)).max(10).default([]),
 });
 export type CreateDotfileRequest = z.infer<typeof CreateDotfileRequest>;
+
+export const CreateDotfileResponse = z.object({
+  filename: z.string().max(255),
+  message: z.string().max(1024),
+});
+export type CreateDotfileResponse = z.infer<typeof CreateDotfileResponse>;

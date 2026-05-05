@@ -4,6 +4,8 @@ import {
   DotfileEntry as DotfileEntryType,
   PlatformData as PlatformDataType,
   InstallResult as InstallResultType,
+  SeedResult as SeedResultType,
+  CreateDotfileResponse as CreateDotfileResponseType,
 } from "@/lib/schemas";
 
 export type DotfileCategory = DotfileCategoryType;
@@ -11,6 +13,8 @@ export type DotfileVariable = DotfileVariableType;
 export type DotfileEntry = DotfileEntryType;
 export type PlatformData = PlatformDataType;
 export type InstallResult = InstallResultType;
+export type SeedResult = SeedResultType;
+export type CreateDotfileResponse = CreateDotfileResponseType;
 
 export interface TerminalLine {
   type: "info" | "success" | "error" | "warning" | "command";
