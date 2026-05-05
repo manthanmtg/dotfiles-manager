@@ -172,10 +172,11 @@ export function applyVariables(
 
 function validateVariableValues(variables: Record<string, string>): void {
   for (const [key, value] of Object.entries(variables)) {
-    // Block control characters and shell metacharacters that could be used for injection
-    if (/[\r\n\0\$;`|&<>\\]/.test(value)) {
+    // Block control characters and shell metacharacters that could be used for injection.
+    // We specifically block quotes to prevent breaking out of quoted strings in dotfile templates.
+    if (/[\r\n\0\$;`|&<>\\]/.test(value) || /['"]/.test(value)) {
       throw new Error(
-        `Invalid value for variable ${key}: contains forbidden characters (\r, \n, \0, $, \`, ;, |, &, <, >, \\)`
+        `Invalid value for variable ${key}: contains forbidden characters (\r, \n, \0, $, \`, ;, |, &, <, >, \\, ', ")`
       );
     }
   }
