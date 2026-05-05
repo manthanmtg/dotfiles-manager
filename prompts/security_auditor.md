@@ -29,7 +29,7 @@ Prioritize:
 Check for:
 
 - Path traversal through filenames or dotfile identifiers.
-- Missing Zod validation for incoming payloads.
+- Missing Zod (from `zod/v4`) validation for incoming payloads.
 - Sensitive variable values shown in logs, URLs, or persistent client storage.
 - Unsafe rendering of dotfile content.
 - Broad regexes that can remove unrelated shell config lines.
