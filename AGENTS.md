@@ -57,19 +57,21 @@ src/
 │   └── globals.css         # Tailwind v4 imports + custom scrollbar + grid bg
 ├── components/             # All "use client" React components
 ├── hooks/
-L60- │   ├── useDotfiles.ts      # Central data-fetching hook (fetch, install, uninstall)
-L61- │   ├── useDotfileActions.ts # Shared action hook for install/uninstall operations
-L62- │   ├── useDotfileView.ts    # Memoized filter/search helpers for list and category views
-L63- │   └── useTerminal.ts       # (Moved to TerminalContext)
-L64- ├── context/
-L65- │   └── TerminalContext.tsx # Terminal event stream utilities via React Context
-L66- ├── lib/                    # Server-only utilities
+│   ├── useDotfiles.ts      # Central data-fetching hook (fetch, install, uninstall)
+│   ├── useDotfileActions.ts # Shared action hook for install/uninstall operations
+│   ├── useDotfileView.ts    # Memoized filter/search helpers for list and category views
+│   └── useDotfileStats.ts   # Memoized stats for categories and installation status
+├── context/
+│   └── TerminalContext.tsx # Terminal event stream utilities via React Context
+├── lib/                    # Shared and server-only utilities
+│   ├── api.ts              # Robust fetchApi wrapper with Zod validation
 │   ├── schemas.ts          # Zod v4 schemas for all data types + API payloads
 │   ├── parser.ts           # Parses meta comment blocks from .sh files
 │   ├── scanner.ts          # Recursively discovers all .sh files in dotfiles/
 │   ├── shell.ts            # Shell detection, source line add/remove (strict regex)
 │   ├── dotfiles.ts         # CRUD for ~/.dotfiles-manager/ files + .meta.json
 │   ├── platform.ts         # macOS/Linux guard (rejects win32)
+│   ├── errors.ts           # Centralized API error mapping and responses
 │   └── seed.ts             # Orchestrates scanner → createDotfile for seeding
 └── types/
     └── index.ts            # Shared TypeScript types + CATEGORY_META constant
