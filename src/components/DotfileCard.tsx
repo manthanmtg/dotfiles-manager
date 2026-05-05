@@ -59,6 +59,15 @@ const HOVER_STATES: Record<string, string> = {
   sky: "border-sky-400/45 shadow-sky-500/25",
 };
 
+const TAG_HOVER_COLORS: Record<string, string> = {
+  cyan: "group-hover:text-cyan-400/70 group-hover:bg-cyan-500/5",
+  emerald: "group-hover:text-emerald-400/70 group-hover:bg-emerald-500/5",
+  purple: "group-hover:text-purple-400/70 group-hover:bg-purple-500/5",
+  rose: "group-hover:text-rose-400/70 group-hover:bg-rose-500/5",
+  amber: "group-hover:text-amber-400/70 group-hover:bg-amber-500/5",
+  sky: "group-hover:text-sky-400/70 group-hover:bg-sky-500/5",
+};
+
 function DotfileCardInner({
   filename,
   dotfile,
@@ -97,8 +106,15 @@ function DotfileCardInner({
           <div className="absolute top-3 right-3">
             <motion.div
               initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30"
+              animate={{ 
+                scale: [1, 1.05, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.1)]"
             >
               <CheckCircle2 size={12} className="text-emerald-400" aria-hidden="true" />
               <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
@@ -111,7 +127,7 @@ function DotfileCardInner({
         <div className="p-5 flex-1">
           <div className="flex items-start gap-3 mb-3">
             <div
-              className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${ICON_BG_COLORS[color]}`}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 ${ICON_BG_COLORS[color]}`}
             >
               <DynamicIcon
                 name={dotfile.icon || catMeta.icon}
@@ -137,7 +153,7 @@ function DotfileCardInner({
             {dotfile.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-800/80 text-[10px] font-mono text-zinc-500"
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-800/80 text-[10px] font-mono text-zinc-500 transition-colors duration-300 ${TAG_HOVER_COLORS[color]}`}
               >
                 <Tag size={8} aria-hidden="true" />
                 {tag}
