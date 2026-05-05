@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { detectShell, assertSafeConfigPath } from "@/lib/shell";
 import { listDotfiles, createDotfile, getDotfile } from "@/lib/dotfiles";
 import { assertSupported } from "@/lib/platform";
-import { CreateDotfileRequest, DotfileEntry } from "@/lib/schemas";
+import { CreateDotfileRequest, DotfileEntry, CreateDotfileResponse } from "@/lib/schemas";
 import { z } from "zod/v4";
 import { handleApiError } from "@/lib/errors";
 
@@ -65,9 +65,14 @@ export async function POST(request: Request) {
       tags: parsed.tags,
     });
 
+    const data = CreateDotfileResponse.parse({
+      filename,
+      message: `Created dotfile: ${filename}`,
+    });
+
     return NextResponse.json({
       success: true,
-      data: { filename, message: `Created dotfile: ${filename}` },
+      data,
     });
   } catch (error) {
     return handleApiError(error, "Unable to complete dotfile creation request.");
