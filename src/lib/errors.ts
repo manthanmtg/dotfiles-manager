@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod/v4";
 
-export interface ApiErrorResponse {
-  success: false;
-  error: string;
-}
-
 export function handleApiError(error: unknown, fallbackMessage: string) {
   const { status, message } = mapErrorToStatus(error, fallbackMessage);
   

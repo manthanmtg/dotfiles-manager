@@ -17,7 +17,7 @@ export function useDotfiles() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [seeded, setSeeded] = useState(false);
-  const { addLine, clearTerminal } = useTerminalActions();
+  const { addLine } = useTerminalActions();
 
   const fetchShell = useCallback(async () => {
     const data = await fetchApi("/api/shell", PlatformData);
@@ -150,10 +150,6 @@ export function useDotfiles() {
     return fetchDotfiles();
   }, [seedDefaults, fetchDotfiles]);
 
-  const retry = useCallback(() => {
-    initialize();
-  }, [initialize]);
-
   return {
     dotfiles,
     platform,
@@ -162,8 +158,5 @@ export function useDotfiles() {
     install,
     uninstall,
     refresh,
-    retry,
-    addLine,
-    clearTerminal,
   };
 }
