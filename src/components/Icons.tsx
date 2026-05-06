@@ -18,7 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-const iconMap: Record<string, LucideIcon> = {
+const iconMap = {
   Zap,
   Code,
   Terminal,
@@ -33,10 +33,12 @@ const iconMap: Record<string, LucideIcon> = {
   ShieldAlert,
   Network,
   FolderPlus,
-};
+} as const;
+
+export type IconName = keyof typeof iconMap;
 
 interface DynamicIconProps {
-  name: string;
+  name: IconName | string;
   className?: string;
   size?: number;
 }
@@ -46,6 +48,6 @@ export function DynamicIcon({
   className = "",
   size = 20,
 }: DynamicIconProps) {
-  const Icon = iconMap[name] || Code;
+  const Icon = (iconMap as Record<string, LucideIcon>)[name] || Code;
   return <Icon className={className} size={size} />;
 }
