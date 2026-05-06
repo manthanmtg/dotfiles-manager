@@ -81,6 +81,7 @@ Run the applicable checks:
 
 - `pnpm validate` for any `dotfiles/` changes.
 - `pnpm lint` for TypeScript, React, or styling changes.
+- `pnpm test` for shared logic, parser, or CLI changes.
 - `pnpm build` when server behavior, shared schemas, install/uninstall flows, or broad UI behavior changed.
 
 Do not start the dev server unless the selected prompt explicitly requires visual verification.
