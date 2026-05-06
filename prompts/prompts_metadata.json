@@ -90,13 +90,13 @@
       "category": "documentation",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 4,
+      "totalSelected": 5,
       "totalCompleted": 4,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-02T12:30:33Z",
+      "lastSelectedAt": "2026-05-06T06:30:30.894Z",
       "lastCompletedAt": "2026-05-02T12:33:14Z",
-      "lastOutcome": "completed"
+      "lastOutcome": "selected"
     },
     "dotfile_catalog_enhancer.md": {
       "id": "dotfile-catalog-enhancer",
@@ -280,5 +280,5 @@
       "lastOutcome": "completed"
     }
   },
-  "updatedAt": "2026-05-05T12:15:00.000Z"
+  "updatedAt": "2026-05-06T06:30:30.894Z"
 }
