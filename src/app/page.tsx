@@ -58,7 +58,11 @@ export default function Home() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "/" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) {
+      if (
+        e.key === "/" &&
+        e.target instanceof HTMLElement &&
+        !["INPUT", "TEXTAREA"].includes(e.target.tagName)
+      ) {
         e.preventDefault();
         document.getElementById("dotfile-search")?.focus();
       }

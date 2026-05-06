@@ -4,7 +4,7 @@ import { memo } from "react";
 import { motion } from "framer-motion";
 import { Terminal, Cpu, Layers } from "lucide-react";
 import { DynamicIcon } from "./Icons";
-import { CATEGORY_META } from "@/types";
+import { CATEGORY_META, type ThemeColor } from "@/types";
 import type { DotfileCategory, PlatformData } from "@/types";
 
 interface SidebarProps {
@@ -16,7 +16,7 @@ interface SidebarProps {
   onCategoryChange: (cat: DotfileCategory | "all") => void;
 }
 
-const CATEGORY_BORDER_COLORS: Record<string, string> = {
+const CATEGORY_BORDER_COLORS: Record<ThemeColor, string> = {
   cyan: "border-cyan-500/50",
   emerald: "border-emerald-500/50",
   purple: "border-purple-500/50",
@@ -25,7 +25,7 @@ const CATEGORY_BORDER_COLORS: Record<string, string> = {
   sky: "border-sky-500/50",
 };
 
-const CATEGORY_BG_COLORS: Record<string, string> = {
+const CATEGORY_BG_COLORS: Record<ThemeColor, string> = {
   cyan: "bg-cyan-500/10",
   emerald: "bg-emerald-500/10",
   purple: "bg-purple-500/10",
@@ -34,7 +34,7 @@ const CATEGORY_BG_COLORS: Record<string, string> = {
   sky: "bg-sky-500/10",
 };
 
-const CATEGORY_TEXT_COLORS: Record<string, string> = {
+const CATEGORY_TEXT_COLORS: Record<ThemeColor, string> = {
   cyan: "text-cyan-400",
   emerald: "text-emerald-400",
   purple: "text-purple-400",
@@ -43,7 +43,7 @@ const CATEGORY_TEXT_COLORS: Record<string, string> = {
   sky: "text-sky-400",
 };
 
-const CATEGORY_LEFT_BORDERS: Record<string, string> = {
+const CATEGORY_LEFT_BORDERS: Record<ThemeColor, string> = {
   cyan: "border-l-cyan-400",
   emerald: "border-l-emerald-400",
   purple: "border-l-purple-400",

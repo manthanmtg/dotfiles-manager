@@ -22,9 +22,11 @@ export interface TerminalLine {
   timestamp: number;
 }
 
+export type ThemeColor = "cyan" | "emerald" | "purple" | "rose" | "amber" | "sky";
+
 export const CATEGORY_META: Record<
   DotfileCategory,
-  { label: string; icon: string; color: string; description: string }
+  { label: string; icon: string; color: ThemeColor; description: string }
 > = {
   aliases: {
     label: "Aliases",
