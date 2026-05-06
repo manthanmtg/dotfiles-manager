@@ -211,10 +211,10 @@ function parseVariableLine(
     };
   }
 
-  if (!name || !/^[A-Z0-9_]+$/.test(name)) {
+  if (!name || !/^[A-Z_][A-Z0-9_]*$/.test(name)) {
     return {
       success: false,
-      error: `Line ${lineNum}: Variable name must be uppercase with optional underscores and digits — got "${name}"`,
+      error: `Line ${lineNum}: Variable name must be uppercase, start with a letter or underscore, and contain only alphanumeric characters or underscores — got "${name}"`,
     };
   }
 

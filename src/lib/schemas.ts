@@ -16,8 +16,8 @@ export const DotfileCategory = z.enum([
 export type DotfileCategory = z.infer<typeof DotfileCategory>;
 
 export const DotfileVariable = z.object({
-  name: z.string().min(1),
-  label: z.string().min(1),
+  name: z.string().min(1, "variable name cannot be empty").regex(/^[A-Z_][A-Z0-9_]*$/, "variable name must be uppercase, start with a letter or underscore, and contain only alphanumeric characters or underscores"),
+  label: z.string().min(1, "label cannot be empty"),
   description: z.string().optional(),
   default: z.string().optional(),
   required: z.boolean().default(true),
@@ -26,12 +26,12 @@ export const DotfileVariable = z.object({
 export type DotfileVariable = z.infer<typeof DotfileVariable>;
 
 export const DotfileMetadata = z.object({
-  name: z.string().min(1).max(100),
-  description: z.string().min(1).max(500),
+  name: z.string().min(1, "name cannot be empty").max(100, "name is too long (max 100 chars)"),
+  description: z.string().min(1, "description cannot be empty").max(500, "description is too long (max 500 chars)"),
   category: DotfileCategory,
-  icon: z.string().max(50).optional(),
-  variables: z.array(DotfileVariable).max(20).default([]),
-  tags: z.array(z.string().max(30)).max(10).default([]),
+  icon: z.string().max(50, "icon name is too long").optional(),
+  variables: z.array(DotfileVariable).max(20, "too many variables (max 20)").default([]),
+  tags: z.array(z.string().max(30, "tag is too long")).max(10, "too many tags (max 10)").default([]),
 });
 export type DotfileMetadata = z.infer<typeof DotfileMetadata>;
 
