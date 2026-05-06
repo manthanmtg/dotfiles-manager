@@ -50,15 +50,16 @@ src/
 │   ├── index.ts           # CLI entrypoint and command router
 │   └── core.ts            # Shared logic for CLI commands
 ├── app/
-```,old_string:
-│   │   ├── shell/          # GET  — detect user shell + config path
+│   ├── api/
 │   │   ├── dotfiles/       # GET  — list all dotfiles; POST — create new
 │   │   ├── install/        # POST — inject source line into shell config
-│   │   ├── uninstall/      # POST — remove source line from shell config
-│   │   └── seed/           # POST — scan dotfiles/, seed into ~/.dotfiles-manager/
+│   │   ├── seed/           # POST — scan dotfiles/, seed into ~/.dotfiles-manager/
+│   │   ├── shell/          # GET  — detect user shell + config path
+│   │   └── uninstall/      # POST — remove source line from shell config
+│   ├── favicon.ico
+│   ├── globals.css
 │   ├── layout.tsx          # Root layout (Geist fonts, dark theme)
-│   ├── page.tsx            # Main client page (all UI state lives here)
-│   └── globals.css         # Tailwind v4 imports + custom scrollbar + grid bg
+│   └── page.tsx            # Main client page (all UI state lives here)
 ├── components/             # All "use client" React components
 ├── hooks/
 │   ├── useDotfiles.ts      # Central data-fetching hook (fetch, install, uninstall)
@@ -77,8 +78,11 @@ src/
 │   ├── platform.ts         # macOS/Linux guard (rejects win32)
 │   ├── errors.ts           # Centralized API error mapping and responses
 │   └── seed.ts             # Orchestrates scanner → createDotfile for seeding
-└── types/
-    └── index.ts            # Shared TypeScript types + CATEGORY_META constant
+├── types/
+│   └── index.ts            # Shared TypeScript types + CATEGORY_META constant
+└── tests/                  # TypeScript test suite
+    ├── cli.test.ts         # CLI command and argument parsing tests
+    └── lib.test.ts         # Parser, scanner, and shell logic tests
 ```
 
 ## Meta Comment Spec
