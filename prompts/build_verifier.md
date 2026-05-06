@@ -9,7 +9,7 @@ autonomousSafe: true
 
 ## Objective
 
-Ensure Dotfiles Manager validates and builds cleanly with zero errors. Fix only issues that prevent `pnpm validate`, `pnpm lint`, or `pnpm build` from passing.
+Ensure Dotfiles Manager validates, builds, and tests cleanly with zero errors. Fix only issues that prevent `pnpm validate`, `pnpm lint`, `pnpm build`, or `pnpm test` from passing.
 
 ## Workflow
 
@@ -20,6 +20,7 @@ Run:
 ```bash
 pnpm validate
 pnpm lint
+pnpm test
 pnpm build
 ```
 
@@ -29,6 +30,7 @@ If all pass, no-op.
 
 - `pnpm validate`: malformed dotfile meta blocks, unsupported categories, invalid variable declarations.
 - `pnpm lint`: unused imports, React hook issues, invalid Next.js patterns, weak client/server boundaries.
+- `pnpm test`: logic regressions in shared libraries, shell detection errors, or parser failures.
 - `pnpm build`: TypeScript errors, App Router failures, server/client import mistakes, validation failures.
 
 ### 3. Fix Narrowly
