@@ -12,12 +12,15 @@ Local-only Next.js web app for managing shell dotfiles stored at `~/.dotfiles-ma
 - `pnpm lint` — run ESLint
 - `pnpm validate` — check all `.sh` files in `dotfiles/` have valid meta comments
 - `pnpm test` — run the TypeScript test suite in `tests/**/*.test.ts`
-- `pnpm cli` — run the local command-line interface in `src/cli/index.ts`
+- `pnpm cli -- help` — run the local command-line interface in `src/cli/index.ts`
 - `lsof -ti :3000 | xargs kill -9` — kill process on port 3000
 
 ## Architecture
 
 ```
+bin/
+└── dotfiles-manager.mjs   # Global CLI wrapper (pnpm link --global .)
+
 dotfiles/                   # Self-describing .sh files (auto-discovered)
 ├── aliases/
 │   ├── docker-aliases.sh
@@ -44,9 +47,10 @@ scripts/
 
 src/
 ├── cli/                   # CLI entrypoint modules
+│   ├── index.ts           # CLI entrypoint and command router
 │   └── core.ts            # Shared logic for CLI commands
 ├── app/
-│   ├── api/                # Next.js API routes (Node.js, fs-based)
+```,old_string:
 │   │   ├── shell/          # GET  — detect user shell + config path
 │   │   ├── dotfiles/       # GET  — list all dotfiles; POST — create new
 │   │   ├── install/        # POST — inject source line into shell config
