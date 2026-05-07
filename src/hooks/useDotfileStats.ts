@@ -11,11 +11,6 @@ type DotfileStats = {
 };
 
 export function useDotfileStats({ dotfiles }: DotfileStatsParams): DotfileStats {
-  const categoryKey = dotfiles
-    .map((d) => `${d.filename}:${d.category}`)
-    .sort()
-    .join(",");
-
   const categoryCounts = useMemo(() => {
     const counts: Record<DotfileCategory, number> = {
       aliases: 0,
@@ -26,17 +21,14 @@ export function useDotfileStats({ dotfiles }: DotfileStatsParams): DotfileStats 
       functions: 0,
     };
 
-    if (!categoryKey) return counts;
-
-    for (const part of categoryKey.split(",")) {
-      const [, category] = part.split(":");
-      if (category && category in counts) {
-        counts[category as DotfileCategory] += 1;
+    for (const d of dotfiles) {
+      if (d.category in counts) {
+        counts[d.category] += 1;
       }
     }
 
     return counts;
-  }, [categoryKey]);
+  }, [dotfiles]);
 
   const installedCount = useMemo(() => {
     return dotfiles.filter((d) => d.installed).length;
