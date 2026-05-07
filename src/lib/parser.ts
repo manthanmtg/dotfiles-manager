@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { DotfileMetadata } from "./schemas";
+import { DotfileMetadata, DotfileFilename } from "./schemas";
 import { type DotfileVariable as DotfileVariableMeta } from "./schemas";
 import { ZodError } from "zod/v4";
 
@@ -63,13 +63,16 @@ export function parseDotfileSource(
 
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i];
-
-    // trimmed === META_END check is no longer needed here as we split by META_END
-    // Faster path for common meta lines starting with "# " or "#"
-    const stripped = line.startsWith("#") 
-      ? line.slice(1).trim() 
-      : line.trim();
+    const trimmedLine = line.trim();
     
+    if (!trimmedLine) continue;
+
+    if (!trimmedLine.startsWith("#")) {
+      errors.push(`Line ${i + 1}: Meta line must be a comment (start with "#")`);
+      continue;
+    }
+
+    const stripped = trimmedLine.slice(1).trim();
     if (!stripped) continue;
 
     const colonIdx = stripped.indexOf(":");
@@ -274,21 +277,27 @@ export function validateAllDotfiles(
         walk(full);
       } else if (entry.name.endsWith(".sh")) {
         const rel = path.relative(dotfilesDir, full);
+        const filename = path.basename(entry.name, ".sh");
+        
         try {
+          DotfileFilename.parse(filename);
           const raw = fs.readFileSync(full, "utf-8");
           parseDotfileSource(raw, rel);
           valid.push(rel);
         } catch (e) {
           if (e instanceof MetaParseError) {
             errs.push({ file: rel, errors: e.errors });
-        } else {
-          errs.push({
-            file: rel,
-            errors: [errorToMessage(e)],
-          });
+          } else if (e instanceof ZodError && e.issues[0]?.path[0] === undefined) {
+             // This is likely from DotfileFilename.parse
+             errs.push({ file: rel, errors: [e.issues[0].message] });
+          } else {
+            errs.push({
+              file: rel,
+              errors: [errorToMessage(e)],
+            });
+          }
         }
       }
-    }
     }
   }
 
