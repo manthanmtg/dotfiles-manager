@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { parseDotfileSource } from "./parser";
-import type { DotfileMetadata } from "./schemas";
+import { type DotfileMetadata, DotfileFilename } from "./schemas";
 
 const DOTFILES_SOURCE_DIR = path.join(process.cwd(), "dotfiles");
 
@@ -30,6 +30,13 @@ function walk(dir: string, results: ScannedDotfile[]) {
       const raw = fs.readFileSync(full, "utf-8");
       const { metadata, content } = parseDotfileSource(raw, rel);
       const filename = path.basename(entry.name, ".sh");
+
+      // Ensure filename matches allowed pattern
+      try {
+        DotfileFilename.parse(filename);
+      } catch {
+        throw new Error(`Invalid dotfile filename "${filename}" in ${rel}. Must contain only alphanumeric characters, dots, hyphens, or underscores.`);
+      }
 
       results.push({ filename, metadata, content });
     }
