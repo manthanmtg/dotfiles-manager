@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { detectShell, assertSafeConfigPath } from "@/lib/shell";
 import { listDotfiles, createDotfile, getDotfile } from "@/lib/dotfiles";
 import { assertSupported } from "@/lib/platform";
-import { CreateDotfileRequest, DotfileEntry, CreateDotfileResponse } from "@/lib/schemas";
+import { CreateDotfileRequest, DotfileEntry, CreateDotfileResponse, DotfileFilename } from "@/lib/schemas";
 import { z } from "zod/v4";
 import { handleApiError } from "@/lib/errors";
 
@@ -34,15 +34,7 @@ export async function POST(request: Request) {
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
 
-    if (!filename || filename === "-") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid dotfile name. Name must contain alphanumeric characters.",
-        },
-        { status: 400 }
-      );
-    }
+    DotfileFilename.parse(filename);
 
     const shell = detectShell();
     assertSafeConfigPath(shell.configPath);

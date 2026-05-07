@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { detectShell, addSource, isSourced, assertSafeConfigPath } from "@/lib/shell";
+import { detectShell, addSource, isSourced, assertSafeConfigPath, assertSupportedShell } from "@/lib/shell";
 import {
   getDotfile,
   updateDotfileContent,
@@ -16,27 +16,8 @@ export async function POST(request: Request) {
     const parsed = InstallRequest.parse(body);
 
     const shell = detectShell();
-    if (shell.shell === "unknown") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Your shell is not supported. Only zsh, bash, and fish are supported.",
-        },
-        { status: 400 }
-      );
-    }
-
+    assertSupportedShell(shell);
     assertSafeConfigPath(shell.configPath);
-
-    if (!shell.configExists) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Shell configuration file not found: ${shell.configPath}. Please create it first.`,
-        },
-        { status: 400 }
-      );
-    }
 
     const dotfile = getDotfile(parsed.filename, shell.configPath);
 
