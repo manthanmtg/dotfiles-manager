@@ -12,31 +12,32 @@ type DotfileViewResult = {
   grouped: Partial<Record<DotfileCategory, DotfileEntry[]>>;
 };
 
+// Global cache for searchable text to avoid re-computing it when dotfile objects are updated
+// but their search-relevant metadata (name, description, tags) remains the same.
+const SEARCHABLE_CACHE = new WeakMap<DotfileEntry, string>();
+
+function getSearchableText(dotfile: DotfileEntry): string {
+  let text = SEARCHABLE_CACHE.get(dotfile);
+  if (!text) {
+    text = [
+      dotfile.name,
+      dotfile.description,
+      dotfile.filename,
+      ...dotfile.tags,
+    ]
+      .join(" ")
+      .toLowerCase();
+    SEARCHABLE_CACHE.set(dotfile, text);
+  }
+  return text;
+}
+
 export function useDotfileView({
   dotfiles,
   activeCategory,
   search,
 }: DotfileViewFilters): DotfileViewResult {
   const query = useMemo(() => search.trim().toLowerCase(), [search]);
-
-  // Pre-calculate searchable text index using a Map to avoid re-mapping dotfiles into new objects
-  const searchableIndex = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const dotfile of dotfiles) {
-      map.set(
-        dotfile.filename,
-        [
-          dotfile.name,
-          dotfile.description,
-          dotfile.filename,
-          ...dotfile.tags,
-        ]
-          .join(" ")
-          .toLowerCase()
-      );
-    }
-    return map;
-  }, [dotfiles]);
 
   return useMemo(() => {
     const filtered: DotfileEntry[] = [];
@@ -47,8 +48,8 @@ export function useDotfileView({
         continue;
       }
 
-      const searchableText = searchableIndex.get(dotfile.filename);
-      if (query && searchableText && !searchableText.includes(query)) {
+      const searchableText = getSearchableText(dotfile);
+      if (query && !searchableText.includes(query)) {
         continue;
       }
 
@@ -63,5 +64,5 @@ export function useDotfileView({
     }
 
     return { filtered, grouped };
-  }, [activeCategory, dotfiles, query, searchableIndex]);
+  }, [activeCategory, dotfiles, query]);
 }
