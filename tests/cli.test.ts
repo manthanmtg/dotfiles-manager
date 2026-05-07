@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   parseCliArgs,
+  parseSetFlags,
   collectVariableValues,
   formatDotfileList,
 } from "../src/cli/core";
@@ -27,6 +28,21 @@ test("parseCliArgs parses command, positional args, and repeated flags", () => {
       },
     }
   );
+});
+
+test("parseSetFlags correctly parses key-value pairs", () => {
+  const flags = { set: ["NAME=dev", "TOKEN=abc=123", "EMPTY="] };
+  const values = parseSetFlags(flags);
+  
+  assert.equal(values.get("NAME"), "dev");
+  assert.equal(values.get("TOKEN"), "abc=123");
+  assert.equal(values.get("EMPTY"), "");
+  assert.equal(values.size, 3);
+});
+
+test("parseSetFlags throws for invalid formats", () => {
+  assert.throws(() => parseSetFlags({ set: ["INVALID"] }), /Invalid --set value/);
+  assert.throws(() => parseSetFlags({ set: ["=VALUE"] }), /Invalid --set value/);
 });
 
 test("parseCliArgs ignores a leading pnpm argument separator", () => {
