@@ -94,6 +94,26 @@ export function addSource(configPath: string, dotfileName: string): void {
   assertSafeDotfileName(dotfileName);
   assertSafeConfigPath(configPath);
 
+  // Hardening: Verify the managed dotfile exists and is a regular file before sourcing it.
+  // This prevents polluting shell configs with broken source lines.
+  const managedFilePath = path.join(os.homedir(), ".dotfiles-manager", dotfileName);
+  if (!fs.existsSync(managedFilePath)) {
+    throw new Error(`Managed dotfile not found at ${managedFilePath}. Please seed it first.`);
+  }
+
+  try {
+    const stats = fs.statSync(managedFilePath);
+    if (!stats.isFile()) {
+      throw new Error(`Managed dotfile is not a regular file: ${managedFilePath}`);
+    }
+  } catch (error) {
+    throw new Error(
+      `Could not access managed dotfile at ${managedFilePath}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
+
   if (!fs.existsSync(configPath)) {
     throw new Error(`Config file not found: ${configPath}`);
   }
