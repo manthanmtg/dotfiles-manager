@@ -100,12 +100,14 @@ export const Sidebar = memo(function Sidebar({
         className="flex-1 p-3 space-y-1 overflow-y-auto"
         aria-label="Dotfile categories"
       >
-        <button
+        <motion.button
+          whileHover={{ x: 2 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => onCategoryChange("all")}
           aria-current={activeCategory === "all" ? "page" : undefined}
           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${focusRing} ${
             activeCategory === "all"
-              ? "bg-zinc-800/80 text-zinc-100 border-l-2 border-l-cyan-400"
+              ? "bg-zinc-800/80 text-zinc-100 border-l-2 border-l-cyan-400 shadow-[inset_4px_0_10px_-4px_rgba(34,211,238,0.1)]"
               : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
           }`}
         >
@@ -114,7 +116,7 @@ export const Sidebar = memo(function Sidebar({
           <span className="ml-auto text-xs font-mono text-zinc-500">
             {totalCount}
           </span>
-        </button>
+        </motion.button>
 
         <div className="pt-2 pb-1 px-3">
           <span 
