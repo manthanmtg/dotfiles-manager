@@ -173,3 +173,12 @@ export function assertSafeConfigPath(configPath: string): void {
     throw new Error(`Invalid shell config path: ${configPath}`);
   }
 }
+
+export function assertSupportedShell(shell: ShellInfo): asserts shell is ShellInfo & { shell: "zsh" | "bash" | "fish" } {
+  if (shell.shell === "unknown") {
+    throw new Error("Your shell is not supported. Only zsh, bash, and fish are supported.");
+  }
+  if (!shell.configExists) {
+    throw new Error(`Shell configuration file not found: ${shell.configPath}. Please create it first.`);
+  }
+}
