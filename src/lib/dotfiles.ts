@@ -65,46 +65,45 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
     entryMap.set(entry.name, entry);
   }
 
-  const dotfileNames = entries
-    .filter(
-      (entry) =>
-        entry.isFile() && // isFile() is true only for regular files (excludes symlinks/dirs)
-        SAFE_DOTFILE_NAME.test(entry.name) &&
-        !entry.name.endsWith(METADATA_SUFFIX) &&
-        !entry.name.startsWith(".")
-    )
-    .map((entry) => entry.name);
+  const results: DotfileEntry[] = [];
+  for (const entry of entries) {
+    if (
+      !entry.isFile() ||
+      !SAFE_DOTFILE_NAME.test(entry.name) ||
+      entry.name.endsWith(METADATA_SUFFIX) ||
+      entry.name.startsWith(".")
+    ) {
+      continue;
+    }
 
-  return dotfileNames
-    .map((filename) => {
-      const filePath = path.join(DOTFILES_DIR, filename);
-      const metaFilename = `${filename}${METADATA_SUFFIX}`;
-      const metaPath = path.join(DOTFILES_DIR, metaFilename);
+    const filename = entry.name;
+    const filePath = path.join(DOTFILES_DIR, filename);
+    const metaFilename = `${filename}${METADATA_SUFFIX}`;
+    const metaPath = path.join(DOTFILES_DIR, metaFilename);
 
-      // We already know filePath is a regular file from the filter above
+    // Check if meta file exists and is a regular file using our pre-built map
+    const metaEntry = entryMap.get(metaFilename);
+    if (metaEntry && !metaEntry.isFile()) {
+      continue;
+    }
 
-      // Check if meta file exists and is a regular file using our pre-built map
-      const metaEntry = entryMap.get(metaFilename);
-      if (metaEntry && !metaEntry.isFile()) {
-        return null;
-      }
+    const content = fs.readFileSync(filePath, "utf-8");
+    const metadata = metaEntry
+      ? readDotfileMetadata(metaPath, filename)
+      : getDefaultMetadata(filename);
 
-      const content = fs.readFileSync(filePath, "utf-8");
-      const metadata = metaEntry
-        ? readDotfileMetadata(metaPath, filename)
-        : getDefaultMetadata(filename);
+    const installed = sourcedDotfiles.has(filename);
 
-      const installed = sourcedDotfiles.has(filename);
+    results.push({
+      ...metadata,
+      filename,
+      content,
+      lineCount: countLines(content),
+      installed,
+    });
+  }
 
-      return {
-        ...metadata,
-        filename,
-        content,
-        lineCount: countLines(content),
-        installed,
-      };
-    })
-    .filter((entry): entry is DotfileEntry => entry !== null);
+  return results;
 }
 
 export function getDotfile(
@@ -124,8 +123,39 @@ export function getDotfile(
   return { ...metadata, filename, content, lineCount: countLines(content), installed };
 }
 
+/**
+ * Optimized line counter that avoids splitting the string into an array.
+ * It counts only non-empty lines (lines with at least one non-whitespace character).
+ * This is significantly more memory-efficient for large dotfiles.
+ */
 function countLines(content: string): number {
-  return content.split("\n").filter((line) => line.trim().length > 0).length;
+  let count = 0;
+  let hasContentOnLine = false;
+
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+
+    if (char === "\n") {
+      if (hasContentOnLine) {
+        count++;
+        hasContentOnLine = false;
+      }
+    } else if (
+      !hasContentOnLine &&
+      char !== " " &&
+      char !== "\t" &&
+      char !== "\r"
+    ) {
+      hasContentOnLine = true;
+    }
+  }
+
+  // Handle last line if it doesn't end with a newline
+  if (hasContentOnLine) {
+    count++;
+  }
+
+  return count;
 }
 
 export function createDotfile(
