@@ -38,6 +38,7 @@ export type DotfileMetadata = z.infer<typeof DotfileMetadata>;
 export const DotfileEntry = DotfileMetadata.extend({
   filename: DotfileFilename,
   content: z.string().max(1024 * 100), // 100KB limit
+  lineCount: z.number().default(0),
   installed: z.boolean().default(false),
 });
 export type DotfileEntry = z.infer<typeof DotfileEntry>;

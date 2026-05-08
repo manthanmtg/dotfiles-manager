@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState } from "react";
+import { memo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Download,
@@ -80,10 +80,7 @@ function DotfileCardInner({
   const catMeta = CATEGORY_META[dotfile.category];
   const color = catMeta.color;
 
-  const lineCount = useMemo(
-    () => dotfile.content.split("\n").filter((l) => l.trim()).length,
-    [dotfile.content]
-  );
+  const lineCount = dotfile.lineCount;
   const installed = dotfile.installed;
   const focusRing =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
