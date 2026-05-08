@@ -118,15 +118,25 @@ export function formatDotfileList(dotfiles: DotfileEntry[]): string {
   const categories = Object.keys(CATEGORY_META) as DotfileCategory[];
   const sections: string[] = [];
 
+  // Group by category in a single pass
+  const entriesByCategory = dotfiles.reduce((acc, d) => {
+    if (!acc[d.category]) {
+      acc[d.category] = [];
+    }
+    acc[d.category].push(d);
+    return acc;
+  }, {} as Record<DotfileCategory, DotfileEntry[]>);
+
   for (const category of categories) {
-    const entries = dotfiles.filter((dotfile) => dotfile.category === category);
-    if (entries.length === 0) continue;
+    const entries = entriesByCategory[category];
+    if (!entries || entries.length === 0) continue;
 
     const color = CATEGORY_COLORS[category];
     sections.push(`${color}${BOLD}${CATEGORY_META[category].label}${RESET}`);
     for (const entry of entries) {
       const marker = entry.installed ? "✓" : "○";
-      const tags = entry.tags.length > 0 ? ` ${DIM}#${entry.tags.join(" #")}${RESET}` : "";
+      const tags =
+        entry.tags.length > 0 ? ` ${DIM}#${entry.tags.join(" #")}${RESET}` : "";
       sections.push(
         `  ${marker} ${entry.filename} ${DIM}${entry.name}${RESET}\n` +
           `    ${entry.description}${tags}`
