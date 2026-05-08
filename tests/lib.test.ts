@@ -38,6 +38,8 @@ test("applyVariables blocks shell metacharacters", () => {
     "~/projects < /etc/passwd",
     "~/projects | grep foo",
     "~/projects\\nrm -rf /",
+    "~/projects (ls)",
+    "~/projects )",
   ];
 
   for (const value of dangerousValues) {
