@@ -100,6 +100,7 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
         ...metadata,
         filename,
         content,
+        lineCount: countLines(content),
         installed,
       };
     })
@@ -120,7 +121,11 @@ export function getDotfile(
 
   const installed = getSourcedDotfiles(shellConfigPath).has(filename);
 
-  return { ...metadata, filename, content, installed };
+  return { ...metadata, filename, content, lineCount: countLines(content), installed };
+}
+
+function countLines(content: string): number {
+  return content.split("\n").filter((line) => line.trim().length > 0).length;
 }
 
 export function createDotfile(
