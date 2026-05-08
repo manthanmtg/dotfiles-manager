@@ -2,13 +2,12 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { z } from "zod/v4";
-import { DotfileMetadata } from "./schemas";
+import { DotfileMetadata, DotfileFilename, FILENAME_REGEX } from "./schemas";
 import type { DotfileEntry } from "./schemas";
 import { getSourcedDotfiles } from "./shell";
 
 const DOTFILES_DIR = path.join(os.homedir(), ".dotfiles-manager");
 const METADATA_SUFFIX = ".meta.json";
-const SAFE_DOTFILE_NAME = /^[a-zA-Z0-9._-]+$/;
 const STORED_METADATA = z.string().transform((value): unknown => {
   try {
     return JSON.parse(value);
@@ -69,7 +68,7 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
   for (const entry of entries) {
     if (
       !entry.isFile() ||
-      !SAFE_DOTFILE_NAME.test(entry.name) ||
+      !FILENAME_REGEX.test(entry.name) ||
       entry.name.endsWith(METADATA_SUFFIX) ||
       entry.name.startsWith(".")
     ) {
@@ -209,16 +208,19 @@ function validateVariableValues(variables: Record<string, string>): void {
   for (const [key, value] of Object.entries(variables)) {
     // Block control characters and shell metacharacters that could be used for injection.
     // We specifically block quotes to prevent breaking out of quoted strings in dotfile templates.
-    if (/[\r\n\0\$;`|&<>\\]/.test(value) || /['"]/.test(value)) {
+    // We also block parenthesis to prevent subshell execution or Zsh process substitution.
+    if (/[\r\n\0\$;`|&<>\(\\\]]/.test(value) || /['")]/.test(value)) {
       throw new Error(
-        `Invalid value for variable ${key}: contains forbidden characters (\r, \n, \0, $, \`, ;, |, &, <, >, \\, ', ")`
+        `Invalid value for variable ${key}: contains forbidden characters (\r, \n, \0, $, \`, ;, |, &, <, >, \\, (, ), ', ")`
       );
     }
   }
 }
 
 function assertSafeDotfileName(dotfileName: string): void {
-  if (!SAFE_DOTFILE_NAME.test(dotfileName)) {
+  try {
+    DotfileFilename.parse(dotfileName);
+  } catch {
     throw new Error(`Invalid dotfile name: ${dotfileName}`);
   }
 }

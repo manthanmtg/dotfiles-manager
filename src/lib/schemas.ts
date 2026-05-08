@@ -1,9 +1,10 @@
 import { z } from "zod/v4";
 
-export const DotfileFilename = z.string().regex(
-  /^[a-zA-Z0-9._-]+$/,
-  "filename must contain only alphanumeric characters, dots, hyphens, or underscores"
-);
+export const FILENAME_REGEX = /^[a-zA-Z0-9._-]+$/;
+
+export const DotfileFilename = z.string()
+  .regex(FILENAME_REGEX, "filename must contain only alphanumeric characters, dots, hyphens, or underscores")
+  .refine(val => val !== "." && val !== "..", "filename cannot be '.' or '..'");
 
 export const DotfileCategory = z.enum([
   "aliases",

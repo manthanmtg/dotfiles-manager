@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import os from "os";
-import type { ShellInfo } from "./schemas";
+import { type ShellInfo, DotfileFilename, FILENAME_REGEX } from "./schemas";
 
 const SHELL_CONFIG_MAP: Record<string, string> = {
   zsh: ".zshrc",
@@ -12,7 +12,6 @@ const SHELL_CONFIG_MAP: Record<string, string> = {
 const SAFE_DOTFILE_SOURCE_PATHS = Object.values(SHELL_CONFIG_MAP).map((configFile) =>
   path.join(os.homedir(), configFile)
 );
-const SAFE_DOTFILE_NAME = /^[a-zA-Z0-9._-]+$/;
 const MANAGED_DOTFILE_SOURCE_PATH = "~/.dotfiles-manager";
 const MANAGED_DOTFILE_SOURCE_PATH_REGEX = escapeRegex(MANAGED_DOTFILE_SOURCE_PATH);
 
@@ -82,7 +81,7 @@ export function getSourcedDotfilesFromContent(content: string): Set<string> {
   SOURCE_CAPTURE_PATTERN.lastIndex = 0;
   for (const match of content.matchAll(SOURCE_CAPTURE_PATTERN)) {
     const name = match[1];
-    if (name && SAFE_DOTFILE_NAME.test(name)) {
+    if (name && FILENAME_REGEX.test(name) && name !== "." && name !== "..") {
       sourced.add(name);
     }
   }
@@ -182,7 +181,9 @@ function escapeRegex(str: string): string {
 }
 
 function assertSafeDotfileName(dotfileName: string): void {
-  if (!SAFE_DOTFILE_NAME.test(dotfileName)) {
+  try {
+    DotfileFilename.parse(dotfileName);
+  } catch {
     throw new Error(`Invalid dotfile name: ${dotfileName}`);
   }
 }
