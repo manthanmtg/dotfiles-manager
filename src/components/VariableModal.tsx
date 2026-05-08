@@ -1,9 +1,10 @@
 "use client";
 
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Play, Eye, EyeOff } from "lucide-react";
 import type { DotfileVariable } from "@/types";
+import { useTrapFocus } from "@/hooks/useTrapFocus";
 
 interface VariableModalProps {
   open: boolean;
@@ -35,70 +36,19 @@ export const VariableModal = memo(function VariableModal({
   const dialogRef = useRef<HTMLDivElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const previouslyFocused = useRef<HTMLElement | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(values);
   };
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    previouslyFocused.current = document.activeElement as HTMLElement | null;
-
-    const restoreFocus = () => {
-      if (previouslyFocused.current) {
-        previouslyFocused.current.focus();
-      }
-    };
-
-    const target = firstInputRef.current ?? closeButtonRef.current;
-    target?.focus();
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-
-      if (event.key !== "Tab") {
-        return;
-      }
-
-      const focusables =
-        dialogRef.current?.querySelectorAll<HTMLElement>(
-          "button:not([disabled]), input, [href], textarea, select"
-        ) ?? [];
-      if (focusables.length === 0) {
-        return;
-      }
-
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      const active = document.activeElement;
-
-      if (event.shiftKey && active === first) {
-        event.preventDefault();
-        last.focus();
-        return;
-      }
-
-      if (!event.shiftKey && active === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      restoreFocus();
-    };
-  }, [open, onClose]);
+  // Extract focus management to useTrapFocus
+  useTrapFocus(
+    dialogRef,
+    open,
+    onClose,
+    variables.length > 0 ? firstInputRef : closeButtonRef
+  );
 
   return (
     <AnimatePresence>

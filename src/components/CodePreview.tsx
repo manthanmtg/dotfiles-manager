@@ -1,8 +1,9 @@
 "use client";
 
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Copy, Check } from "lucide-react";
+import { useTrapFocus } from "@/hooks/useTrapFocus";
 
 interface CodePreviewProps {
   open: boolean;
@@ -20,7 +21,6 @@ export const CodePreview = memo(function CodePreview({
   onClose,
 }: CodePreviewProps) {
   const [copied, setCopied] = useState(false);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -30,57 +30,7 @@ export const CodePreview = memo(function CodePreview({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    previousFocusRef.current = document.activeElement as HTMLElement | null;
-    closeButtonRef.current?.focus();
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-
-      if (event.key !== "Tab") {
-        return;
-      }
-
-      const focusables =
-        dialogRef.current?.querySelectorAll<HTMLElement>(
-          "button:not([disabled]), a, input, textarea, select, [tabindex]:not([tabindex='-1'])"
-        ) ?? [];
-      if (focusables.length === 0) {
-        return;
-      }
-
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      const active = document.activeElement;
-
-      if (event.shiftKey && active === first) {
-        event.preventDefault();
-        last.focus();
-        return;
-      }
-
-      if (!event.shiftKey && active === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      if (previousFocusRef.current) {
-        previousFocusRef.current.focus();
-      }
-    };
-  }, [onClose, open]);
+  useTrapFocus(dialogRef, open, onClose, closeButtonRef);
 
   return (
     <AnimatePresence>
