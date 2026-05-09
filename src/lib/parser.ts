@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { DotfileMetadata, DotfileFilename } from "./schemas";
+import { DotfileMetadata, DotfileFilename, DotfileCategory } from "./schemas";
 import { type DotfileVariable as DotfileVariableMeta } from "./schemas";
 import { ZodError } from "zod/v4";
 
@@ -268,6 +268,7 @@ export function validateAllDotfiles(
 ): { valid: string[]; errors: ParseError[] } {
   const valid: string[] = [];
   const errs: ParseError[] = [];
+  const seenFilenames = new Map<string, string>();
 
   function walk(dir: string) {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -279,11 +280,44 @@ export function validateAllDotfiles(
         const rel = path.relative(dotfilesDir, full);
         const filename = path.basename(entry.name, ".sh");
         
+        if (seenFilenames.has(filename)) {
+          errs.push({
+            file: rel,
+            errors: [
+              `Duplicate filename "${filename}" — already exists at "${seenFilenames.get(
+                filename
+              )}"`,
+            ],
+          });
+          continue;
+        }
+        seenFilenames.set(filename, rel);
+        
         try {
           DotfileFilename.parse(filename);
           const raw = fs.readFileSync(full, "utf-8");
-          parseDotfileSource(raw, rel);
-          valid.push(rel);
+          const { metadata } = parseDotfileSource(raw, rel);
+
+          const pathParts = rel.split(path.sep);
+          if (pathParts.length < 2) {
+            errs.push({
+              file: rel,
+              errors: [
+                `Dotfile must be inside a category directory (supported: ${DotfileCategory.options.join(
+                  ", "
+                )})`,
+              ],
+            });
+          } else if (metadata.category !== pathParts[0]) {
+            errs.push({
+              file: rel,
+              errors: [
+                `Category "${metadata.category}" does not match parent directory "${pathParts[0]}"`,
+              ],
+            });
+          } else {
+            valid.push(rel);
+          }
         } catch (e) {
           if (e instanceof MetaParseError) {
             errs.push({ file: rel, errors: e.errors });

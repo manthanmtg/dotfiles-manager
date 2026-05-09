@@ -33,6 +33,28 @@ export const DotfileMetadata = z.object({
   icon: z.string().max(50, "icon name is too long").optional(),
   variables: z.array(DotfileVariable).max(20, "too many variables (max 20)").default([]),
   tags: z.array(z.string().max(30, "tag is too long")).max(10, "too many tags (max 10)").default([]),
+})
+.refine(data => {
+  const seen = new Set<string>();
+  for (const t of data.tags) {
+    if (seen.has(t)) return false;
+    seen.add(t);
+  }
+  return true;
+}, {
+  message: "tags must be unique",
+  path: ["tags"]
+})
+.refine(data => {
+  const seen = new Set<string>();
+  for (const v of data.variables) {
+    if (seen.has(v.name)) return false;
+    seen.add(v.name);
+  }
+  return true;
+}, {
+  message: "variable names must be unique",
+  path: ["variables"]
 });
 export type DotfileMetadata = z.infer<typeof DotfileMetadata>;
 
