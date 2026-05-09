@@ -33,6 +33,7 @@ This prompt should run rarely. Its purpose is to keep the existing autonomous im
 
 Look for one small prompt-suite issue:
 
+- A prompt has a high number of `noop` or `failed` outcomes in `prompts/prompts_metadata.json`, suggesting it is too broad or the target area is already healthy.
 - A prompt references files, commands, dotfile categories, or conventions that no longer exist.
 - A prompt encourages changes that are now too broad or unsafe for autonomous execution.
 - A prompt overlaps heavily with another prompt and could be clarified to reduce duplicate work.
