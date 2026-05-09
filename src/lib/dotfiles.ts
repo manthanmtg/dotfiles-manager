@@ -123,38 +123,12 @@ export function getDotfile(
 }
 
 /**
- * Optimized line counter that avoids splitting the string into an array.
- * It counts only non-empty lines (lines with at least one non-whitespace character).
- * This is significantly more memory-efficient for large dotfiles.
+ * Optimized line counter that uses a regex to count lines with content.
+ * This is significantly faster than character-by-character iteration in V8.
+ * It counts lines that have at least one non-whitespace character.
  */
 function countLines(content: string): number {
-  let count = 0;
-  let hasContentOnLine = false;
-
-  for (let i = 0; i < content.length; i++) {
-    const char = content[i];
-
-    if (char === "\n") {
-      if (hasContentOnLine) {
-        count++;
-        hasContentOnLine = false;
-      }
-    } else if (
-      !hasContentOnLine &&
-      char !== " " &&
-      char !== "\t" &&
-      char !== "\r"
-    ) {
-      hasContentOnLine = true;
-    }
-  }
-
-  // Handle last line if it doesn't end with a newline
-  if (hasContentOnLine) {
-    count++;
-  }
-
-  return count;
+  return (content.match(/^\s*\S/gm) || []).length;
 }
 
 export function createDotfile(
@@ -191,17 +165,22 @@ export function updateDotfileContent(
   fs.chmodSync(filePath, 0o600);
 }
 
+/**
+ * Replaces placeholders in the content with provided variable values.
+ * Optimization: Performs all replacements in a single pass using a regex
+ * instead of multiple split/join or replaceAll calls.
+ */
 export function applyVariables(
   content: string,
   variables: Record<string, string>
 ): string {
   validateVariableValues(variables);
 
-  let result = content;
-  for (const [key, value] of Object.entries(variables)) {
-    result = result.split(`{{${key}}}`).join(value);
-  }
-  return result;
+  return content.replace(/\{\{([A-Z_][A-Z0-9_]*)\}\}/g, (match, key) => {
+    return Object.prototype.hasOwnProperty.call(variables, key)
+      ? variables[key]
+      : match;
+  });
 }
 
 function validateVariableValues(variables: Record<string, string>): void {
