@@ -58,12 +58,17 @@ export const CodePreview = memo(function CodePreview({
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
               <div>
-                <h3
-                  id="code-preview-title"
-                  className="text-base font-semibold text-zinc-100"
-                >
-                  {title}
-                </h3>
+                <div className="flex items-center gap-3">
+                  <h3
+                    id="code-preview-title"
+                    className="text-base font-semibold text-zinc-100"
+                  >
+                    {title}
+                  </h3>
+                  <span className="px-1.5 py-0.5 rounded-md bg-zinc-800 text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+                    Read-only
+                  </span>
+                </div>
                 <p id="code-preview-path" className="text-xs text-zinc-500 font-mono mt-0.5">
                   ~/.dotfiles-manager/{filename}
                 </p>
@@ -94,26 +99,40 @@ export const CodePreview = memo(function CodePreview({
 
             <div className="max-h-96 overflow-y-auto">
               <pre className="p-5 text-sm font-mono text-zinc-300 leading-relaxed">
-                {content.split("\n").map((line, i) => (
-                  <div key={i} className="flex hover:bg-zinc-800/30 -mx-5 px-5">
-                    <span className="text-zinc-600 select-none w-8 shrink-0 text-right mr-4">
-                      {i + 1}
-                    </span>
-                    <span
-                      className={
-                        line.startsWith("#")
-                          ? "text-zinc-500"
-                          : line.startsWith("alias")
-                            ? "text-cyan-400"
-                            : line.startsWith("export")
-                              ? "text-amber-400"
-                              : ""
-                      }
-                    >
-                      {line || " "}
-                    </span>
-                  </div>
-                ))}
+                {content.split("\n").map((line, i) => {
+                  const trimmedLine = line.trim();
+                  let colorClass = "";
+
+                  if (trimmedLine.startsWith("#")) {
+                    colorClass = "text-zinc-500 italic";
+                  } else if (
+                    trimmedLine.startsWith("alias ") ||
+                    trimmedLine.startsWith("export ") ||
+                    trimmedLine.startsWith("function ") ||
+                    trimmedLine.includes("()")
+                  ) {
+                    colorClass = "text-cyan-400";
+                  } else if (
+                    /^(if|then|else|elif|fi|for|in|do|done|while|until|case|esac|return|local|exit)(\s|$)/.test(
+                      trimmedLine
+                    )
+                  ) {
+                    colorClass = "text-purple-400";
+                  } else if (trimmedLine.includes("=")) {
+                    colorClass = "text-amber-400/90";
+                  }
+
+                  return (
+                    <div key={i} className="flex hover:bg-zinc-800/30 -mx-5 px-5 transition-colors">
+                      <span className="text-zinc-600 select-none w-8 shrink-0 text-right mr-4 text-xs pt-0.5">
+                        {i + 1}
+                      </span>
+                      <span className={colorClass}>
+                        {line || " "}
+                      </span>
+                    </div>
+                  );
+                })}
               </pre>
             </div>
 
