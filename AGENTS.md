@@ -21,7 +21,7 @@ Local-only Next.js web app for managing shell dotfiles stored at `~/.dotfiles-ma
 bin/
 └── dotfiles-manager.mjs   # Global CLI wrapper (pnpm link --global .)
 
-dotfiles/                   # Self-describing .sh files (auto-discovered)
+dotfiles/                   # Self-describing .sh files (category-aligned)
 ├── aliases/
 │   ├── docker-aliases.sh
 │   ├── edit-aliases.sh
@@ -42,9 +42,13 @@ dotfiles/                   # Self-describing .sh files (auto-discovered)
     ├── extract-function.sh
     └── mkcd-function.sh
 
+issues_to_look/             # Notes on non-actionable issues or no-op runs
+├── YYYY-MM-DD_short-slug.md
+└── resolved/
+
 scripts/
 └── validate.ts             # Runs pnpm validate — checks all .sh meta blocks
-
+```
 src/
 ├── cli/                   # CLI entrypoint modules
 │   ├── index.ts           # CLI entrypoint and command router
@@ -147,13 +151,14 @@ Example:
 
 ## Adding a New Dotfile
 
-1. Create `dotfiles/<category>/my-thing.sh`
+1. Create `dotfiles/<category>/my-thing.sh` (where `<category>` matches the meta block)
 2. Add the meta block at the top (see format above)
 3. Write your shell content below `# @end`
 4. Run `pnpm validate` — it will tell you if anything is wrong
 5. Restart the app or hit the seed endpoint — the new file is auto-discovered
 
-The filename (minus `.sh`) becomes the identifier used in `~/.dotfiles-manager/` and in shell config source lines. Folders are for human organization only — the scanner reads all `.sh` files recursively regardless of depth.
+The filename (minus `.sh`) becomes the identifier used in `~/.dotfiles-manager/` and in shell config source lines. **Subdirectories under `dotfiles/` are mandatory and must match the `category` field in the meta block.** The scanner reads all `.sh` files recursively, but `pnpm validate` enforces this directory alignment to prevent confusion.
+
 
 ## Key Conventions
 
