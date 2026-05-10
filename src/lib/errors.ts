@@ -71,11 +71,7 @@ function mapErrorToStatus(error: unknown, fallbackMessage: string): { status: nu
       };
     }
 
-    if (msg.includes("is already installed") || msg.includes("is already sourced")) {
-      return { status: 409, message: msg };
-    }
-
-    if (msg.includes("is not currently installed")) {
+    if (msg.includes("is already sourced")) {
       return { status: 409, message: msg };
     }
 
