@@ -77,6 +77,13 @@ export default function Home() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-950">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-cyan-500 focus:text-white focus:rounded-lg focus:font-medium focus:shadow-lg focus:shadow-cyan-500/50"
+      >
+        Skip to content
+      </a>
+
       <Sidebar
         platform={platform}
         totalCount={dotfiles.length}
@@ -86,7 +93,7 @@ export default function Home() {
         onCategoryChange={setActiveCategory}
       />
 
-      <main className="flex-1 flex flex-col min-w-0 h-full">
+      <main id="main-content" className="flex-1 flex flex-col min-w-0 h-full">
         <Header
           search={search}
           onSearchChange={setSearch}
