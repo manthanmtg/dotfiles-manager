@@ -178,6 +178,7 @@ function DotfileCardInner({
           <div className="flex items-center gap-2">
             <motion.button
               onClick={() => onPreview(filename)}
+              aria-label={`Preview content of ${dotfile.name}`}
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 text-zinc-400 text-xs font-medium hover:bg-zinc-700/80 hover:text-zinc-200 transition-all ${focusRing}`}
@@ -189,6 +190,7 @@ function DotfileCardInner({
             {installed ? (
               <motion.button
                 onClick={() => onUninstall(filename)}
+                aria-label={`Uninstall ${dotfile.name}`}
                 disabled={installing}
                 whileTap={{ scale: 0.98 }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium hover:bg-rose-500/20 transition-all disabled:opacity-50 ${focusRing}`}
@@ -205,6 +207,7 @@ function DotfileCardInner({
             ) : (
               <motion.button
                 onClick={() => onInstall(filename)}
+                aria-label={`Install ${dotfile.name}`}
                 disabled={installing}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}

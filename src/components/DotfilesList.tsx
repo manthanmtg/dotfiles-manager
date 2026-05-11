@@ -35,6 +35,15 @@ function DotfilesListInner({
 }: DotfilesListProps) {
   return (
     <section aria-label="Dotfiles list" className="p-6">
+      <div 
+        role="status" 
+        aria-live="polite" 
+        aria-atomic="true" 
+        className="sr-only"
+      >
+        {search ? `Found ${filtered.length} dotfiles matching "${search}"` : ""}
+      </div>
+
       {error && <ErrorMessage error={error} />}
 
       {filtered.length === 0 ? (
