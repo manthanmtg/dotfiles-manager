@@ -187,10 +187,11 @@ function validateVariableValues(variables: Record<string, string>): void {
   for (const [key, value] of Object.entries(variables)) {
     // Block control characters and shell metacharacters that could be used for injection.
     // We specifically block quotes to prevent breaking out of quoted strings in dotfile templates.
-    // We also block parenthesis to prevent subshell execution or Zsh process substitution.
-    if (/[\r\n\0\$;`|&<>\(\\\]]/.test(value) || /['")]/.test(value)) {
+    // We also block parenthesis/brackets to prevent subshell execution or Zsh process substitution.
+    // We also block globbing characters and other complex shell expansion operators.
+    if (/[\r\n\0\$;`|&<>\(\)\[\]\{\}\*\?\?\\'"]/.test(value)) {
       throw new Error(
-        `Invalid value for variable ${key}: contains forbidden characters (\r, \n, \0, $, \`, ;, |, &, <, >, \\, (, ), ', ")`
+        `Invalid value for variable ${key}: contains forbidden characters (\r, \n, \0, $, \`, ;, |, &, <, >, \\, (, ), [, ], {, }, *, ?, ', ")`
       );
     }
   }

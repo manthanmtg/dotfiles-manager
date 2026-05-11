@@ -3,6 +3,7 @@ import { z } from "zod/v4";
 export const FILENAME_REGEX = /^[a-zA-Z0-9._-]+$/;
 
 export const DotfileFilename = z.string()
+  .max(64, "filename is too long (max 64 chars)")
   .regex(FILENAME_REGEX, "filename must contain only alphanumeric characters, dots, hyphens, or underscores")
   .refine(val => val !== "." && val !== "..", "filename cannot be '.' or '..'");
 
