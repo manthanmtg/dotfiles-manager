@@ -183,4 +183,5 @@ The filename (minus `.sh`) becomes the identifier used in `~/.dotfiles-manager/`
 - Never write to the user's shell config file outside of the `addSource` / `removeSource` functions in `src/lib/shell.ts`.
 - The regex in `removeSource` must only match the exact `source ~/.dotfiles-manager/<filename>` pattern — never broader.
 - Always check `isSourced()` before installing to prevent duplicate source lines.
+- Verify the managed dotfile exists and is a regular file (not a symlink) before appending its `source` line.
 - Platform check (`assertSupported()`) must run at the top of every API route.
