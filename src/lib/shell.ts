@@ -13,11 +13,23 @@ const SAFE_DOTFILE_SOURCE_PATHS = Object.values(SHELL_CONFIG_MAP).map((configFil
   path.join(os.homedir(), configFile)
 );
 const MANAGED_DOTFILE_SOURCE_PATH = "~/.dotfiles-manager";
-const MANAGED_DOTFILE_SOURCE_PATH_REGEX = escapeRegex(MANAGED_DOTFILE_SOURCE_PATH);
+const HOME_PATH = os.homedir();
 
-// Pre-compile the capture pattern as it is constant
+/**
+ * Returns a regex pattern that matches the managed dotfiles directory path.
+ * It matches either the tilde version (~/.dotfiles-manager) or the full absolute path version.
+ */
+function getManagedSourcePathPattern(): string {
+  const escapedHome = escapeRegex(HOME_PATH);
+  const escapedTilde = escapeRegex("~");
+  const managedDir = escapeRegex(".dotfiles-manager");
+  return `(?:${escapedTilde}|${escapedHome})\\/${managedDir}`;
+}
+
+// Pre-compile the capture pattern to detect any managed source line.
+// This is used by getSourcedDotfilesFromContent for listing and checking status.
 const SOURCE_CAPTURE_PATTERN = new RegExp(
-  `^[ \\t]*source\\s+${MANAGED_DOTFILE_SOURCE_PATH_REGEX}\\/([^\\s#]+)(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
+  `^[ \\t]*source\\s+${getManagedSourcePathPattern()}\\/([^\\s#]+)(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
   "gm"
 );
 
@@ -167,7 +179,7 @@ function getManagedSourceLinePattern(
   dotfileName: string,
   options: { includeLineEnd?: boolean } = {}
 ): RegExp {
-  const dotfilesPathPattern = `${escapeRegex(MANAGED_DOTFILE_SOURCE_PATH)}/${escapeRegex(
+  const dotfilesPathPattern = `${getManagedSourcePathPattern()}\\/${escapeRegex(
     dotfileName
   )}`;
   const trailingContent = "(?:[\\t ]*(?:#.*)?)?";
