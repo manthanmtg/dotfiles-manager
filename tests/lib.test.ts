@@ -1,7 +1,47 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import os from "node:os";
 import { applyVariables } from "../src/lib/dotfiles";
-import { assertSupportedShell } from "../src/lib/shell";
+import { assertSupportedShell, getSourcedDotfilesFromContent } from "../src/lib/shell";
+
+test("getSourcedDotfilesFromContent detects tilde-based sources", () => {
+  const content = `
+# existing config
+source ~/.dotfiles-manager/git-aliases
+  source ~/.dotfiles-manager/docker-aliases # with comment
+`;
+  const result = getSourcedDotfilesFromContent(content);
+  assert.strictEqual(result.size, 2);
+  assert.ok(result.has("git-aliases"));
+  assert.ok(result.has("docker-aliases"));
+});
+
+test("getSourcedDotfilesFromContent detects full home path sources", () => {
+  const home = os.homedir();
+  const content = `
+source ${home}/.dotfiles-manager/git-aliases
+source ~/.dotfiles-manager/docker-aliases
+`;
+  const result = getSourcedDotfilesFromContent(content);
+  assert.strictEqual(result.size, 2);
+  assert.ok(result.has("git-aliases"));
+  assert.ok(result.has("docker-aliases"));
+});
+
+test("getSourcedDotfilesFromContent ignores malformed or unrelated sources", () => {
+  const content = `
+# not a managed source
+source /etc/profile
+# incomplete path
+source ~/.dotfiles/other
+# commented out source
+# source ~/.dotfiles-manager/hidden
+# not start of line
+alias s="source ~/.dotfiles-manager/aliased"
+`;
+  const result = getSourcedDotfilesFromContent(content);
+  assert.strictEqual(result.size, 0);
+});
 
 test("assertSupportedShell throws for unknown shell", () => {
   const shellInfo = { shell: "unknown" as const, configPath: "/tmp/.bashrc", configExists: true };
