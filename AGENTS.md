@@ -46,7 +46,11 @@ issues_to_look/             # Notes on non-actionable issues or no-op runs
 ├── YYYY-MM-DD_short-slug.md
 └── resolved/
 
-scripts/
+├── prompts/                # Autonomous improvement prompts
+│   ├── random_selector.md  # Orchestrates autonomous runs
+│   ├── prompts_metadata.json # Observability and usage counters
+│   └── ...                 # Individual task prompts
+├── scripts/
 └── validate.ts             # Runs pnpm validate — checks all .sh meta blocks
 ```
 src/
@@ -69,9 +73,11 @@ src/
 │   ├── useDotfiles.ts      # Central data-fetching hook (fetch, install, uninstall)
 │   ├── useDotfileActions.ts # Shared action hook for install/uninstall operations
 │   ├── useDotfileView.ts    # Memoized filter/search helpers for list and category views
-│   └── useDotfileStats.ts   # Memoized stats for categories and installation status
+│   ├── useDotfileStats.ts   # Memoized stats for categories and installation status
+│   └── useTrapFocus.ts     # A11y hook for modal focus trapping
 ├── context/
 │   └── TerminalContext.tsx # Terminal event stream utilities via React Context
+
 ├── lib/                    # Shared and server-only utilities
 │   ├── api.ts              # Robust fetchApi wrapper with Zod validation
 │   ├── schemas.ts          # Zod v4 schemas for all data types + API payloads
