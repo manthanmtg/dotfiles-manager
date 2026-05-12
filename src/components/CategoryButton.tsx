@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { memo } from "react";
 import { DynamicIcon } from "./Icons";
 import { CATEGORY_META, type ThemeColor } from "@/types";
 import type { DotfileCategory } from "@/types";
@@ -51,7 +52,7 @@ const CATEGORY_LEFT_BORDERS: Record<ThemeColor, string> = {
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
 
-export function CategoryButton({
+function CategoryButtonInner({
   category,
   isActive,
   count,
@@ -82,3 +83,6 @@ export function CategoryButton({
     </motion.button>
   );
 }
+
+export const CategoryButton = memo(CategoryButtonInner);
+
