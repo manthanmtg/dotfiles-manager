@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Terminal, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { useTerminal } from "@/context/TerminalContext";
@@ -22,7 +22,7 @@ const LINE_PREFIX: Record<TerminalLine["type"], string> = {
   command: "❯",
 };
 
-export function TerminalConsole() {
+function TerminalConsoleInner() {
   const { lines, clearTerminal: onClear } = useTerminal();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
@@ -160,3 +160,6 @@ export function TerminalConsole() {
     </motion.div>
   );
 }
+
+export const TerminalConsole = memo(TerminalConsoleInner);
+

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { memo } from "react";
 import { DynamicIcon } from "./Icons";
 import { CATEGORY_META } from "@/types";
 import type { DotfileCategory } from "@/types";
@@ -41,7 +42,7 @@ const SECTION_DIVIDERS: Record<string, string> = {
   sky: "from-sky-400/70 via-sky-300/30 to-transparent",
 };
 
-export function CategorySection({ category, children }: CategorySectionProps) {
+function CategorySectionInner({ category, children }: CategorySectionProps) {
   const meta = CATEGORY_META[category];
 
   return (
@@ -84,3 +85,6 @@ export function CategorySection({ category, children }: CategorySectionProps) {
     </motion.section>
   );
 }
+
+export const CategorySection = memo(CategorySectionInner);
+
