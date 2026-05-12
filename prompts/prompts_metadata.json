@@ -203,7 +203,6 @@
       "lastSelectedAt": null,
       "lastCompletedAt": null,
       "lastOutcome": null
-    },
     "security_auditor.md": {
       "id": "security-auditor",
       "file": "security_auditor.md",
@@ -211,15 +210,16 @@
       "category": "security",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 6,
-      "totalCompleted": 7,
+      "totalSelected": 7,
+      "totalCompleted": 8,
       "totalNoop": 0,
       "totalFailed": 0,
       "lastOutcome": "completed",
-      "lastSelectedAt": "2026-05-11T12:00:00Z",
-      "lastCompletedAt": "2026-05-11T12:00:00Z"
+      "lastSelectedAt": "2026-05-12T10:00:00.000Z",
+      "lastCompletedAt": "2026-05-12T10:15:00.000Z"
+    }
     },
-    "shell_safety_auditor.md": {
+    "updatedAt": "2026-05-12T10:15:00.000Z"
       "id": "shell-safety-auditor",
       "file": "shell_safety_auditor.md",
       "title": "Shell Safety Auditor",
