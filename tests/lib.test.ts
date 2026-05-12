@@ -77,10 +77,12 @@ test("applyVariables blocks shell metacharacters", () => {
     "~/projects > /dev/null",
     "~/projects < /etc/passwd",
     "~/projects | grep foo",
-    "~/projects\\nrm -rf /",
+    "~/projects\nrm -rf /",
     "~/projects (ls)",
     "~/projects )",
-  ];
+    "~/projects # comment",
+    "~/projects!",
+    ];
 
   for (const value of dangerousValues) {
     assert.throws(
