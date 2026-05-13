@@ -12,7 +12,7 @@ Local-only Next.js web app for managing shell dotfiles stored at `~/.dotfiles-ma
 - `pnpm lint` — run ESLint
 - `pnpm validate` — check all `.sh` files in `dotfiles/` have valid meta comments
 - `pnpm test` — run the TypeScript test suite in `tests/**/*.test.ts`
-- `pnpm cli -- help` — run the local command-line interface in `src/cli/index.ts`
+- `pnpm cli [cmd]` — run CLI (e.g. `pnpm cli help`, `pnpm cli seed`, `pnpm cli list`)
 - `lsof -ti :3000 | xargs kill -9` — kill process on port 3000
 
 ## Architecture
@@ -79,8 +79,8 @@ src/
 │   └── TerminalContext.tsx # Terminal event stream utilities via React Context
 
 ├── lib/                    # Shared and server-only utilities
-│   ├── api.ts              # Robust fetchApi wrapper with Zod validation
-│   ├── schemas.ts          # Zod v4 schemas for all data types + API payloads
+│   ├── api.ts              # Robust fetchApi wrapper with Zod validation (Shared)
+│   ├── schemas.ts          # Zod v4 schemas for all data types + API payloads (Shared)
 │   ├── parser.ts           # Parses meta comment blocks from .sh files
 │   ├── scanner.ts          # Recursively discovers all .sh files in dotfiles/
 │   ├── shell.ts            # Shell detection, source line add/remove (strict regex)
@@ -170,7 +170,7 @@ The filename (minus `.sh`) becomes the identifier used in `~/.dotfiles-manager/`
 
 - **pnpm only** — never use npm or yarn.
 - **Zod v4** — import from `zod/v4`. All API payloads and form inputs must be validated with Zod schemas defined in `src/lib/schemas.ts`.
-- **Server code in `src/lib/`** — uses Node.js `fs`, `path`, `os`, `child_process`. Never import these in client components.
+- **Shared vs Server logic** — Most logic in `src/lib/` is server-only (uses Node.js `fs`, `path`, `os`, `child_process`) and must NOT be imported in client components. Exceptions: `src/lib/api.ts` and `src/lib/schemas.ts` are shared and safe for client components.
 - **Client components in `src/components/`** — must have `"use client"` directive. Use Framer Motion for animations, Lucide React for icons.
 - **Tailwind CSS v4** — uses `@theme inline` for CSS variables. Dark mode only (zinc base, neon accents: cyan, emerald, purple, rose, amber, sky).
 - **No `app/api/[dynamic]` routes** — each operation has its own route file for clarity.
