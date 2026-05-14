@@ -8,12 +8,12 @@ A locally-hosted Next.js web application and CLI for managing, discovering, and 
 - **One-Click Install/Uninstall** — Install dotfiles into your shell config with a single click
 - **Duplicate Prevention** — Parses your shell config to detect already-installed dotfiles
 - **Variable Prompts** — Dotfiles with configurable variables prompt you via a rich modal before installation
-- **Live Terminal Console** — Real-time simulated terminal showing step-by-step installation progress
+- **Live Terminal Console** — Real-time terminal showing step-by-step installation and uninstallation progress
 - **Keyboard Shortcuts** — Use `/` to quickly focus the search bar from anywhere in the app
 - **Category Organization** — Dotfiles grouped by type: Aliases, Scripts, Prompts, Security, Environment, Functions
 - **Code Preview** — Syntax-highlighted preview of any dotfile before installing
 - **CLI Fallback** — Manage the same local dotfiles from your terminal when the web UI is not available
-- **Built-in Configs** — Ships with a curated collection of dotfiles for Git, Docker, Kubernetes, Node.js, and more
+- **Built-in Configs** — Ships with a curated collection of dotfiles for Git, Docker, Kubernetes, Node.js, Navigation, Shell Editing, and more
 
 ## Requirements
 
