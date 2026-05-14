@@ -77,6 +77,7 @@ Useful commands:
 dotfiles-manager shell
 dotfiles-manager seed
 dotfiles-manager list --available
+dotfiles-manager list --installed
 dotfiles-manager show git-aliases
 dotfiles-manager install git-aliases
 dotfiles-manager uninstall git-aliases
