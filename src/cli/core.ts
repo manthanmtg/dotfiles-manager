@@ -51,10 +51,6 @@ export function parseCliArgs(argv: string[]): ParsedCliArgs {
       const existing = flags[flagName];
       if (Array.isArray(existing)) {
         existing.push(next);
-      } else if (typeof existing === "string") {
-        flags[flagName] = [existing, next];
-      } else if (existing === true) {
-        flags[flagName] = [next];
       } else {
         flags[flagName] = [next];
       }

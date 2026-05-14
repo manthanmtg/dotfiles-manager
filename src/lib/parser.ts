@@ -327,7 +327,7 @@ export function validateAllDotfiles(
           } else {
             errs.push({
               file: rel,
-              errors: [errorToMessage(e)],
+              errors: [e instanceof Error ? e.message : String(e)],
             });
           }
         }
@@ -337,9 +337,4 @@ export function validateAllDotfiles(
 
   walk(dotfilesDir);
   return { valid, errors: errs };
-}
-
-function errorToMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  return String(error);
 }
