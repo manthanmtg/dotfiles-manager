@@ -39,7 +39,7 @@ Pick one category:
 
 If there is ambiguity, do not delete. Log it to `issues_to_look/`.
 
-If 3 scans find nothing safe to remove, no-op with "dead code scan is clean".
+If scans across three different categories or directories (e.g., src/lib/, src/components/, src/hooks/) find nothing safe to remove, no-op with "dead code scan is clean".
 
 ### 5. Verify
 
