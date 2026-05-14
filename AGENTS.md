@@ -12,7 +12,7 @@ Local-only Next.js web app for managing shell dotfiles stored at `~/.dotfiles-ma
 - `pnpm lint` — run ESLint
 - `pnpm validate` — check all `.sh` files in `dotfiles/` have valid meta comments
 - `pnpm test` — run the TypeScript test suite in `tests/**/*.test.ts`
-- `pnpm cli [cmd]` — run CLI (e.g. `pnpm cli help`, `pnpm cli seed`, `pnpm cli list`)
+- `pnpm cli [cmd]` — run CLI (commands: `seed`, `shell`, `list`, `show`, `install`, `uninstall`, `help`)
 - `lsof -ti :3000 | xargs kill -9` — kill process on port 3000
 
 ## Architecture
@@ -81,7 +81,7 @@ src/
 ├── lib/                    # Shared and server-only utilities
 │   ├── api.ts              # Robust fetchApi wrapper with Zod validation (Shared)
 │   ├── schemas.ts          # Zod v4 schemas for all data types + API payloads (Shared)
-│   ├── parser.ts           # Parses meta comment blocks from .sh files
+│   ├── parser.ts           # Parses meta comment blocks and validates dotfiles
 │   ├── scanner.ts          # Recursively discovers all .sh files in dotfiles/
 │   ├── shell.ts            # Shell detection, source line add/remove (strict regex)
 │   ├── dotfiles.ts         # CRUD for ~/.dotfiles-manager/ files + .meta.json
@@ -125,9 +125,10 @@ Every `.sh` file in `dotfiles/` must have a meta block at the top. The scanner a
 
 | Field      | Description                                                        |
 |------------|--------------------------------------------------------------------|
-| `icon`     | Lucide icon name (e.g. `GitBranch`, `Shield`, `Terminal`)          |
+| `icon`     | Lucide icon name (subset supported: `Zap`, `Code`, `Terminal`, `Shield`, `Settings`, `Braces`, `GitBranch`, `Container`, `Box`, `FolderOpen`, `FileArchive`, `ShieldAlert`, `Network`, `FolderPlus`) |
 | `tags`     | Comma-separated tags for search/filtering                          |
 | `variable` | Declares a user-configurable variable (can appear multiple times)  |
+
 
 ### Variable syntax
 
