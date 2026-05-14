@@ -209,7 +209,7 @@ function assertSafeDotfileName(dotfileName: string): void {
 function isRegularManagedFile(filePath: string): boolean {
   try {
     const stat = fs.lstatSync(filePath);
-    return stat.isFile() && !stat.isSymbolicLink();
+    return stat.isFile();
   } catch {
     return false;
   }
@@ -221,13 +221,13 @@ function assertNotSymbolicLink(filePath: string): void {
       throw new Error(`Refusing to write symlinked file: ${path.basename(filePath)}`);
     }
   } catch (error) {
-    if (isErrnoException(error) && error.code === "ENOENT") {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
       return;
     }
     throw error;
   }
-}
-
-function isErrnoException(error: unknown): error is NodeJS.ErrnoException {
-  return error instanceof Error && "code" in error;
 }
