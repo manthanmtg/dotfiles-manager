@@ -9,6 +9,7 @@ A locally-hosted Next.js web application and CLI for managing, discovering, and 
 - **Duplicate Prevention** — Parses your shell config to detect already-installed dotfiles
 - **Variable Prompts** — Dotfiles with configurable variables prompt you via a rich modal before installation
 - **Live Terminal Console** — Real-time simulated terminal showing step-by-step installation progress
+- **Keyboard Shortcuts** — Use `/` to quickly focus the search bar from anywhere in the app
 - **Category Organization** — Dotfiles grouped by type: Aliases, Scripts, Prompts, Security, Environment, Functions
 - **Code Preview** — Syntax-highlighted preview of any dotfile before installing
 - **CLI Fallback** — Manage the same local dotfiles from your terminal when the web UI is not available
@@ -98,14 +99,14 @@ If the web app is not available, use the CLI as the primary workflow:
 
 ## How It Works
 
-1. Run `dotfiles-manager seed` (or use the seed action in the web UI) to create dotfiles in `~/.dotfiles-manager/`
+1. Run `dotfiles-manager seed` (or use the refresh action in the web UI) to sync bundled dotfiles into `~/.dotfiles-manager/`
 2. Each dotfile has a content file and a `.meta.json` metadata file
 3. Installing a dotfile appends `source ~/.dotfiles-manager/<filename>` to your shell config (e.g. `~/.zshrc`)
 4. Uninstalling removes only the relevant source line — no other config is touched
 
 ## Tech Stack
 
-- **Next.js 16** with App Router and API Routes
+- **Next.js 16** and **React 19** with App Router and API Routes
 - **Tailwind CSS v4** with custom dark theme
 - **Framer Motion** for animations
 - **Lucide React** for iconography
