@@ -66,6 +66,7 @@ function CategoryButtonInner({
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
+      aria-label={`${meta.label}, ${count} items`}
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all border ${
         isActive
           ? `${CATEGORY_BG_COLORS[meta.color]} ${CATEGORY_BORDER_COLORS[meta.color]} ${CATEGORY_TEXT_COLORS[meta.color]} border-l-2 ${CATEGORY_LEFT_BORDERS[meta.color]} ${focusRing}`

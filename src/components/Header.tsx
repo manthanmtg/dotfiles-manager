@@ -19,6 +19,9 @@ export const Header = memo(function Header({
   totalCount,
   installedCount,
 }: HeaderProps) {
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 transition-all";
+
   return (
     <header className="shrink-0 border-b border-zinc-800/60 bg-zinc-950/30 backdrop-blur-xl px-6 py-4">
       <div className="flex items-center justify-between gap-4">
@@ -47,7 +50,7 @@ export const Header = memo(function Header({
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search dotfiles..."
-              className="pl-9 pr-12 py-2 w-64 bg-zinc-800/50 border border-zinc-700/40 rounded-lg text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/30 transition-all font-mono"
+              className={`pl-9 pr-12 py-2 w-64 bg-zinc-800/50 border border-zinc-700/40 rounded-lg text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none font-mono ${focusRing}`}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-zinc-700/50 bg-zinc-900/50 text-[10px] font-mono text-zinc-500 pointer-events-none group-focus-within:opacity-0 transition-opacity">
               /
@@ -59,7 +62,7 @@ export const Header = memo(function Header({
             whileTap={{ scale: 0.9 }}
             onClick={onRefresh}
             aria-label="Refresh dotfile list"
-            className="p-2 rounded-lg bg-zinc-800/50 border border-zinc-700/40 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
+            className={`p-2 rounded-lg bg-zinc-800/50 border border-zinc-700/40 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors ${focusRing}`}
             title="Refresh"
           >
             <RefreshCw size={16} aria-hidden="true" />
