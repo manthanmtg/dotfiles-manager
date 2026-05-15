@@ -75,13 +75,14 @@
       "category": "code-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 10,
+      "totalSelected": 11,
       "totalCompleted": 5,
-      "totalNoop": 5,
+      "totalNoop": 6,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-14T05:00:38.859Z",
-      "lastCompletedAt": "2026-05-14T05:05:24.285Z",
-      "lastOutcome": "completed"
+      "lastSelectedAt": "2026-05-15T06:01:08.503Z",
+      "lastCompletedAt": "2026-05-15T06:05:33.560Z",
+      "lastOutcome": "noop"
+    },
     "documentation_ghostwriter_prompt.md": {
       "id": "documentation-ghostwriter-prompt",
       "file": "documentation_ghostwriter_prompt.md",
@@ -97,9 +98,9 @@
       "lastCompletedAt": "2026-05-15T04:05:00.000Z",
       "lastOutcome": "completed"
     },
-    ...
-    },
-    "updatedAt": "2026-05-15T04:05:00.000Z"      "file": "dotfile_catalog_enhancer.md",
+    "dotfile_catalog_enhancer.md": {
+      "id": "dotfile-catalog-enhancer",
+      "file": "dotfile_catalog_enhancer.md",
       "title": "Dotfile Catalog Enhancer",
       "category": "feature-quality",
       "enabled": true,
@@ -279,5 +280,5 @@
       "lastCompletedAt": "2026-05-09T06:32:10.413Z"
     }
   },
-  "updatedAt": "2026-05-15T03:34:00.619Z"
+  "updatedAt": "2026-05-15T06:05:33.560Z"
 }
