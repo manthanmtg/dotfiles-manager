@@ -40,7 +40,7 @@ Look for:
 ### 3. Fix
 
 - Make 1 small safety improvement.
-- Preserve the exact line format: `source ~/.dotfiles-manager/<filename>`.
+- Support exact managed source lines, including variants like `~`, absolute home path, or `$HOME`.
 - Do not change the install/uninstall contract unless every call site is updated and verified.
 
 ### 4. No-Op Conditions
