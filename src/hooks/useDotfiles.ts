@@ -83,6 +83,7 @@ export function useDotfiles() {
       variables?: Record<string, string>
     ): Promise<InstallResult | null> => {
       try {
+        setError(null);
         addLine("command", `Installing ${filename}...`);
         addLine("info", "Checking installation state...");
 
@@ -106,6 +107,7 @@ export function useDotfiles() {
         return data;
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Install failed";
+        setError(msg);
         addLine("error", msg);
         return null;
       }
@@ -116,6 +118,7 @@ export function useDotfiles() {
   const uninstall = useCallback(
     async (filename: string): Promise<InstallResult | null> => {
       try {
+        setError(null);
         addLine("command", `Uninstalling ${filename}...`);
         addLine("info", "Locating source entry...");
 
@@ -138,6 +141,7 @@ export function useDotfiles() {
         return data;
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Uninstall failed";
+        setError(msg);
         addLine("error", msg);
         return null;
       }
@@ -146,9 +150,20 @@ export function useDotfiles() {
   );
 
   const refresh = useCallback(async () => {
-    await seedDefaults();
-    return fetchDotfiles();
-  }, [seedDefaults, fetchDotfiles]);
+    try {
+      setError(null);
+      addLine("info", "Refreshing dotfiles...");
+      await seedDefaults();
+      const files = await fetchDotfiles();
+      addLine("success", `Refresh complete: ${files.length} dotfiles loaded.`);
+      return files;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Refresh failed";
+      setError(msg);
+      addLine("error", msg);
+      return null;
+    }
+  }, [seedDefaults, fetchDotfiles, addLine]);
 
   return {
     dotfiles,
