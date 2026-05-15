@@ -15,6 +15,7 @@ import {
   ShieldAlert,
   Network,
   FolderPlus,
+  FileEdit,
   type LucideIcon,
 } from "lucide-react";
 
@@ -33,6 +34,7 @@ const iconMap = {
   ShieldAlert,
   Network,
   FolderPlus,
+  FileEdit,
 } as const;
 
 export type IconName = keyof typeof iconMap;

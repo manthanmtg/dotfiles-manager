@@ -128,7 +128,7 @@ Every `.sh` file in `dotfiles/` must have a meta block at the top. The scanner a
 
 | Field      | Description                                                        |
 |------------|--------------------------------------------------------------------|
-| `icon`     | Lucide icon name (subset supported: `Zap`, `Code`, `Terminal`, `Shield`, `Settings`, `Braces`, `GitBranch`, `Container`, `Box`, `FolderOpen`, `FileArchive`, `ShieldAlert`, `Network`, `FolderPlus`) |
+| `icon`      | Lucide icon name (subset supported: `Zap`, `Code`, `Terminal`, `Shield`, `Settings`, `Braces`, `GitBranch`, `Container`, `Box`, `FolderOpen`, `FileArchive`, `ShieldAlert`, `Network`, `FolderPlus`, `FileEdit`) |
 | `tags`     | Comma-separated tags for search/filtering                          |
 | `variable` | Declares a user-configurable variable (can appear multiple times)  |
 

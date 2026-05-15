@@ -82,7 +82,6 @@
       "lastSelectedAt": "2026-05-14T05:00:38.859Z",
       "lastCompletedAt": "2026-05-14T05:05:24.285Z",
       "lastOutcome": "completed"
-    },
     "documentation_ghostwriter_prompt.md": {
       "id": "documentation-ghostwriter-prompt",
       "file": "documentation_ghostwriter_prompt.md",
@@ -90,17 +89,17 @@
       "category": "documentation",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 10,
-      "totalCompleted": 10,
+      "totalSelected": 11,
+      "totalCompleted": 11,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-15T00:00:00.000Z",
-      "lastCompletedAt": "2026-05-15T00:00:00.000Z",
+      "lastSelectedAt": "2026-05-15T04:00:00.000Z",
+      "lastCompletedAt": "2026-05-15T04:05:00.000Z",
       "lastOutcome": "completed"
     },
-    "dotfile_catalog_enhancer.md": {
-      "id": "dotfile-catalog-enhancer",
-      "file": "dotfile_catalog_enhancer.md",
+    ...
+    },
+    "updatedAt": "2026-05-15T04:05:00.000Z"      "file": "dotfile_catalog_enhancer.md",
       "title": "Dotfile Catalog Enhancer",
       "category": "feature-quality",
       "enabled": true,
