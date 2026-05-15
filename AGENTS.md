@@ -54,7 +54,7 @@ issues_to_look/             # Notes on non-actionable issues or no-op runs
 │   ├── prompts_metadata.json # Observability and usage counters
 │   └── ...                 # Individual task prompts
 ├── scripts/
-└── validate.ts             # Runs pnpm validate — checks all .sh meta blocks
+│   └── validate.ts         # Runs pnpm validate — checks all .sh meta blocks
 ```
 src/
 ├── cli/                   # CLI entrypoint modules
