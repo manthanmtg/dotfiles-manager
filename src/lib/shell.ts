@@ -16,19 +16,21 @@ const HOME_PATH = os.homedir();
 
 /**
  * Returns a regex pattern that matches the managed dotfiles directory path.
- * It matches either the tilde version (~/.dotfiles-manager) or the full absolute path version.
+ * It matches tilde (~/.dotfiles-manager), absolute home path (/home/user/.dotfiles-manager),
+ * or the $HOME environment variable ($HOME/.dotfiles-manager).
  */
 function getManagedSourcePathPattern(): string {
   const escapedHome = escapeRegex(HOME_PATH);
   const escapedTilde = escapeRegex("~");
   const managedDir = escapeRegex(".dotfiles-manager");
-  return `(?:${escapedTilde}|${escapedHome})\\/${managedDir}`;
+  return `(?:${escapedTilde}|${escapedHome}|\\$HOME)\\/${managedDir}`;
 }
 
 // Pre-compile the capture pattern to detect any managed source line.
 // This is used by getSourcedDotfilesFromContent for listing and checking status.
+// It handles optional quotes around the path and trailing comments.
 const SOURCE_CAPTURE_PATTERN = new RegExp(
-  `^[ \\t]*source\\s+${getManagedSourcePathPattern()}\\/([^\\s#]+)(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
+  `^[ \\t]*source\\s+["']?${getManagedSourcePathPattern()}\\/([^\\s#"'\\)]+?)["']?(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
   "gm"
 );
 
@@ -190,7 +192,10 @@ function getManagedSourceLinePattern(
   const trailingContent = "(?:[\\t ]*(?:#.*)?)?";
   const lineEnd = options.includeLineEnd ? "(?:\\r?\\n|$)" : "$";
 
-  return new RegExp(`^[ \\t]*source\\s+${dotfilesPathPattern}${trailingContent}${lineEnd}`, "gm");
+  return new RegExp(
+    `^[ \\t]*source\\s+["']?${dotfilesPathPattern}["']?${trailingContent}${lineEnd}`,
+    "gm"
+  );
 }
 
 function escapeRegex(str: string): string {
