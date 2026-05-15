@@ -1,9 +1,10 @@
 # @dotfiles-manager
 # name: Port Utilities
-# description: Lightweight helpers to inspect port usage and terminate local processes by port without opening apps.
+# description: Lightweight helpers to inspect port usage and terminate local processes by port. Uses lsof for detection.
 # category: scripts
 # icon: Network
-# tags: network, debugging, processes, development
+# tags: network, debugging, processes, development, lsof
+# variable: DEFAULT_KILL_SIGNAL | Default Kill Signal | Signal to use for killport (e.g., 15 for SIGTERM, 9 for SIGKILL) | 15 | optional
 # @end
 
 # Find process on a port
@@ -23,7 +24,9 @@ listening() {
     return 1
   fi
 
-  lsof -i :"$1"
+  # -n: suppresses the conversion of network numbers to host names.
+  # -P: suppresses the conversion of port numbers to port names.
+  lsof -nP -i :"$1"
 }
 
 # Kill process on a port
@@ -51,8 +54,9 @@ killport() {
     return 0
   fi
 
+  local signal="{{DEFAULT_KILL_SIGNAL}}"
   while IFS= read -r pid; do
-    kill -9 -- "$pid"
+    kill -"$signal" -- "$pid"
   done <<< "$pids"
-  echo "Killed process(es) on port $1: $pids"
+  echo "Sent signal $signal to process(es) on port $1: $pids"
 }
