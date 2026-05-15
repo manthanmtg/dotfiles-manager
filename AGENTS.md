@@ -175,7 +175,7 @@ The filename (minus `.sh`) becomes the identifier used in `~/.dotfiles-manager/`
 - **pnpm only** — never use npm or yarn.
 - **Zod v4** — import from `zod/v4`. All API payloads and form inputs must be validated with Zod schemas defined in `src/lib/schemas.ts`.
 - **Shared vs Server logic** — Most logic in `src/lib/` is server-only (uses Node.js `fs`, `path`, `os`, `child_process`) and must NOT be imported in client components. Exceptions: `src/lib/api.ts` and `src/lib/schemas.ts` are shared and safe for client components.
-- **Client components in `src/components/`** — must have `"use client"` directive. Use Framer Motion for animations, Lucide React for icons.
+- **Client components in `src/components/`** — must have `"use client"` directive. Use Framer Motion for animations, Lucide React for icons. Use `memo` for most client components to prevent unnecessary re-renders.
 - **Tailwind CSS v4** — uses `@theme inline` for CSS variables. Dark mode only (zinc base, neon accents: cyan, emerald, purple, rose, amber, sky).
 - **No `app/api/[dynamic]` routes** — each operation has its own route file for clarity.
 - **Dotfile runtime storage** — each dotfile is stored in `~/.dotfiles-manager/` as a pair: `<filename>` (content) + `<filename>.meta.json` (metadata).

@@ -165,13 +165,13 @@
       "category": "documentation",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 8,
+      "totalSelected": 9,
       "totalCompleted": 5,
       "totalNoop": 2,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-13T17:00:57.566Z",
+      "lastSelectedAt": "2026-05-15T09:01:35Z",
       "lastCompletedAt": "2026-05-13T17:10:29.659Z",
-      "lastOutcome": "completed"
+      "lastOutcome": "selected"
     },
     "prompts_optimizer.md": {
       "id": "prompts-optimizer",
@@ -280,5 +280,5 @@
       "lastCompletedAt": "2026-05-09T06:32:10.413Z"
     }
   },
-  "updatedAt": "2026-05-15T07:02:15.238Z"
+  "updatedAt": "2026-05-15T09:01:35Z"
 }
