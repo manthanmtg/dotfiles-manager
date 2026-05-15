@@ -190,7 +190,7 @@ function validateVariableValues(variables: Record<string, string>): void {
     // We also block parenthesis/brackets to prevent subshell execution or Zsh process substitution.
     // We also block globbing characters and other complex shell expansion operators.
     // We also block '#' and '!' to prevent comments or history expansion side-effects.
-    if (/[\r\n\0\$;`|&<>\(\)\[\]\{\}\*\?\?\\'#!]/.test(value)) {
+    if (/[\r\n\0\$;`|&<>\(\)\[\]\{\}\*\?\?\\'"#!]/.test(value)) {
       throw new Error(
         `Invalid value for variable ${key}: contains forbidden characters (\r, \n, \0, $, \`, ;, |, &, <, >, \\, (, ), [, ], {, }, *, ?, ', ", #, !)`
       );

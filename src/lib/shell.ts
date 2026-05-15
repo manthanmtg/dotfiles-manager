@@ -1,4 +1,3 @@
-import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -38,15 +37,19 @@ export function detectShell(): ShellInfo {
   let shellName = "unknown";
 
   try {
-    const defaultShell = process.env.SHELL || "";
-    shellName = path.basename(defaultShell);
-  } catch {
-    try {
-      const result = execSync("echo $SHELL", { encoding: "utf-8" }).trim();
-      shellName = path.basename(result);
-    } catch {
-      shellName = "unknown";
+    // Priority 1: $SHELL environment variable
+    const envShell = process.env.SHELL;
+    if (envShell) {
+      shellName = path.basename(envShell);
+    } else {
+      // Priority 2: os.userInfo() which is more reliable on Unix
+      const userShell = os.userInfo().shell;
+      if (userShell) {
+        shellName = path.basename(userShell);
+      }
     }
+  } catch {
+    shellName = "unknown";
   }
 
   const normalizedShell = shellName.toLowerCase();
