@@ -105,17 +105,19 @@ export function addSource(configPath: string, dotfileName: string): void {
   assertSafeDotfileName(dotfileName);
   assertSafeConfigPath(configPath);
 
-  // Hardening: Verify the managed dotfile exists and is a regular file before sourcing it.
-  // This prevents polluting shell configs with broken source lines.
+  // Hardening: Verify the managed dotfile exists and is a regular file (not a symlink) before sourcing it.
+  // This prevents polluting shell configs with broken source lines or dangerous symlinks.
   const managedFilePath = path.join(os.homedir(), ".dotfiles-manager", dotfileName);
   if (!fs.existsSync(managedFilePath)) {
     throw new Error(`Managed dotfile not found at ${managedFilePath}. Please seed it first.`);
   }
 
   try {
-    const stats = fs.statSync(managedFilePath);
-    if (!stats.isFile()) {
-      throw new Error(`Managed dotfile is not a regular file: ${managedFilePath}`);
+    const lstats = fs.lstatSync(managedFilePath);
+    if (!lstats.isFile() || lstats.isSymbolicLink()) {
+      throw new Error(
+        `Managed dotfile is not a regular file or is a symbolic link: ${managedFilePath}`
+      );
     }
   } catch (error) {
     throw new Error(
@@ -204,6 +206,21 @@ export function assertSafeConfigPath(configPath: string): void {
   const normalized = path.resolve(configPath);
   if (!SAFE_DOTFILE_SOURCE_PATHS.includes(normalized)) {
     throw new Error(`Invalid shell config path: ${configPath}`);
+  }
+
+  if (fs.existsSync(configPath)) {
+    try {
+      const stats = fs.statSync(configPath);
+      if (!stats.isFile()) {
+        throw new Error(`Shell config path is not a regular file: ${configPath}`);
+      }
+    } catch (error) {
+      throw new Error(
+        `Could not access shell config at ${configPath}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
   }
 }
 
