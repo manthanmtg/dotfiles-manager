@@ -111,7 +111,11 @@ export const VariableModal = memo(function VariableModal({
                       className="block text-sm font-medium text-zinc-300 mb-1.5"
                     >
                       {v.label}
-                      {v.required && <span className="text-rose-400 ml-1">*</span>}
+                      {v.required && (
+                        <span className="text-rose-400 ml-1" aria-hidden="true">
+                          *
+                        </span>
+                      )}
                     </label>
                     {v.description && (
                       <p id={descriptionId} className="text-xs text-zinc-500 mb-2">
@@ -174,7 +178,7 @@ export const VariableModal = memo(function VariableModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                  className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
                   Cancel
                 </button>

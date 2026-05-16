@@ -85,6 +85,8 @@ function DotfileCardInner({
   const focusRing =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
 
+  const cardTitleId = `card-title-${filename.replace(/\./g, "-")}`;
+
   return (
     <motion.div
       layout
@@ -98,7 +100,7 @@ function DotfileCardInner({
         dotfile.installed ? `bg-gradient-to-br ${INSTALLED_GRADIENT[color]}` : ""
       } ${hovered ? HOVER_STATES[color] : ""}`}
     >
-      <article className="h-full flex flex-col">
+      <article className="h-full flex flex-col" aria-labelledby={cardTitleId}>
         {installed && <ActiveBadge />}
 
         <div className="p-5 flex-1">
@@ -113,7 +115,10 @@ function DotfileCardInner({
               />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-zinc-100 truncate pr-16">
+              <h3 
+                id={cardTitleId}
+                className="text-sm font-semibold text-zinc-100 truncate pr-16"
+              >
                 {dotfile.name}
               </h3>
               <p className="text-xs text-zinc-500 font-mono truncate">
@@ -126,7 +131,10 @@ function DotfileCardInner({
             {dotfile.description}
           </p>
 
-          <div className="flex items-center gap-2 flex-wrap mb-4">
+          <div 
+            className="flex items-center gap-2 flex-wrap mb-4"
+            aria-label={`Tags for ${dotfile.name}`}
+          >
             {dotfile.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
