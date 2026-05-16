@@ -23,14 +23,14 @@ function getManagedSourcePathPattern(): string {
   const escapedHome = escapeRegex(HOME_PATH);
   const escapedTilde = escapeRegex("~");
   const managedDir = escapeRegex(".dotfiles-manager");
-  return `(?:${escapedTilde}|${escapedHome}|\\$HOME)\\/${managedDir}`;
+  return `(?:${escapedTilde}|${escapedHome}|\\$HOME|\\$\{HOME\})\\/${managedDir}`;
 }
 
 // Pre-compile the capture pattern to detect any managed source line.
 // This is used by getSourcedDotfilesFromContent for listing and checking status.
 // It handles optional quotes around the path and trailing comments.
 const SOURCE_CAPTURE_PATTERN = new RegExp(
-  `^[ \\t]*source\\s+["']?${getManagedSourcePathPattern()}\\/([^\\s#"'\\)]+?)["']?(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
+  `^[ \\t]*(?:source|\\.)\\s+["']?${getManagedSourcePathPattern()}\\/([^\\s#"'\\)]+?)["']?(?:[\\t ]*(?:#.*)?)?(?:\\r?\\n|$)`,
   "gm"
 );
 
@@ -193,7 +193,7 @@ function getManagedSourceLinePattern(
   const lineEnd = options.includeLineEnd ? "(?:\\r?\\n|$)" : "$";
 
   return new RegExp(
-    `^[ \\t]*source\\s+["']?${dotfilesPathPattern}["']?${trailingContent}${lineEnd}`,
+    `^[ \\t]*(?:source|\\.)\\s+["']?${dotfilesPathPattern}["']?${trailingContent}${lineEnd}`,
     "gm"
   );
 }
