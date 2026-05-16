@@ -50,6 +50,28 @@ source ~/.dotfiles-manager/docker-aliases
   assert.ok(result.has("docker-aliases"));
 });
 
+test("getSourcedDotfilesFromContent detects ${HOME}-based sources", () => {
+  const content = `
+source \${HOME}/.dotfiles-manager/git-aliases
+source "\${HOME}/.dotfiles-manager/docker-aliases"
+`;
+  const result = getSourcedDotfilesFromContent(content);
+  assert.strictEqual(result.size, 2);
+  assert.ok(result.has("git-aliases"));
+  assert.ok(result.has("docker-aliases"));
+});
+
+test("getSourcedDotfilesFromContent detects '.' (source alias) sources", () => {
+  const content = `
+. ~/.dotfiles-manager/git-aliases
+  . "$HOME/.dotfiles-manager/docker-aliases" # with comment
+`;
+  const result = getSourcedDotfilesFromContent(content);
+  assert.strictEqual(result.size, 2);
+  assert.ok(result.has("git-aliases"));
+  assert.ok(result.has("docker-aliases"));
+});
+
 test("getSourcedDotfilesFromContent ignores malformed or unrelated sources", () => {
   const content = `
 # not a managed source
