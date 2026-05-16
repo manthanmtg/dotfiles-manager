@@ -6,7 +6,11 @@ import { memo } from "react";
 
 export const ActiveBadge = memo(function ActiveBadge() {
   return (
-    <div className="absolute top-3 right-3 z-10">
+    <div 
+      className="absolute top-3 right-3 z-10"
+      role="status"
+      aria-label="Configuration is active"
+    >
       <motion.div
         initial={{ scale: 0 }}
         animate={{
