@@ -16,7 +16,6 @@ import {
   Network,
   FolderPlus,
   FileEdit,
-  type LucideIcon,
 } from "lucide-react";
 
 const iconMap = {
@@ -50,6 +49,6 @@ export function DynamicIcon({
   className = "",
   size = 20,
 }: DynamicIconProps) {
-  const Icon = (iconMap as Record<string, LucideIcon>)[name] || Code;
+  const Icon = name in iconMap ? iconMap[name as IconName] : Code;
   return <Icon className={className} size={size} />;
 }

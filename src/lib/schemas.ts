@@ -88,9 +88,9 @@ export const InstallRequest = z.object({
 export type InstallRequest = z.infer<typeof InstallRequest>;
 
 export const InstallResult = z.object({
-  filename: z.string().max(255),
+  filename: DotfileFilename,
   configPath: z.string().max(1024),
-  shell: z.string().max(50),
+  shell: ShellInfo.shape.shell,
   message: z.string().max(1024),
 });
 export type InstallResult = z.infer<typeof InstallResult>;
@@ -118,7 +118,7 @@ export const CreateDotfileRequest = z.object({
 export type CreateDotfileRequest = z.infer<typeof CreateDotfileRequest>;
 
 export const CreateDotfileResponse = z.object({
-  filename: z.string().max(255),
+  filename: DotfileFilename,
   message: z.string().max(1024),
 });
 export type CreateDotfileResponse = z.infer<typeof CreateDotfileResponse>;
