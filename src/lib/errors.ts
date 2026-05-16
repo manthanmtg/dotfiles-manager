@@ -39,6 +39,10 @@ function mapErrorToStatus(error: unknown, fallbackMessage: string): { status: nu
       return { status: 403, message: msg };
     }
 
+    if (msg.includes("Your shell is not supported")) {
+      return { status: 400, message: "Your shell is not supported. Only zsh, bash, and fish are supported." };
+    }
+
     if (msg.includes("Refusing to write symlinked file")) {
       return {
         status: 403,
@@ -57,7 +61,7 @@ function mapErrorToStatus(error: unknown, fallbackMessage: string): { status: nu
       };
     }
 
-    if (msg.includes("Config file not found")) {
+    if (msg.includes("Config file not found") || msg.includes("Shell configuration file not found")) {
       return {
         status: 404,
         message: "Shell configuration file not found.",
@@ -72,7 +76,7 @@ function mapErrorToStatus(error: unknown, fallbackMessage: string): { status: nu
     }
 
     if (msg.includes("is already sourced")) {
-      return { status: 409, message: msg };
+      return { status: 409, message: "Dotfile is already sourced in your shell configuration." };
     }
 
     if (msg.includes("Invalid value for variable")) {
