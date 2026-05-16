@@ -1,6 +1,4 @@
-import fs from "node:fs";
-import path from "node:path";
-import { DotfileMetadata, DotfileFilename, DotfileCategory } from "./schemas";
+import { DotfileMetadata } from "./schemas";
 import { type DotfileVariable as DotfileVariableMeta } from "./schemas";
 import { ZodError } from "zod/v4";
 
@@ -21,11 +19,22 @@ interface ParseResult {
   content: string;
 }
 
-interface ParseError {
-  file: string;
-  errors: string[];
+export class MetaParseError extends Error {
+  public file: string;
+  public errors: string[];
+
+  constructor(file: string, errors: string[]) {
+    super(`Invalid meta in ${file}:\n  ${errors.join("\n  ")}`);
+    this.name = "MetaParseError";
+    this.file = file;
+    this.errors = errors;
+  }
 }
 
+/**
+ * Parses the meta block and content from a dotfile source string.
+ * Validates against required fields and variable syntax.
+ */
 export function parseDotfileSource(
   raw: string,
   filepath: string
@@ -249,92 +258,4 @@ function parseVariableLine(
       sensitive: sensitiveStr ? sensitiveStr.toLowerCase() === "sensitive" : false,
     },
   };
-}
-
-class MetaParseError extends Error {
-  public file: string;
-  public errors: string[];
-
-  constructor(file: string, errors: string[]) {
-    super(`Invalid meta in ${file}:\n  ${errors.join("\n  ")}`);
-    this.name = "MetaParseError";
-    this.file = file;
-    this.errors = errors;
-  }
-}
-
-export function validateAllDotfiles(
-  dotfilesDir: string
-): { valid: string[]; errors: ParseError[] } {
-  const valid: string[] = [];
-  const errs: ParseError[] = [];
-  const seenFilenames = new Map<string, string>();
-
-  function walk(dir: string) {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        walk(full);
-      } else if (entry.name.endsWith(".sh")) {
-        const rel = path.relative(dotfilesDir, full);
-        const filename = path.basename(entry.name, ".sh");
-        
-        if (seenFilenames.has(filename)) {
-          errs.push({
-            file: rel,
-            errors: [
-              `Duplicate filename "${filename}" — already exists at "${seenFilenames.get(
-                filename
-              )}"`,
-            ],
-          });
-          continue;
-        }
-        seenFilenames.set(filename, rel);
-        
-        try {
-          DotfileFilename.parse(filename);
-          const raw = fs.readFileSync(full, "utf-8");
-          const { metadata } = parseDotfileSource(raw, rel);
-
-          const pathParts = rel.split(path.sep);
-          if (pathParts.length < 2) {
-            errs.push({
-              file: rel,
-              errors: [
-                `Dotfile must be inside a category directory (supported: ${DotfileCategory.options.join(
-                  ", "
-                )})`,
-              ],
-            });
-          } else if (metadata.category !== pathParts[0]) {
-            errs.push({
-              file: rel,
-              errors: [
-                `Category "${metadata.category}" does not match parent directory "${pathParts[0]}"`,
-              ],
-            });
-          } else {
-            valid.push(rel);
-          }
-        } catch (e) {
-          if (e instanceof MetaParseError) {
-            errs.push({ file: rel, errors: e.errors });
-          } else if (e instanceof ZodError && e.issues[0]?.path[0] === undefined) {
-             // This is likely from DotfileFilename.parse
-             errs.push({ file: rel, errors: [e.issues[0].message] });
-          } else {
-            errs.push({
-              file: rel,
-              errors: [e instanceof Error ? e.message : String(e)],
-            });
-          }
-        }
-      }
-    }
-  }
-
-  walk(dotfilesDir);
-  return { valid, errors: errs };
 }

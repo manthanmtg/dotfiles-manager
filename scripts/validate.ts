@@ -1,5 +1,5 @@
 import path from "path";
-import { validateAllDotfiles } from "../src/lib/parser";
+import { validateAllDotfiles } from "../src/lib/validator";
 
 const DOTFILES_DIR = path.join(process.cwd(), "dotfiles");
 
