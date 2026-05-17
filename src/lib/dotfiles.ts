@@ -138,7 +138,12 @@ export function getDotfile(
  * It counts lines that have at least one non-whitespace character.
  */
 function countLines(content: string): number {
-  return (content.match(/^\s*\S/gm) || []).length;
+  let count = 0;
+  const regex = /^\s*\S/gm;
+  while (regex.exec(content) !== null) {
+    count++;
+  }
+  return count;
 }
 
 export function createDotfile(

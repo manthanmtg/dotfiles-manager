@@ -48,9 +48,11 @@ export function useDotfileView({
         continue;
       }
 
-      const searchableText = getSearchableText(dotfile);
-      if (query && !searchableText.includes(query)) {
-        continue;
+      if (query) {
+        const searchableText = getSearchableText(dotfile);
+        if (!searchableText.includes(query)) {
+          continue;
+        }
       }
 
       filtered.push(dotfile);

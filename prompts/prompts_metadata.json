@@ -150,12 +150,12 @@
       "category": "performance",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 10,
+      "totalSelected": 11,
       "totalCompleted": 9,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastOutcome": "completed",
-      "lastSelectedAt": "2026-05-09T03:30:35.426Z",
+      "lastOutcome": "selected",
+      "lastSelectedAt": "2026-05-17T20:00:30.847Z",
       "lastCompletedAt": "2026-05-09T03:33:10.768Z"
     },
     "project_guidelines_sync.md": {
@@ -280,5 +280,5 @@
       "lastCompletedAt": "2026-05-09T06:32:10.413Z"
     }
   },
-  "updatedAt": "2026-05-17T17:03:00.171Z"
+  "updatedAt": "2026-05-17T20:00:30.847Z"
 }

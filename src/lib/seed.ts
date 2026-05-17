@@ -12,19 +12,36 @@ export function seedDotfiles(): SeedResult {
 
   for (const entry of scanDotfiles()) {
     const filePath = path.join(dir, entry.filename);
+    const metaPath = path.join(dir, `${entry.filename}.meta.json`);
+    
+    let needsUpdate = false;
 
     if (fs.existsSync(filePath)) {
-      const existing = fs.readFileSync(filePath, "utf-8");
-      if (existing === entry.content) {
+      const existingContent = fs.readFileSync(filePath, "utf-8");
+      
+      let existingMeta = "";
+      try {
+        existingMeta = fs.existsSync(metaPath) ? fs.readFileSync(metaPath, "utf-8") : "";
+      } catch {
+        existingMeta = "";
+      }
+
+      const newMeta = JSON.stringify(entry.metadata, null, 2);
+      
+      if (existingContent === entry.content && existingMeta === newMeta) {
         skipped++;
         continue;
       }
       updated++;
+      needsUpdate = true;
     } else {
       seeded++;
+      needsUpdate = true;
     }
 
-    createDotfile(entry.filename, entry.content, entry.metadata);
+    if (needsUpdate) {
+      createDotfile(entry.filename, entry.content, entry.metadata);
+    }
   }
 
   return { seeded, updated, skipped };
