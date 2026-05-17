@@ -39,29 +39,38 @@ export function parseDotfileSource(
   raw: string,
   filepath: string
 ): ParseResult {
-  // Optimization: Find meta block boundaries first to avoid splitting huge files into thousands of strings
+  const startIdxPos = raw.indexOf(META_START);
   const endIdxPos = raw.indexOf(META_END);
 
+  if (startIdxPos === -1) {
+    throw new MetaParseError(filepath, [
+      `Missing meta block. File must contain "${META_START}"`,
+    ]);
+  }
+
   if (endIdxPos === -1) {
-    // Check for start to give a better error message
-    if (!raw.trimStart().startsWith(META_START)) {
-      throw new MetaParseError(filepath, [
-        `Missing meta block. File must start with "${META_START}"`,
-      ]);
-    }
     throw new MetaParseError(filepath, [
       `Missing "${META_END}" — meta block was opened but never closed`,
     ]);
   }
 
-  const metaPart = raw.slice(0, endIdxPos);
-  const lines = metaPart.split("\n");
-
-  if (lines.length === 0 || lines[0].trim() !== META_START) {
+  if (endIdxPos < startIdxPos) {
     throw new MetaParseError(filepath, [
-      `Missing meta block. File must start with "${META_START}"`,
+      `Malformed meta block — "${META_END}" appears before "${META_START}"`,
     ]);
   }
+
+  // Check for content before META_START
+  const beforeMeta = raw.slice(0, startIdxPos);
+  if (beforeMeta.trim().length > 0) {
+    throw new MetaParseError(filepath, [
+      `Meta block must be at the top of the file. Found non-whitespace content before "${META_START}"`,
+    ]);
+  }
+
+  const lineOffset = beforeMeta.split("\n").length - 1;
+  const metaPart = raw.slice(startIdxPos, endIdxPos);
+  const lines = metaPart.split("\n");
 
   const fields: Record<string, string> = {};
   const variables: Array<DotfileVariableMeta> = [];
@@ -76,8 +85,10 @@ export function parseDotfileSource(
     
     if (!trimmedLine) continue;
 
+    const lineNo = i + 1 + lineOffset;
+
     if (!trimmedLine.startsWith("#")) {
-      errors.push(`Line ${i + 1}: Meta line must be a comment (start with "#")`);
+      errors.push(`Line ${lineNo}: Meta line must be a comment (start with "#")`);
       continue;
     }
 
@@ -86,13 +97,12 @@ export function parseDotfileSource(
 
     const colonIdx = stripped.indexOf(":");
     if (colonIdx === -1) {
-      errors.push(`Line ${i + 1}: Invalid meta line "${stripped}" — expected "key: value"`);
+      errors.push(`Line ${lineNo}: Invalid meta line "${stripped}" — expected "key: value"`);
       continue;
     }
 
     const key = stripped.slice(0, colonIdx).trim().toLowerCase();
     const value = stripped.slice(colonIdx + 1).trim();
-    const lineNo = i + 1;
 
     if (key === "variable") {
       const parsed = parseVariableLine(value, lineNo);
@@ -113,7 +123,7 @@ export function parseDotfileSource(
       errors.push(
         `Line ${lineNo}: Unknown meta key "${key}" (supported: ${[
           ...SUPPORTED_META_KEYS,
-        ].join(", ")})`
+        ].sort().join(", ")})`
       );
     } else {
       if (Object.hasOwn(fields, key)) {
@@ -128,10 +138,12 @@ export function parseDotfileSource(
     throw new MetaParseError(filepath, errors);
   }
 
+  const endLineNo = (raw.slice(0, endIdxPos + META_END.length).split("\n").length);
+
   for (const key of REQUIRED_META_KEYS) {
     if (typeof fields[key] === "undefined") {
       errors.push(
-        `Line ${lines.length + 1}: Missing required meta field "${key}" before "${META_END}"`
+        `Line ${endLineNo}: Missing required meta field "${key}" before "${META_END}"`
       );
     }
   }

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import os from "node:os";
 import { applyVariables } from "../src/lib/dotfiles";
 import { assertSupportedShell, getSourcedDotfilesFromContent } from "../src/lib/shell";
+import { parseDotfileSource, MetaParseError } from "../src/lib/parser";
 
 test("getSourcedDotfilesFromContent detects tilde-based sources", () => {
   const content = `
@@ -155,4 +156,63 @@ test("applyVariables allows safe characters", () => {
   const safeValue = "~/My Projects-2024.v1_final";
   const result = applyVariables(content, { PROJECTS_DIR: safeValue });
   assert.strictEqual(result, `alias proj='cd ${safeValue}'`);
+});
+
+test("Metadata Validation: allows leading whitespace before META_START", () => {
+  const source = `
+# @dotfiles-manager
+# name: Test
+# description: Test
+# category: aliases
+# @end
+`;
+  const { metadata } = parseDotfileSource(source, "test.sh");
+  assert.strictEqual(metadata.name, "Test");
+});
+
+test("Metadata Validation: fails for non-whitespace content before META_START", () => {
+  const source = `echo "hi"
+# @dotfiles-manager
+# name: Test
+# description: Test
+# category: aliases
+# @end
+`;
+  assert.throws(() => parseDotfileSource(source, "test.sh"), (err) => {
+    return err instanceof MetaParseError && err.errors[0].includes("Found non-whitespace content before");
+  });
+});
+
+test("Metadata Validation: reports correct line numbers for duplicate tags", () => {
+  const source = `# @dotfiles-manager
+# name: Test
+# description: Test
+# category: aliases
+# tags: tag1, tag1
+# @end
+`;
+  try {
+    parseDotfileSource(source, "test.sh");
+    assert.fail("Should have thrown MetaParseError");
+  } catch (e) {
+    if (e instanceof MetaParseError) {
+      assert.ok(e.errors[0].includes("Line 5"), `Expected Line 5 in error message, got: ${e.errors[0]}`);
+      assert.ok(e.errors[0].includes("tags must be unique"));
+    } else {
+      throw e;
+    }
+  }
+});
+
+test("Metadata Validation: fails for unknown icons", () => {
+  const source = `# @dotfiles-manager
+# name: Test
+# description: Test
+# category: aliases
+# icon: InvalidIcon
+# @end
+`;
+  assert.throws(() => parseDotfileSource(source, "test.sh"), (err) => {
+    return err instanceof MetaParseError && err.errors[0].includes("icon must be one of");
+  });
 });
