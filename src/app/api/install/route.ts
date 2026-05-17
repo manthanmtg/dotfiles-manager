@@ -28,6 +28,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!dotfile.content.trim()) {
+      return NextResponse.json(
+        { success: false, error: `Dotfile "${parsed.filename}" is empty and cannot be installed.` },
+        { status: 400 }
+      );
+    }
+
     if (isSourced(shell.configPath, parsed.filename)) {
       return NextResponse.json(
         {

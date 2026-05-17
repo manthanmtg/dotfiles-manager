@@ -61,6 +61,20 @@ function mapErrorToStatus(error: unknown, fallbackMessage: string): { status: nu
       };
     }
 
+    if (msg.includes("ENOSPC")) {
+      return {
+        status: 507,
+        message: "Disk full: Unable to write to your home directory.",
+      };
+    }
+
+    if (msg.includes("EFBIG")) {
+      return {
+        status: 413,
+        message: "File too large: The dotfile or configuration file exceeds size limits.",
+      };
+    }
+
     if (msg.includes("Config file not found") || msg.includes("Shell configuration file not found")) {
       return {
         status: 404,
