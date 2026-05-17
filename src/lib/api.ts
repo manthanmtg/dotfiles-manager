@@ -36,8 +36,9 @@ export async function fetchApi<T>(
     const contentType = res.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
       const text = await res.text();
+      const statusText = res.statusText || `Status ${res.status}`;
       throw new Error(
-        `Server returned non-JSON response (${res.status}): ${text.slice(0, 100)}...`
+        `Server returned an unexpected response (${statusText}). This often happens if the server is down or encountered a critical error. Content: ${text.slice(0, 50).trim()}...`
       );
     }
 
@@ -53,18 +54,29 @@ export async function fetchApi<T>(
     const envelopeResult = envelopeSchema.safeParse(json);
     if (!envelopeResult.success) {
       throw new Error(
-        `Malformed API response from ${url}: Response did not match expected envelope format.`
+        `Malformed API response from ${url}: The server response did not match the expected format.`
       );
     }
 
     const envelope = envelopeResult.data;
 
-    if (envelope.success && envelope.data !== undefined) {
+    if (envelope.success) {
+      if (envelope.data === undefined) {
+         // Some successful requests might not return data, but our schema expects it.
+         // If schema is z.void() or optional, we should handle it.
+         // For now, we assume if success is true and schema is provided, we might need data.
+         // But let's be flexible: if schema matches undefined, return it.
+         const dataResult = schema.safeParse(undefined);
+         if (dataResult.success) return dataResult.data;
+         
+         throw new Error(`API success but missing data payload from ${url}`);
+      }
+
       const dataResult = schema.safeParse(envelope.data);
       if (!dataResult.success) {
         console.error(`Validation error for ${url}:`, dataResult.error);
         throw new Error(
-          `API validation error: The server returned data in an unexpected format for ${url}.`
+          `API validation error: The server returned data in an unexpected format.`
         );
       }
       return dataResult.data;
