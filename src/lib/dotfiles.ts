@@ -45,6 +45,16 @@ function readDotfileMetadata(metaPath: string, filename: string): DotfileMetadat
 function ensureDotfilesDir(): void {
   if (!fs.existsSync(DOTFILES_DIR)) {
     fs.mkdirSync(DOTFILES_DIR, { recursive: true, mode: 0o700 });
+  } else {
+    // Hardening: Ensure existing directory has correct permissions (0o700)
+    try {
+      const stats = fs.statSync(DOTFILES_DIR);
+      if ((stats.mode & 0o777) !== 0o700) {
+        fs.chmodSync(DOTFILES_DIR, 0o700);
+      }
+    } catch (error) {
+      console.error("Failed to verify or update dotfiles directory permissions:", error);
+    }
   }
 }
 
