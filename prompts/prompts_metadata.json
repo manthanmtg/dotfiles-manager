@@ -211,13 +211,13 @@
       "category": "security",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 9,
-      "totalCompleted": 9,
+      "totalSelected": 10,
+      "totalCompleted": 10,
       "totalNoop": 0,
       "totalFailed": 0,
       "lastOutcome": "completed",
-      "lastSelectedAt": "2026-05-15T07:00:31.109Z",
-      "lastCompletedAt": "2026-05-15T07:02:15.238Z"
+      "lastSelectedAt": "2026-05-17T12:05:00.000Z",
+      "lastCompletedAt": "2026-05-17T12:15:00.000Z"
     },
     "shell_safety_auditor.md": {
       "id": "shell-safety-auditor",
@@ -280,5 +280,5 @@
       "lastCompletedAt": "2026-05-09T06:32:10.413Z"
     }
   },
-  "updatedAt": "2026-05-17T12:02:22.757Z"
+  "updatedAt": "2026-05-17T12:05:00.000Z"
 }

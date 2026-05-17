@@ -22,6 +22,8 @@ function walk(dir: string, results: ScannedDotfile[]) {
 
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
+    if (entry.isSymbolicLink()) continue; // Hardening: Ignore symlinks in source directory
+
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       walk(full, results);
