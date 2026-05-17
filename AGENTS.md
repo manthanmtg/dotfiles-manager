@@ -14,6 +14,7 @@ Local-only Next.js web app for managing shell dotfiles stored at `~/.dotfiles-ma
 - `pnpm test` — run the TypeScript test suite in `tests/**/*.test.ts`
 - `pnpm cli -- [cmd]` — run CLI (commands: `seed`, `shell`, `list`, `show`, `install`, `uninstall`, `help`)
   - `pnpm cli -- list [--installed|--available]`
+  - `pnpm cli -- show <filename>`
   - `pnpm cli -- install <filename> [--set NAME=value]`
 - `dotfiles-manager [cmd]` — global CLI if linked via `pnpm link --global .`
 - `lsof -ti :3000 | xargs kill -9` — kill process on port 3000
