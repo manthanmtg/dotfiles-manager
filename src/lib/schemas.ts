@@ -54,7 +54,7 @@ export const DotfileMetadata = z.object({
   tags: z.array(z.string().max(30, "tag is too long")).max(10, "too many tags (max 10)").default([]),
 })
 .refine(data => {
-  if (data.icon && !SUPPORTED_ICONS.includes(data.icon as any)) return false;
+  if (data.icon && !(SUPPORTED_ICONS as readonly string[]).includes(data.icon)) return false;
   return true;
 }, {
   message: `icon must be one of: ${SUPPORTED_ICONS.join(", ")}`,
