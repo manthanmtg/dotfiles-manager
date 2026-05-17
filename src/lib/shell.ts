@@ -11,7 +11,7 @@ const SHELL_CONFIG_MAP: Record<string, string> = {
 const SAFE_DOTFILE_SOURCE_PATHS = Object.values(SHELL_CONFIG_MAP).map((configFile) =>
   path.join(os.homedir(), configFile)
 );
-const MANAGED_DOTFILE_SOURCE_PATH = "~/.dotfiles-manager";
+const MANAGED_DOTFILE_SOURCE_PATH = "$HOME/.dotfiles-manager";
 const HOME_PATH = os.homedir();
 
 /**
@@ -149,7 +149,7 @@ export function addSource(configPath: string, dotfileName: string): void {
   }
 
   const needsLeadingNewline = content.length > 0 && !content.endsWith("\n");
-  const sourceLine = `${needsLeadingNewline ? "\n" : ""}source ${MANAGED_DOTFILE_SOURCE_PATH}/${dotfileName}\n`;
+  const sourceLine = `${needsLeadingNewline ? "\n" : ""}source "${MANAGED_DOTFILE_SOURCE_PATH}/${dotfileName}"\n`;
 
   fs.appendFileSync(configPath, sourceLine, "utf-8");
 }
