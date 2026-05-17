@@ -145,18 +145,18 @@ function TerminalConsoleInner() {
                   />
                 </div>
               </div>
-
-              <p
-                ref={clearAnnouncementRef}
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-                className="sr-only"
-              />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <p
+        ref={clearAnnouncementRef}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      />
     </motion.div>
   );
 }
