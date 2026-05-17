@@ -38,17 +38,16 @@ const iconMap = {
 
 export type IconName = keyof typeof iconMap;
 
-interface DynamicIconProps {
+interface DynamicIconProps extends React.SVGProps<SVGSVGElement> {
   name: IconName | string;
-  className?: string;
   size?: number;
 }
 
 export function DynamicIcon({
   name,
-  className = "",
   size = 20,
+  ...props
 }: DynamicIconProps) {
   const Icon = name in iconMap ? iconMap[name as IconName] : Code;
-  return <Icon className={className} size={size} />;
+  return <Icon size={size} {...props} />;
 }

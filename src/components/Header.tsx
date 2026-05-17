@@ -29,7 +29,10 @@ export const Header = memo(function Header({
           <h2 className="text-lg font-semibold text-zinc-100 tracking-tight">
             Shell Configurations
           </h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <p 
+            className="text-xs text-zinc-500 mt-0.5"
+            aria-live="polite"
+          >
             {totalCount} available · {installedCount} installed
           </p>
         </div>
