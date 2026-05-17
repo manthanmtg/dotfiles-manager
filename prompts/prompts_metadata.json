@@ -60,9 +60,9 @@
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 10,
+      "totalSelected": 11,
       "totalCompleted": 1,
-      "totalNoop": 9,
+      "totalNoop": 10,
       "totalFailed": 0,
       "lastSelectedAt": "2026-05-17T05:00:00.000Z",
       "lastCompletedAt": "2026-05-17T05:30:00.000Z",
@@ -281,5 +281,4 @@
     }
   },
   "updatedAt": "2026-05-17T05:00:00.000Z"
-}1Z"
 }
