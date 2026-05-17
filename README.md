@@ -28,6 +28,7 @@ pnpm lint      # Run ESLint
 pnpm test      # Run TypeScript tests
 pnpm validate  # Validate all dotfile meta blocks
 pnpm build     # Full validation and production build
+pnpm start     # Start production server
 ```
 
 ## Getting Started
@@ -106,7 +107,7 @@ If the web app is not available, use the CLI as the primary workflow:
 
 ## Tech Stack
 
-- **Next.js 16** and **React 19** with App Router and API Routes
+- **Next.js 16** and **React 19** (TypeScript) with App Router and API Routes
 - **Tailwind CSS v4** with custom dark theme
 - **Framer Motion** for animations
 - **Lucide React** for iconography
