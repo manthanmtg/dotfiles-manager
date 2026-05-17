@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { detectShell, assertSafeConfigPath } from "@/lib/shell";
+import { detectShell, assertSafeConfigPath, assertSupportedShell } from "@/lib/shell";
 import { assertSupported, getPlatformInfo } from "@/lib/platform";
 import { PlatformData } from "@/lib/schemas";
 import { handleApiError } from "@/lib/errors";
@@ -9,6 +9,7 @@ export async function GET() {
     assertSupported();
     const { platform, supported } = getPlatformInfo();
     const shell = detectShell();
+    assertSupportedShell(shell);
     assertSafeConfigPath(shell.configPath);
 
     const data = PlatformData.parse({ platform, supported, shell });
