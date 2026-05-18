@@ -43,18 +43,41 @@ function readDotfileMetadata(metaPath: string, filename: string): DotfileMetadat
 }
 
 function ensureDotfilesDir(): void {
-  if (!fs.existsSync(DOTFILES_DIR)) {
-    fs.mkdirSync(DOTFILES_DIR, { recursive: true, mode: 0o700 });
-  } else {
-    // Hardening: Ensure existing directory has correct permissions (0o700)
+  if (fs.existsSync(DOTFILES_DIR)) {
+    // Hardening: Verify the managed directory is a real directory (not a symlink)
+    // and is owned by the current user with restrictive permissions.
     try {
+      const lstats = fs.lstatSync(DOTFILES_DIR);
+      if (lstats.isSymbolicLink()) {
+        throw new Error(
+          `Security risk: Managed directory ${DOTFILES_DIR} is a symbolic link. It must be a regular directory.`
+        );
+      }
+
       const stats = fs.statSync(DOTFILES_DIR);
+      if (!stats.isDirectory()) {
+        throw new Error(`Managed path ${DOTFILES_DIR} exists but is not a directory.`);
+      }
+
+      // Verify ownership on Unix-like systems
+      const userInfo = os.userInfo();
+      if (typeof stats.uid === "number" && stats.uid !== userInfo.uid) {
+        throw new Error(
+          `Security risk: Managed directory ${DOTFILES_DIR} is owned by UID ${stats.uid}, but current user is UID ${userInfo.uid}.`
+        );
+      }
+
       if ((stats.mode & 0o777) !== 0o700) {
         fs.chmodSync(DOTFILES_DIR, 0o700);
       }
     } catch (error) {
+      if (error instanceof Error && (error.message.includes("Security risk") || error.message.includes("not a directory"))) {
+        throw error;
+      }
       console.error("Failed to verify or update dotfiles directory permissions:", error);
     }
+  } else {
+    fs.mkdirSync(DOTFILES_DIR, { recursive: true, mode: 0o700 });
   }
 }
 
@@ -204,10 +227,10 @@ function validateVariableValues(variables: Record<string, string>): void {
     // We specifically block quotes to prevent breaking out of quoted strings in dotfile templates.
     // We also block parenthesis/brackets to prevent subshell execution or Zsh process substitution.
     // We also block globbing characters and other complex shell expansion operators.
-    // We also block '#' and '!' to prevent comments or history expansion side-effects.
-    if (/[\r\n\0\$;`|&<>\(\)\[\]\{\}\*\?\?\\'"#!]/.test(value)) {
+    // We also block '#', '!', '^', and '%' to prevent comments, history expansion, or shell-specific feature side-effects.
+    if (/[\r\n\0\$;`|&<>\(\)\[\]\{\}\*\?\?\\'"#!^%]/.test(value)) {
       throw new Error(
-        `Invalid value for variable ${key}: contains forbidden characters (\r, \n, \0, $, \`, ;, |, &, <, >, \\, (, ), [, ], {, }, *, ?, ', ", #, !)`
+        `Invalid value for variable ${key}: contains forbidden characters (\r, \n, \0, $, \`, ;, |, &, <, >, \\, (, ), [, ], {, }, *, ?, ', ", #, !, ^, %)`
       );
     }
   }
