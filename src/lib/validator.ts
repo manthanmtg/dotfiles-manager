@@ -19,6 +19,7 @@ export function validateAllDotfiles(
   const valid: string[] = [];
   const errs: ParseError[] = [];
   const seenFilenames = new Map<string, string>();
+  const seenHumanNames = new Map<string, string>();
 
   function walk(dir: string) {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -47,6 +48,19 @@ export function validateAllDotfiles(
           DotfileFilename.parse(filename);
           const raw = fs.readFileSync(full, "utf-8");
           const { metadata } = parseDotfileSource(raw, rel);
+
+          if (seenHumanNames.has(metadata.name)) {
+            errs.push({
+              file: rel,
+              errors: [
+                `Duplicate human-readable name "${metadata.name}" — already exists in "${seenHumanNames.get(
+                  metadata.name
+                )}"`,
+              ],
+            });
+            continue;
+          }
+          seenHumanNames.set(metadata.name, rel);
 
           const pathParts = rel.split(path.sep);
           const categoryDir = pathParts[0];

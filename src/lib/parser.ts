@@ -54,6 +54,18 @@ export function parseDotfileSource(
     ]);
   }
 
+  if (raw.indexOf(META_START, startIdxPos + 1) !== -1) {
+    throw new MetaParseError(filepath, [
+      `Multiple "${META_START}" markers found — only one meta block is allowed per file`,
+    ]);
+  }
+
+  if (raw.indexOf(META_END, endIdxPos + 1) !== -1) {
+    throw new MetaParseError(filepath, [
+      `Multiple "${META_END}" markers found — only one meta block is allowed per file`,
+    ]);
+  }
+
   if (endIdxPos < startIdxPos) {
     throw new MetaParseError(filepath, [
       `Malformed meta block — "${META_END}" appears before "${META_START}"`,
