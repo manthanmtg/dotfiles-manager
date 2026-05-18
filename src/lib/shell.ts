@@ -150,8 +150,9 @@ export function addSource(configPath: string, dotfileName: string): void {
 
   const needsLeadingNewline = content.length > 0 && !content.endsWith("\n");
   const sourceLine = `${needsLeadingNewline ? "\n" : ""}source "${MANAGED_DOTFILE_SOURCE_PATH}/${dotfileName}"\n`;
+  const newContent = content + sourceLine;
 
-  fs.appendFileSync(configPath, sourceLine, "utf-8");
+  atomicWriteConfig(configPath, newContent);
 }
 
 export function removeSource(configPath: string, dotfileName: string): void {
@@ -179,7 +180,42 @@ export function removeSource(configPath: string, dotfileName: string): void {
     throw new Error(`No managed source line found for ${dotfileName} in ${configPath}`);
   }
 
-  fs.writeFileSync(configPath, newContent, "utf-8");
+  atomicWriteConfig(configPath, newContent);
+}
+
+/**
+ * Safely writes content to a shell config file using an atomic-like approach.
+ * It writes to a temporary file first and then renames it to the target,
+ * which preserves the original file's permissions and prevents corruption.
+ */
+function atomicWriteConfig(configPath: string, content: string): void {
+  const stats = fs.statSync(configPath);
+  const tempPath = `${configPath}.tmp.${process.pid}.${Date.now()}`;
+  
+  try {
+    // Write with same permissions as original
+    fs.writeFileSync(tempPath, content, { 
+      encoding: "utf-8", 
+      mode: stats.mode 
+    });
+    
+    // Atomic rename on most Unix-like systems
+    fs.renameSync(tempPath, configPath);
+  } catch (error) {
+    // Cleanup temp file if rename failed
+    if (fs.existsSync(tempPath)) {
+      try {
+        fs.unlinkSync(tempPath);
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+    throw new Error(
+      `Failed to safely write to ${configPath}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
 }
 
 function getManagedSourceLinePattern(
