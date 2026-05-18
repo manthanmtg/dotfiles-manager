@@ -214,10 +214,24 @@ export function parseDotfileSource(
 
   const definedVariables = new Set(variables.map((v) => v.name));
   const usageErrors: string[] = [];
+  const rawLines = raw.split("\n");
+
+  if (content.trim().length === 0) {
+    usageErrors.push(`Dotfile content is empty — must contain at least one shell command after "${META_END}"`);
+  }
 
   for (const used of usedVariables) {
     if (!definedVariables.has(used)) {
-      usageErrors.push(`Variable "{{${used}}}" is used in content but not defined in meta block`);
+      const varPattern = `{{${used}}}`;
+      let lineNo = -1;
+      for (let i = 0; i < rawLines.length; i++) {
+        if (rawLines[i].includes(varPattern)) {
+          lineNo = i + 1;
+          break;
+        }
+      }
+      const location = lineNo !== -1 ? `Line ${lineNo}: ` : "";
+      usageErrors.push(`${location}Variable "${varPattern}" is used in content but not defined in meta block`);
     }
   }
 
