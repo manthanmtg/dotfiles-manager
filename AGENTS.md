@@ -130,7 +130,7 @@ Every `.sh` file in `dotfiles/` must have a meta block at the top. The scanner a
 | Field      | Description                                                        |
 |------------|--------------------------------------------------------------------|
 | `icon`      | Lucide icon name (subset supported: `Zap`, `Code`, `Terminal`, `Shield`, `Settings`, `Braces`, `GitBranch`, `Container`, `Box`, `FolderOpen`, `FileArchive`, `ShieldAlert`, `Network`, `FolderPlus`, `FileEdit`) |
-| `tags`     | Comma-separated tags for search/filtering                          |
+| `tags`     | Comma-separated tags (lowercase alphanumeric and hyphens only, max 10 tags) |
 | `variable` | Declares a user-configurable variable (can appear multiple times)  |
 
 
@@ -168,7 +168,7 @@ Example:
 4. Run `pnpm validate` — it will tell you if anything is wrong
 5. Restart the app or hit the seed endpoint — the new file is auto-discovered
 
-The filename (minus `.sh`) becomes the identifier used in `~/.dotfiles-manager/` and in shell config source lines. **Subdirectories under `dotfiles/` are mandatory and must match the `category` field in the meta block.** The scanner reads all `.sh` files recursively, but `pnpm validate` enforces this directory alignment to prevent confusion.
+The filename (minus `.sh`) becomes the identifier used in `~/.dotfiles-manager/` and in shell config source lines. **Filenames must contain only alphanumeric characters, dots, hyphens, or underscores.** **Subdirectories under `dotfiles/` are mandatory and must match the `category` field in the meta block.** The scanner reads all `.sh` files recursively, but `pnpm validate` enforces this directory alignment to prevent confusion.
 
 
 ## Key Conventions
