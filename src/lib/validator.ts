@@ -49,6 +49,9 @@ export function validateAllDotfiles(
           const { metadata } = parseDotfileSource(raw, rel);
 
           const pathParts = rel.split(path.sep);
+          const categoryDir = pathParts[0];
+          const isSupportedCategory = DotfileCategory.options.includes(categoryDir as any);
+
           if (pathParts.length < 2) {
             errs.push({
               file: rel,
@@ -58,11 +61,20 @@ export function validateAllDotfiles(
                 )})`,
               ],
             });
-          } else if (metadata.category !== pathParts[0]) {
+          } else if (!isSupportedCategory) {
             errs.push({
               file: rel,
               errors: [
-                `Category "${metadata.category}" does not match parent directory "${pathParts[0]}"`,
+                `Invalid category directory "${categoryDir}" — must be one of: ${DotfileCategory.options.join(
+                  ", "
+                )}`,
+              ],
+            });
+          } else if (metadata.category !== categoryDir) {
+            errs.push({
+              file: rel,
+              errors: [
+                `Category "${metadata.category}" in meta block does not match parent directory "${categoryDir}"`,
               ],
             });
           } else {
