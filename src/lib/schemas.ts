@@ -1,6 +1,7 @@
 import { z } from "zod/v4";
 
 export const FILENAME_REGEX = /^[a-zA-Z0-9._-]+$/;
+export const TAG_REGEX = /^[a-z0-9-]+$/;
 
 export const DotfileFilename = z.string()
   .max(64, "filename is too long (max 64 chars)")
@@ -51,7 +52,7 @@ export const DotfileMetadata = z.object({
   category: DotfileCategory,
   icon: z.string().max(50, "icon name is too long").optional(),
   variables: z.array(DotfileVariable).max(20, "too many variables (max 20)").default([]),
-  tags: z.array(z.string().max(30, "tag is too long")).max(10, "too many tags (max 10)").default([]),
+  tags: z.array(z.string().max(30, "tag is too long").regex(TAG_REGEX, "tag must contain only lowercase alphanumeric characters and hyphens")).max(10, "too many tags (max 10)").default([]),
 })
 .refine(data => {
   if (data.icon && !(SUPPORTED_ICONS as readonly string[]).includes(data.icon)) return false;
