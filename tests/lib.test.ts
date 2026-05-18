@@ -165,6 +165,7 @@ test("Metadata Validation: allows leading whitespace before META_START", () => {
 # description: Test
 # category: aliases
 # @end
+ls
 `;
   const { metadata } = parseDotfileSource(source, "test.sh");
   assert.strictEqual(metadata.name, "Test");
@@ -177,6 +178,7 @@ test("Metadata Validation: fails for non-whitespace content before META_START", 
 # description: Test
 # category: aliases
 # @end
+ls
 `;
   assert.throws(() => parseDotfileSource(source, "test.sh"), (err) => {
     return err instanceof MetaParseError && err.errors[0].includes("Found non-whitespace content before");
@@ -190,6 +192,7 @@ test("Metadata Validation: reports correct line numbers for duplicate tags", () 
 # category: aliases
 # tags: tag1, tag1
 # @end
+ls
 `;
   try {
     parseDotfileSource(source, "test.sh");
@@ -211,8 +214,23 @@ test("Metadata Validation: fails for unknown icons", () => {
 # category: aliases
 # icon: InvalidIcon
 # @end
+ls
 `;
   assert.throws(() => parseDotfileSource(source, "test.sh"), (err) => {
     return err instanceof MetaParseError && err.errors[0].includes("icon must be one of");
+  });
+});
+
+test("Metadata Validation: fails for multiple meta markers", () => {
+  const source = `# @dotfiles-manager
+# name: Test
+# description: Test
+# category: aliases
+# @end
+# @dotfiles-manager
+ls
+`;
+  assert.throws(() => parseDotfileSource(source, "test.sh"), (err) => {
+    return err instanceof MetaParseError && err.errors[0].includes("Multiple \"# @dotfiles-manager\" markers found");
   });
 });
