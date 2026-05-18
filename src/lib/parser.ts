@@ -72,11 +72,26 @@ export function parseDotfileSource(
     ]);
   }
 
-  // Check for content before META_START
+  // Check for content before and after markers
   const beforeMeta = raw.slice(0, startIdxPos);
   if (beforeMeta.trim().length > 0) {
     throw new MetaParseError(filepath, [
       `Meta block must be at the top of the file. Found non-whitespace content before "${META_START}"`,
+    ]);
+  }
+
+  const startLineContent = raw.slice(startIdxPos).split("\n")[0];
+  if (startLineContent.trim() !== META_START) {
+    throw new MetaParseError(filepath, [
+      `Line ${beforeMeta.split("\n").length}: "${META_START}" must be on its own line`,
+    ]);
+  }
+
+  const endLineContent = raw.slice(endIdxPos).split("\n")[0];
+  if (endLineContent.trim() !== META_END) {
+    const endLineNo = raw.slice(0, endIdxPos).split("\n").length;
+    throw new MetaParseError(filepath, [
+      `Line ${endLineNo}: "${META_END}" must be on its own line`,
     ]);
   }
 
@@ -235,14 +250,13 @@ export function parseDotfileSource(
   for (const used of usedVariables) {
     if (!definedVariables.has(used)) {
       const varPattern = `{{${used}}}`;
-      let lineNo = -1;
+      const lineNumbers: number[] = [];
       for (let i = 0; i < rawLines.length; i++) {
         if (rawLines[i].includes(varPattern)) {
-          lineNo = i + 1;
-          break;
+          lineNumbers.push(i + 1);
         }
       }
-      const location = lineNo !== -1 ? `Line ${lineNo}: ` : "";
+      const location = lineNumbers.length > 0 ? `Line ${lineNumbers.join(", ")}: ` : "";
       usageErrors.push(`${location}Variable "${varPattern}" is used in content but not defined in meta block`);
     }
   }
