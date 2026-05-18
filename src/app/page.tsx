@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDotfiles } from "@/hooks/useDotfiles";
 import { useDotfileActions } from "@/hooks/useDotfileActions";
 import { useDotfileView } from "@/hooks/useDotfileView";
 import { useDotfileStats } from "@/hooks/useDotfileStats";
+import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { DotfilesList } from "@/components/DotfilesList";
@@ -56,21 +57,9 @@ export default function Home() {
 
   const { installedCount, categoryCounts } = useDotfileStats({ dotfiles });
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.key === "/" &&
-        e.target instanceof HTMLElement &&
-        !["INPUT", "TEXTAREA"].includes(e.target.tagName)
-      ) {
-        e.preventDefault();
-        document.getElementById("dotfile-search")?.focus();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  useKeyboardShortcut("/", () => {
+    document.getElementById("dotfile-search")?.focus();
+  });
 
   if (loading) return <LoadingScreen />;
   if (platform && !platform.supported) return <PlatformGuard />;

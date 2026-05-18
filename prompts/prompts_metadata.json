@@ -45,12 +45,12 @@
       "category": "code-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 8,
-      "totalCompleted": 8,
+      "totalSelected": 9,
+      "totalCompleted": 9,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-16T17:00:00.000Z",
-      "lastCompletedAt": "2026-05-16T17:10:00.000Z",
+      "lastSelectedAt": "2026-05-18T22:01:24.874Z",
+      "lastCompletedAt": "2026-05-18T22:03:17.360Z",
       "lastOutcome": "completed"
     },
     "build_verifier.md": {
@@ -203,6 +203,7 @@
       "lastSelectedAt": null,
       "lastCompletedAt": null,
       "lastOutcome": null
+    },
     "security_auditor.md": {
       "id": "security-auditor",
       "file": "security_auditor.md",
@@ -218,8 +219,7 @@
       "lastSelectedAt": "2026-05-18T11:00:00.000Z",
       "lastCompletedAt": "2026-05-18T11:10:00.000Z"
     },
-    },
-    "updatedAt": "2026-05-18T11:00:00.000Z"
+    "shell_safety_auditor.md": {
       "id": "shell-safety-auditor",
       "file": "shell_safety_auditor.md",
       "title": "Shell Safety Auditor",
@@ -280,5 +280,5 @@
       "lastCompletedAt": "2026-05-09T06:32:10.413Z"
     }
   },
-  "updatedAt": "2026-05-18T10:00:00.000Z"
+  "updatedAt": "2026-05-18T22:03:17.360Z"
 }
