@@ -75,8 +75,8 @@ export function parseDotfileSource(
   const fields: Record<string, string> = {};
   const variables: Array<DotfileVariableMeta> = [];
   const errors: string[] = [];
-  const seenVariables = new Set<string>();
-  const fieldLines: Record<string, number> = {};
+  const seenVariables = new Map<string, number>();
+  const seenKeys = new Map<string, number>();
   const variableLines: number[] = [];
 
   for (let i = 1; i < lines.length; i++) {
@@ -107,12 +107,13 @@ export function parseDotfileSource(
     if (key === "variable") {
       const parsed = parseVariableLine(value, lineNo);
       if (parsed.success) {
-        if (seenVariables.has(parsed.data.name)) {
+        const existingLine = seenVariables.get(parsed.data.name);
+        if (existingLine) {
           errors.push(
-            `Line ${lineNo}: Duplicate variable "${parsed.data.name}" in meta block`
+            `Line ${lineNo}: Duplicate variable "${parsed.data.name}" in meta block (previously defined on line ${existingLine})`
           );
         } else {
-          seenVariables.add(parsed.data.name);
+          seenVariables.set(parsed.data.name, lineNo);
           variableLines.push(lineNo);
           variables.push(parsed.data);
         }
@@ -126,10 +127,12 @@ export function parseDotfileSource(
         ].sort().join(", ")})`
       );
     } else {
-      if (Object.hasOwn(fields, key)) {
-        errors.push(`Line ${lineNo}: Duplicate key "${key}" in meta block`);
+      const existingLine = seenKeys.get(key);
+      if (existingLine) {
+        errors.push(`Line ${lineNo}: Duplicate key "${key}" in meta block (previously defined on line ${existingLine})`);
+      } else {
+        seenKeys.set(key, lineNo);
       }
-      fieldLines[key] = lineNo;
       fields[key] = value;
     }
   }
@@ -182,7 +185,7 @@ export function parseDotfileSource(
           ? `variables[${variableIndex}].${variableField}`
           : "variables";
       } else if (pathKey) {
-        line = fieldLines[pathKey];
+        line = seenKeys.get(pathKey);
       }
 
       const label = pathKey ? `Field "${fieldName}"` : "Meta block";
@@ -200,6 +203,34 @@ export function parseDotfileSource(
 
   // content starts after META_END
   const content = raw.slice(endIdxPos + META_END.length).replace(/^\n+/, "");
+
+  // Validate variable usage
+  const usedVariables = new Set<string>();
+  const variableRegex = /\{\{([A-Z_][A-Z0-9_]*)\}\}/g;
+  let match;
+  while ((match = variableRegex.exec(content)) !== null) {
+    usedVariables.add(match[1]);
+  }
+
+  const definedVariables = new Set(variables.map((v) => v.name));
+  const usageErrors: string[] = [];
+
+  for (const used of usedVariables) {
+    if (!definedVariables.has(used)) {
+      usageErrors.push(`Variable "{{${used}}}" is used in content but not defined in meta block`);
+    }
+  }
+
+  for (const defined of definedVariables) {
+    if (!usedVariables.has(defined)) {
+      const lineNo = seenVariables.get(defined);
+      usageErrors.push(`Line ${lineNo}: Variable "${defined}" is defined in meta but never used in content`);
+    }
+  }
+
+  if (usageErrors.length > 0) {
+    throw new MetaParseError(filepath, usageErrors);
+  }
 
   return { metadata, content };
 }
