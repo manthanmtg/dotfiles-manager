@@ -8,12 +8,14 @@ A locally-hosted Next.js web application and CLI for managing, discovering, and 
 - **One-Click Install/Uninstall** — Install dotfiles into your shell config with a single click
 - **Duplicate Prevention** — Parses your shell config to detect already-installed dotfiles
 - **Variable Prompts** — Dotfiles with configurable variables prompt you via a rich modal before installation
+- **Shell-Safe Substitution** — Variable values are strictly validated against shell injection before being applied to templates
 - **Live Terminal Console** — Real-time terminal showing step-by-step installation and uninstallation progress
-- **Keyboard Shortcuts** — Use `/` to quickly focus the search bar from anywhere in the app
+- **Keyboard Shortcuts** — Use `/` to focus search, or `Escape` to close modals and previews
+- **Accessibility First** — Full keyboard navigation, ARIA labels, focus trapping, and skip links
 - **Category Organization** — Dotfiles grouped by type: Aliases, Scripts, Prompts, Security, Environment, Functions
 - **Code Preview** — Syntax-highlighted preview of any dotfile before installing
 - **CLI Fallback** — Manage the same local dotfiles from your terminal when the web UI is not available
-- **Built-in Configs** — Ships with a curated collection of dotfiles for Git, Docker, Kubernetes, Node.js, Navigation, Shell Editing, and more
+- **Built-in Configs** — Curated dotfiles for Git, Docker, Kubernetes, Node.js, Security, Navigation, and more
 
 ## Requirements
 
@@ -101,9 +103,10 @@ If the web app is not available, use the CLI as the primary workflow:
 ## How It Works
 
 1. Run `dotfiles-manager seed` (or use the refresh action in the web UI) to sync bundled dotfiles into `~/.dotfiles-manager/`
-2. Each dotfile has a content file and a `.meta.json` metadata file
-3. Installing a dotfile appends `source ~/.dotfiles-manager/<filename>` to your shell config (e.g. `~/.zshrc`)
-4. Uninstalling removes only the relevant source line — no other config is touched
+2. Each dotfile has a content file and a `.meta.json` metadata file.
+3. **Secure Storage** — Managed directory is set to `0700` and files to `0600` permissions to ensure only your user can read them.
+4. Installing a dotfile appends `source ~/.dotfiles-manager/<filename>` to your shell config (e.g. `~/.zshrc`)
+5. Uninstalling removes only the relevant source line — no other config is touched.
 
 ## Tech Stack
 
