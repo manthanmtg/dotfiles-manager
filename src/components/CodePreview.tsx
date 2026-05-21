@@ -97,7 +97,7 @@ export const CodePreview = memo(function CodePreview({
               </div>
             </div>
 
-            <div className="max-h-96 overflow-y-auto">
+            <div className="max-h-96 overflow-y-auto" tabIndex={0} aria-label="Code preview content">
               <pre className="p-5 text-sm font-mono text-zinc-300 leading-relaxed">
                 {content.split("\n").map((line, i) => {
                   const trimmedLine = line.trim();

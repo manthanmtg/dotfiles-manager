@@ -69,6 +69,7 @@ export const Sidebar = memo(function Sidebar({
           whileTap={{ scale: 0.98 }}
           onClick={() => onCategoryChange("all")}
           aria-current={activeCategory === "all" ? "page" : undefined}
+          aria-label={`All Configs, ${totalCount} items`}
           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${focusRing} ${
             activeCategory === "all"
               ? "bg-zinc-800/80 text-zinc-100 border-l-2 border-l-cyan-400 shadow-[inset_4px_0_10px_-4px_rgba(34,211,238,0.1)]"
