@@ -61,10 +61,24 @@ function mapErrorToStatus(error: unknown, fallbackMessage: string): { status: nu
       };
     }
 
-    if (msg.includes("ENOSPC")) {
+    if (msg.includes("ENOSPC") || msg.includes("no space left on device")) {
       return {
         status: 507,
         message: "Disk full: Unable to write to your home directory.",
+      };
+    }
+
+    if (msg.includes("ENOTDIR") || msg.includes("is not a directory")) {
+      return {
+        status: 400,
+        message: "Path error: One of the components in the path is not a directory.",
+      };
+    }
+
+    if (msg.includes("EBUSY") || msg.includes("resource busy or locked")) {
+      return {
+        status: 409,
+        message: "Resource busy: The file or directory is currently in use by another process.",
       };
     }
 
