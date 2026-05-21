@@ -104,6 +104,7 @@ function TerminalConsoleInner() {
               aria-live="polite"
               aria-label="Terminal log"
               ref={scrollRef}
+              tabIndex={0}
               className="relative h-40 overflow-y-auto px-4 py-2 font-mono text-xs space-y-0.5 scrollbar-thin"
             >
               <AnimatePresence mode="popLayout">

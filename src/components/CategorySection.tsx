@@ -79,9 +79,7 @@ function CategorySectionInner({ category, children }: CategorySectionProps) {
           <p className="text-[11px] text-zinc-500">{meta.description}</p>
         </div>
       </div>
-      <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {children}
-      </ul>
+      {children}
     </motion.section>
   );
 }
