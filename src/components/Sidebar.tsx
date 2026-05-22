@@ -31,8 +31,20 @@ export const Sidebar = memo(function Sidebar({
     <aside className="w-72 shrink-0 border-r border-zinc-800/60 bg-zinc-950/50 backdrop-blur-xl flex flex-col h-full">
       <div className="p-5 border-b border-zinc-800/60">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <Terminal size={20} className="text-white" aria-hidden="true" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 relative overflow-hidden">
+            <motion.div
+              animate={{
+                x: ["-100%", "200%"],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "linear",
+                repeatDelay: 1,
+              }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
+            />
+            <Terminal size={20} className="text-white relative z-10" aria-hidden="true" />
           </div>
           <div>
             <h1 className="text-base font-semibold text-zinc-100 tracking-tight">
