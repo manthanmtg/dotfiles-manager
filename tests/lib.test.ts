@@ -217,7 +217,7 @@ test("Metadata Validation: fails for unknown icons", () => {
 ls
 `;
   assert.throws(() => parseDotfileSource(source, "test.sh"), (err) => {
-    return err instanceof MetaParseError && err.errors[0].includes("icon must be one of");
+    return err instanceof MetaParseError && err.errors[0].includes('Field "icon"') && err.errors[0].includes("one of");
   });
 });
 
