@@ -2,9 +2,10 @@
 
 import { memo, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Eye, EyeOff } from "lucide-react";
+import { X, Play } from "lucide-react";
 import type { DotfileVariable } from "@/types";
 import { useTrapFocus } from "@/hooks/useTrapFocus";
+import { VariableField } from "./VariableField";
 
 interface VariableModalProps {
   open: boolean;
@@ -30,9 +31,6 @@ export const VariableModal = memo(function VariableModal({
     }
     return initial;
   });
-  const [showSensitive, setShowSensitive] = useState<Record<string, boolean>>(
-    {}
-  );
   const dialogRef = useRef<HTMLDivElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -100,79 +98,17 @@ export const VariableModal = memo(function VariableModal({
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {variables.map((v, i) => {
-                const inputId = `variable-${v.name}`;
-                const descriptionId = `${inputId}-description`;
-
-                return (
-                  <div key={v.name}>
-                    <label
-                      htmlFor={inputId}
-                      className="block text-sm font-medium text-zinc-300 mb-1.5"
-                    >
-                      {v.label}
-                      {v.required && (
-                        <span className="text-rose-400 ml-1" aria-hidden="true">
-                          *
-                        </span>
-                      )}
-                    </label>
-                    {v.description && (
-                      <p id={descriptionId} className="text-xs text-zinc-500 mb-2">
-                        {v.description}
-                      </p>
-                    )}
-                    <div className="relative">
-                      <input
-                        ref={i === 0 ? firstInputRef : undefined}
-                        id={inputId}
-                        type={
-                          v.sensitive && !showSensitive[v.name]
-                            ? "password"
-                            : "text"
-                        }
-                        value={values[v.name] || ""}
-                        onChange={(e) =>
-                          setValues((prev) => ({
-                            ...prev,
-                            [v.name]: e.target.value,
-                          }))
-                        }
-                        placeholder={v.default || `Enter ${v.label.toLowerCase()}`}
-                        required={v.required}
-                        aria-required={v.required}
-                        aria-describedby={
-                          v.description ? descriptionId : undefined
-                        }
-                        className="w-full px-3 py-2.5 bg-zinc-800/60 border border-zinc-700/50 rounded-lg text-sm text-zinc-100 font-mono placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 focus-visible:border-cyan-500/40 transition-all"
-                      />
-                      {v.sensitive && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowSensitive((prev) => ({
-                              ...prev,
-                              [v.name]: !prev[v.name],
-                            }))
-                          }
-                          aria-label={
-                            showSensitive[v.name]
-                              ? `Hide ${v.label}`
-                              : `Show ${v.label}`
-                          }
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
-                        >
-                          {showSensitive[v.name] ? (
-                            <EyeOff size={16} aria-hidden="true" />
-                          ) : (
-                            <Eye size={16} aria-hidden="true" />
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+              {variables.map((v, i) => (
+                <VariableField
+                  key={v.name}
+                  variable={v}
+                  value={values[v.name] || ""}
+                  onChange={(val) =>
+                    setValues((prev) => ({ ...prev, [v.name]: val }))
+                  }
+                  inputRef={i === 0 ? firstInputRef : undefined}
+                />
+              ))}
 
               <div className="flex justify-end gap-3 pt-2">
                 <button
