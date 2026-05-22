@@ -16,6 +16,7 @@ Local-only Next.js web app for managing shell dotfiles stored at `~/.dotfiles-ma
   - `pnpm cli -- list [--installed|--available]`
   - `pnpm cli -- show <filename>`
   - `pnpm cli -- install <filename> [--set NAME=value]`
+  - `pnpm cli -- uninstall <filename>`
 - `dotfiles-manager [cmd]` — global CLI if linked via `pnpm link --global .`
 - `lsof -ti :3000 | xargs kill -9` — kill process on port 3000
 
@@ -87,8 +88,9 @@ src/
 │   ├── schemas.ts          # Zod v4 schemas for all data types + API payloads (Shared)
 │   ├── parser.ts           # Parses meta comment blocks and validates dotfiles
 │   ├── scanner.ts          # Recursively discovers all .sh files in dotfiles/
-│   ├── shell.ts            # Shell detection, source line add/remove (strict regex)
-│   ├── dotfiles.ts         # CRUD for ~/.dotfiles-manager/ files + .meta.json
+│   ├── shell.ts            # Shell detection, atomic source line add/remove
+│   ├── dotfiles.ts         # CRUD for ~/.dotfiles-manager/ files (optimized line counting)
+│   ├── validator.ts        # Recursive directory validation logic for pnpm validate
 │   ├── platform.ts         # macOS/Linux guard (rejects win32)
 │   ├── errors.ts           # Centralized API error mapping and responses
 │   └── seed.ts             # Orchestrates scanner → createDotfile for seeding
@@ -123,7 +125,18 @@ Every `.sh` file in `dotfiles/` must have a meta block at the top. The scanner a
 |---------------|---------------------------------------------------------------------|
 | `name`        | Display name shown in the UI                                        |
 | `description` | One-line summary                                                    |
-| `category`    | One of: `aliases`, `scripts`, `prompts`, `security`, `environment`, `functions` |
+| `category`    | Category must be one of the supported types listed below.            |
+
+### Supported Categories
+
+| Category      | Label        | Icon      | Description                                      |
+|---------------|--------------|-----------|--------------------------------------------------|
+| `aliases`     | Aliases      | Zap       | Command shortcuts to speed up your workflow      |
+| `scripts`     | Scripts      | Code      | Helper scripts and dev tool shortcuts            |
+| `prompts`     | Prompts      | Terminal  | Shell prompt customizations and themes           |
+| `security`    | Security     | Shield    | Security hardening and safety configurations     |
+| `environment` | Environment  | Settings  | Environment variables and path configuration     |
+| `functions`   | Functions    | Braces    | Reusable shell functions and utilities           |
 
 ### Optional fields
 
