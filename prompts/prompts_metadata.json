@@ -60,13 +60,13 @@
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 14,
-      "totalCompleted": 1,
+      "totalSelected": 15,
+      "totalCompleted": 2,
       "totalNoop": 13,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-22T06:30:00.000Z",
-      "lastCompletedAt": "2026-05-22T06:31:49.000Z",
-      "lastOutcome": "noop"
+      "lastSelectedAt": "2026-05-22T10:00:00.000Z",
+      "lastCompletedAt": "2026-05-22T10:05:00.000Z",
+      "lastOutcome": "completed"
     },
     "dead_code_cleaner.md": {
       "id": "dead-code-cleaner",
@@ -280,5 +280,5 @@
       "lastCompletedAt": "2026-05-22T01:31:50.630Z"
     }
   },
-  "updatedAt": "2026-05-22T08:32:50.197Z"
+  "updatedAt": "2026-05-22T10:05:00.000Z"
 }
