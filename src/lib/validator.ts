@@ -64,7 +64,8 @@ export function validateAllDotfiles(
 
           const pathParts = rel.split(path.sep);
           const categoryDir = pathParts[0];
-          const isSupportedCategory = (DotfileCategory.options as readonly string[]).includes(categoryDir);
+          const categoryParse = DotfileCategory.safeParse(categoryDir);
+          const isSupportedCategory = categoryParse.success;
 
           if (pathParts.length < 2) {
             errs.push({
