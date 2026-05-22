@@ -17,6 +17,7 @@ import {
   FolderPlus,
   FileEdit,
 } from "lucide-react";
+import { type DotfileIcon } from "@/lib/schemas";
 
 const iconMap = {
   Zap,
@@ -36,7 +37,7 @@ const iconMap = {
   FileEdit,
 } as const;
 
-export type IconName = keyof typeof iconMap;
+export type IconName = DotfileIcon;
 
 interface DynamicIconProps extends React.SVGProps<SVGSVGElement> {
   name: IconName | string;
@@ -48,6 +49,6 @@ export function DynamicIcon({
   size = 20,
   ...props
 }: DynamicIconProps) {
-  const Icon = name in iconMap ? iconMap[name as IconName] : Code;
+  const Icon = (name in iconMap) ? iconMap[name as IconName] : Code;
   return <Icon size={size} {...props} />;
 }

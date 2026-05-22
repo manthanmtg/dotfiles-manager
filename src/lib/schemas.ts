@@ -28,7 +28,7 @@ export const DotfileVariable = z.object({
 });
 export type DotfileVariable = z.infer<typeof DotfileVariable>;
 
-export const SUPPORTED_ICONS = [
+export const DotfileIcon = z.enum([
   "Zap",
   "Code",
   "Terminal",
@@ -44,22 +44,16 @@ export const SUPPORTED_ICONS = [
   "Network",
   "FolderPlus",
   "FileEdit",
-] as const;
+]);
+export type DotfileIcon = z.infer<typeof DotfileIcon>;
 
 export const DotfileMetadata = z.object({
   name: z.string().min(1, "name cannot be empty").max(100, "name is too long (max 100 chars)"),
   description: z.string().min(1, "description cannot be empty").max(500, "description is too long (max 500 chars)"),
   category: DotfileCategory,
-  icon: z.string().max(50, "icon name is too long").optional(),
+  icon: DotfileIcon.optional(),
   variables: z.array(DotfileVariable).max(20, "too many variables (max 20)").default([]),
   tags: z.array(z.string().max(30, "tag is too long").regex(TAG_REGEX, "tag must contain only lowercase alphanumeric characters and hyphens")).max(10, "too many tags (max 10)").default([]),
-})
-.refine(data => {
-  if (data.icon && !(SUPPORTED_ICONS as readonly string[]).includes(data.icon)) return false;
-  return true;
-}, {
-  message: `icon must be one of: ${SUPPORTED_ICONS.join(", ")}`,
-  path: ["icon"]
 })
 .refine(data => {
   const seen = new Set<string>();
