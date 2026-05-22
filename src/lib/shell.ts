@@ -114,21 +114,22 @@ export function addSource(configPath: string, dotfileName: string): void {
   // This prevents polluting shell configs with broken source lines or dangerous symlinks.
   const managedFilePath = path.join(os.homedir(), ".dotfiles-manager", dotfileName);
   if (!fs.existsSync(managedFilePath)) {
-    throw new Error(`Managed dotfile not found at ${managedFilePath}. Please seed it first.`);
+    throw new Error(`Managed dotfile not found: ${dotfileName}. Please seed it first.`);
   }
 
   try {
     const lstats = fs.lstatSync(managedFilePath);
     if (!lstats.isFile() || lstats.isSymbolicLink()) {
       throw new Error(
-        `Managed dotfile is not a regular file or is a symbolic link: ${managedFilePath}`
+        `Managed dotfile is not a regular file or is a symbolic link: ${dotfileName}`
       );
     }
   } catch (error) {
+    if (error instanceof Error && error.message.includes("Managed dotfile not found")) {
+      throw error;
+    }
     throw new Error(
-      `Could not access managed dotfile at ${managedFilePath}: ${
-        error instanceof Error ? error.message : String(error)
-      }`
+      `Could not access managed dotfile: ${dotfileName}`
     );
   }
 
@@ -273,6 +274,6 @@ export function assertSupportedShell(shell: ShellInfo): asserts shell is ShellIn
     throw new Error("Your shell is not supported. Only zsh, bash, and fish are supported.");
   }
   if (!shell.configExists) {
-    throw new Error(`Shell configuration file not found: ${shell.configPath}. Please create it first.`);
+    throw new Error(`Shell configuration file not found for ${shell.shell}. Please create it first.`);
   }
 }
