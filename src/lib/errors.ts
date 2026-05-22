@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod/v4";
+import os from "os";
 
 export function handleApiError(error: unknown, fallbackMessage: string) {
   const { status, message } = mapErrorToStatus(error, fallbackMessage);
@@ -11,6 +12,10 @@ export function handleApiError(error: unknown, fallbackMessage: string) {
     },
     { status }
   );
+}
+
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function mapErrorToStatus(error: unknown, fallbackMessage: string): { status: number; message: string } {
@@ -33,7 +38,11 @@ function mapErrorToStatus(error: unknown, fallbackMessage: string): { status: nu
   }
 
   if (error instanceof Error) {
-    const msg = error.message;
+    let msg = error.message;
+
+    // Sanitize any potential absolute paths in the message to prevent leakage
+    const homeDir = os.homedir();
+    msg = msg.replace(new RegExp(escapeRegex(homeDir), "g"), "~");
 
     if (msg.includes("Platform not supported")) {
       return { status: 403, message: msg };
@@ -113,6 +122,13 @@ function mapErrorToStatus(error: unknown, fallbackMessage: string): { status: nu
     
     if (msg.includes("Dotfile not found")) {
       return { status: 404, message: msg };
+    }
+
+    if (msg.includes("Managed dotfile not found")) {
+      return {
+        status: 404,
+        message: "The requested dotfile was not found in the managed directory. Please run seed first.",
+      };
     }
   }
 
