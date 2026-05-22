@@ -80,18 +80,18 @@ export function parseDotfileSource(
     ]);
   }
 
-  const startLineContent = raw.slice(startIdxPos).split("\n")[0];
-  if (startLineContent.trim() !== META_START) {
+  const startLineContent = raw.slice(0, startIdxPos + META_START.length).split("\n").pop() || "";
+  if (startLineContent !== META_START) {
     throw new MetaParseError(filepath, [
-      `Line ${beforeMeta.split("\n").length}: "${META_START}" must be on its own line`,
+      `Line ${beforeMeta.split("\n").length}: "${META_START}" must be at the very beginning of the line (no leading whitespace)`,
     ]);
   }
 
-  const endLineContent = raw.slice(endIdxPos).split("\n")[0];
-  if (endLineContent.trim() !== META_END) {
+  const endLineContent = raw.slice(0, endIdxPos + META_END.length).split("\n").pop() || "";
+  if (endLineContent !== META_END) {
     const endLineNo = raw.slice(0, endIdxPos).split("\n").length;
     throw new MetaParseError(filepath, [
-      `Line ${endLineNo}: "${META_END}" must be on its own line`,
+      `Line ${endLineNo}: "${META_END}" must be at the very beginning of the line (no leading whitespace)`,
     ]);
   }
 
@@ -233,15 +233,31 @@ export function parseDotfileSource(
 
   // Validate variable usage
   const usedVariables = new Set<string>();
-  const variableRegex = /\{\{([A-Z_][A-Z0-9_]*)\}\}/g;
+  const suspectedVariableRegex = /\{\{(.*?)\}\}/g;
+  const usageErrors: string[] = [];
+  const rawLines = raw.split("\n");
+
   let match;
-  while ((match = variableRegex.exec(content)) !== null) {
-    usedVariables.add(match[1]);
+  while ((match = suspectedVariableRegex.exec(content)) !== null) {
+    const rawTag = match[0];
+    const inner = match[1].trim();
+    
+    if (!/^[A-Z_][A-Z0-9_]*$/.test(inner)) {
+      const lineNumbers: number[] = [];
+      for (let i = 0; i < rawLines.length; i++) {
+        if (rawLines[i].includes(rawTag)) {
+          lineNumbers.push(i + 1);
+        }
+      }
+      const location = lineNumbers.length > 0 ? `Line ${lineNumbers.join(", ")}: ` : "";
+      usageErrors.push(`${location}Malformed variable usage "${rawTag}" — names must be uppercase alphanumeric with underscores`);
+      continue;
+    }
+    
+    usedVariables.add(inner);
   }
 
   const definedVariables = new Set(variables.map((v) => v.name));
-  const usageErrors: string[] = [];
-  const rawLines = raw.split("\n");
 
   if (content.trim().length === 0) {
     usageErrors.push(`Dotfile content is empty — must contain at least one shell command after "${META_END}"`);
@@ -292,7 +308,7 @@ function parseVariableLine(
   if (parts.length > 6) {
     return {
       success: false,
-      error: `Line ${lineNum}: Variable definition has too many fields — expected at most 6 "name | label | description | default | required | sensitive"`,
+      error: `Line ${lineNum}: Variable definition has too many fields (got ${parts.length}, expected at most 6) — expected "name | label | description | default | required | sensitive"`,
     };
   }
 
