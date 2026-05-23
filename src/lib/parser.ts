@@ -80,22 +80,22 @@ export function parseDotfileSource(
     ]);
   }
 
-  const startLineContent = raw.slice(0, startIdxPos + META_START.length).split("\n").pop() || "";
+  const startLineContent = raw.slice(raw.lastIndexOf("\n", startIdxPos - 1) + 1, startIdxPos + META_START.length);
   if (startLineContent !== META_START) {
     throw new MetaParseError(filepath, [
-      `Line ${beforeMeta.split("\n").length}: "${META_START}" must be at the very beginning of the line (no leading whitespace)`,
+      `Line ${countNewlines(beforeMeta) + 1}: "${META_START}" must be at the very beginning of the line (no leading whitespace)`,
     ]);
   }
 
-  const endLineContent = raw.slice(0, endIdxPos + META_END.length).split("\n").pop() || "";
+  const endLineContent = raw.slice(raw.lastIndexOf("\n", endIdxPos - 1) + 1, endIdxPos + META_END.length);
   if (endLineContent !== META_END) {
-    const endLineNo = raw.slice(0, endIdxPos).split("\n").length;
+    const endLineNo = countNewlines(raw.slice(0, endIdxPos)) + 1;
     throw new MetaParseError(filepath, [
       `Line ${endLineNo}: "${META_END}" must be at the very beginning of the line (no leading whitespace)`,
     ]);
   }
 
-  const lineOffset = beforeMeta.split("\n").length - 1;
+  const lineOffset = countNewlines(beforeMeta);
   const metaPart = raw.slice(startIdxPos, endIdxPos);
   const lines = metaPart.split("\n");
 
@@ -235,7 +235,23 @@ export function parseDotfileSource(
   const usedVariables = new Set<string>();
   const suspectedVariableRegex = /\{\{(.*?)\}\}/g;
   const usageErrors: string[] = [];
+  
+  // Optimization: Map variable occurrences to line numbers in a single pass 
+  // to avoid O(N*M) behavior when searching for multiple variables across many lines.
   const rawLines = raw.split("\n");
+  const tagLineMap = new Map<string, number[]>();
+  for (let i = 0; i < rawLines.length; i++) {
+    const line = rawLines[i];
+    if (line.includes("{{")) {
+      let match;
+      const lineRegex = /\{\{(.*?)\}\}/g;
+      while ((match = lineRegex.exec(line)) !== null) {
+        const tag = match[0];
+        if (!tagLineMap.has(tag)) tagLineMap.set(tag, []);
+        tagLineMap.get(tag)!.push(i + 1);
+      }
+    }
+  }
 
   let match;
   while ((match = suspectedVariableRegex.exec(content)) !== null) {
@@ -243,12 +259,7 @@ export function parseDotfileSource(
     const inner = match[1].trim();
     
     if (!/^[A-Z_][A-Z0-9_]*$/.test(inner)) {
-      const lineNumbers: number[] = [];
-      for (let i = 0; i < rawLines.length; i++) {
-        if (rawLines[i].includes(rawTag)) {
-          lineNumbers.push(i + 1);
-        }
-      }
+      const lineNumbers = tagLineMap.get(rawTag) || [];
       const location = lineNumbers.length > 0 ? `Line ${lineNumbers.join(", ")}: ` : "";
       usageErrors.push(`${location}Malformed variable usage "${rawTag}" — names must be uppercase alphanumeric with underscores`);
       continue;
@@ -266,12 +277,7 @@ export function parseDotfileSource(
   for (const used of usedVariables) {
     if (!definedVariables.has(used)) {
       const varPattern = `{{${used}}}`;
-      const lineNumbers: number[] = [];
-      for (let i = 0; i < rawLines.length; i++) {
-        if (rawLines[i].includes(varPattern)) {
-          lineNumbers.push(i + 1);
-        }
-      }
+      const lineNumbers = tagLineMap.get(varPattern) || [];
       const location = lineNumbers.length > 0 ? `Line ${lineNumbers.join(", ")}: ` : "";
       usageErrors.push(`${location}Variable "${varPattern}" is used in content but not defined in meta block`);
     }
@@ -289,6 +295,18 @@ export function parseDotfileSource(
   }
 
   return { metadata, content };
+}
+
+/**
+ * Counts the number of newline characters in a string without splitting it.
+ * Significantly faster and more memory-efficient than str.split('\n').length.
+ */
+function countNewlines(str: string): number {
+  let count = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === "\n") count++;
+  }
+  return count;
 }
 
 

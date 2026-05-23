@@ -150,13 +150,13 @@
       "category": "performance",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 12,
-      "totalCompleted": 11,
+      "totalSelected": 13,
+      "totalCompleted": 12,
       "totalNoop": 0,
       "totalFailed": 0,
       "lastOutcome": "completed",
-      "lastSelectedAt": "2026-05-23T01:30:35.818Z",
-      "lastCompletedAt": "2026-05-23T01:33:05.709Z"
+      "lastSelectedAt": "2026-05-23T03:00:52.549Z",
+      "lastCompletedAt": "2026-05-23T03:02:54.219Z"
     },
     "project_guidelines_sync.md": {
       "id": "project-guidelines-sync",
@@ -203,6 +203,7 @@
       "lastSelectedAt": null,
       "lastCompletedAt": null,
       "lastOutcome": null
+    },
     "security_auditor.md": {
       "id": "security-auditor",
       "file": "security_auditor.md",
@@ -217,9 +218,9 @@
       "lastOutcome": "completed",
       "lastSelectedAt": "2026-05-23T10:00:00.000Z",
       "lastCompletedAt": "2026-05-23T10:05:00.000Z"
-    }
     },
-    "updatedAt": "2026-05-23T10:05:00.000Z"      "id": "shell-safety-auditor",
+    "shell_safety_auditor.md": {
+      "id": "shell-safety-auditor",
       "file": "shell_safety_auditor.md",
       "title": "Shell Safety Auditor",
       "category": "code-quality",
@@ -279,5 +280,5 @@
       "lastCompletedAt": "2026-05-22T01:31:50.630Z"
     }
   },
-  "updatedAt": "2026-05-23T01:33:05.709Z"
+  "updatedAt": "2026-05-23T03:02:54.219Z"
 }
