@@ -5,6 +5,7 @@ import { z } from "zod/v4";
 import { DotfileMetadata, DotfileFilename, FILENAME_REGEX } from "./schemas";
 import type { DotfileEntry } from "./schemas";
 import { getSourcedDotfiles } from "./shell";
+import { atomicWriteFile, countContentLines } from "./fs";
 
 const DOTFILES_DIR = path.join(os.homedir(), ".dotfiles-manager");
 const METADATA_SUFFIX = ".meta.json";
@@ -130,7 +131,7 @@ export function listDotfiles(shellConfigPath: string): DotfileEntry[] {
       ...metadata,
       filename,
       content,
-      lineCount: countLines(content),
+      lineCount: countContentLines(content),
       installed,
     });
   }
@@ -152,17 +153,7 @@ export function getDotfile(
 
   const installed = getSourcedDotfiles(shellConfigPath).has(filename);
 
-  return { ...metadata, filename, content, lineCount: countLines(content), installed };
-}
-
-/**
- * Optimized line counter that uses a regex to count lines with content.
- * Using content.match() with a global flag is significantly faster in V8 
- * than character-by-character iteration or manual loops.
- * It counts lines that have at least one non-whitespace character.
- */
-function countLines(content: string): number {
-  return (content.match(/^\s*\S/gm) || []).length;
+  return { ...metadata, filename, content, lineCount: countContentLines(content), installed };
 }
 
 export function createDotfile(
@@ -178,8 +169,8 @@ export function createDotfile(
   assertNotSymbolicLink(filePath);
   assertNotSymbolicLink(metaPath);
 
-  atomicWriteDotfile(filePath, content);
-  atomicWriteDotfile(metaPath, JSON.stringify(metadata, null, 2));
+  atomicWriteFile(filePath, content, { mode: 0o600 });
+  atomicWriteFile(metaPath, JSON.stringify(metadata, null, 2), { mode: 0o600 });
 }
 
 export function updateDotfileContent(
@@ -193,40 +184,7 @@ export function updateDotfileContent(
     throw new Error(`Dotfile not found: ${filename}`);
   }
   
-  atomicWriteDotfile(filePath, content);
-}
-
-/**
- * Safely writes content to a managed dotfile or metadata file using an atomic-like approach.
- * This prevents file corruption if the process crashes during writing and preserves
- * restrictive permissions (0600).
- */
-function atomicWriteDotfile(filePath: string, content: string): void {
-  const tempPath = `${filePath}.tmp.${process.pid}.${Date.now()}`;
-  
-  try {
-    fs.writeFileSync(tempPath, content, { 
-      encoding: "utf-8", 
-      mode: 0o600 
-    });
-    
-    // Atomic rename on most Unix-like systems
-    fs.renameSync(tempPath, filePath);
-  } catch (error) {
-    // Cleanup temp file if rename failed
-    if (fs.existsSync(tempPath)) {
-      try {
-        fs.unlinkSync(tempPath);
-      } catch {
-        // Ignore cleanup errors
-      }
-    }
-    throw new Error(
-      `Failed to safely write to ${filePath}: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
-  }
+  atomicWriteFile(filePath, content, { mode: 0o600 });
 }
 
 /**
