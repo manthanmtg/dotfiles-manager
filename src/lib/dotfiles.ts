@@ -178,11 +178,8 @@ export function createDotfile(
   assertNotSymbolicLink(filePath);
   assertNotSymbolicLink(metaPath);
 
-  fs.writeFileSync(filePath, content, { encoding: "utf-8", mode: 0o600 });
-  fs.writeFileSync(metaPath, JSON.stringify(metadata, null, 2), {
-    encoding: "utf-8",
-    mode: 0o600,
-  });
+  atomicWriteDotfile(filePath, content);
+  atomicWriteDotfile(metaPath, JSON.stringify(metadata, null, 2));
 }
 
 export function updateDotfileContent(
@@ -195,8 +192,41 @@ export function updateDotfileContent(
   if (!fs.existsSync(filePath)) {
     throw new Error(`Dotfile not found: ${filename}`);
   }
-  fs.writeFileSync(filePath, content, { encoding: "utf-8", mode: 0o600 });
-  fs.chmodSync(filePath, 0o600);
+  
+  atomicWriteDotfile(filePath, content);
+}
+
+/**
+ * Safely writes content to a managed dotfile or metadata file using an atomic-like approach.
+ * This prevents file corruption if the process crashes during writing and preserves
+ * restrictive permissions (0600).
+ */
+function atomicWriteDotfile(filePath: string, content: string): void {
+  const tempPath = `${filePath}.tmp.${process.pid}.${Date.now()}`;
+  
+  try {
+    fs.writeFileSync(tempPath, content, { 
+      encoding: "utf-8", 
+      mode: 0o600 
+    });
+    
+    // Atomic rename on most Unix-like systems
+    fs.renameSync(tempPath, filePath);
+  } catch (error) {
+    // Cleanup temp file if rename failed
+    if (fs.existsSync(tempPath)) {
+      try {
+        fs.unlinkSync(tempPath);
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+    throw new Error(
+      `Failed to safely write to ${filePath}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
 }
 
 /**
