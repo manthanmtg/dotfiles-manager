@@ -40,16 +40,19 @@ export function useDotfiles() {
     setError(null);
     try {
       addLine("info", "Initializing dotfiles-manager...");
-      const platformData = await fetchShell();
+      
+      const [platformData, seedResult] = await Promise.all([
+        fetchShell(),
+        !seeded ? seedDefaults() : Promise.resolve(null)
+      ]);
+
       addLine(
         "success",
         `Detected shell: ${platformData.shell.shell} (${platformData.platform})`
       );
       addLine("info", `Config file: ${platformData.shell.configPath}`);
 
-      if (!seeded) {
-        addLine("info", "Seeding default dotfiles...");
-        const seedResult = await seedDefaults();
+      if (seedResult) {
         const parts = [
           `${seedResult.seeded} new`,
           `${seedResult.updated} updated`,
