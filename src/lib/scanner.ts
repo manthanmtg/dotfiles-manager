@@ -29,6 +29,16 @@ function walk(dir: string, results: ScannedDotfile[]) {
       walk(full, results);
     } else if (entry.name.endsWith(".sh")) {
       const rel = path.relative(DOTFILES_SOURCE_DIR, full);
+      const stats = fs.statSync(full);
+      const maxSize = 1024 * 100; // 100KB limit to match schema
+      if (stats.size > maxSize) {
+        throw new Error(
+          `Dotfile source "${rel}" is too large (${(
+            stats.size / 1024
+          ).toFixed(1)}KB). Max size is 100KB.`
+        );
+      }
+
       const raw = fs.readFileSync(full, "utf-8");
       const { metadata, content } = parseDotfileSource(raw, rel);
       const filename = path.basename(entry.name, ".sh");
