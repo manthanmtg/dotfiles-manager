@@ -15,6 +15,14 @@ export interface FetchApiOptions extends RequestInit {
  * - Schema validation via Zod
  * - Network and timeout error mapping
  */
+
+// Standard envelope schema for all API responses, defined once to avoid re-creation overhead.
+const envelopeSchema = z.object({
+  success: z.boolean(),
+  data: z.unknown().optional(),
+  error: z.string().optional(),
+});
+
 export async function fetchApi<T>(
   url: string,
   schema: z.ZodType<T>,
@@ -43,13 +51,6 @@ export async function fetchApi<T>(
     }
 
     const json: unknown = await res.json();
-
-    // Standard envelope schema for all API responses
-    const envelopeSchema = z.object({
-      success: z.boolean(),
-      data: z.unknown().optional(),
-      error: z.string().optional(),
-    });
 
     const envelopeResult = envelopeSchema.safeParse(json);
     if (!envelopeResult.success) {

@@ -157,16 +157,12 @@ export function getDotfile(
 
 /**
  * Optimized line counter that uses a regex to count lines with content.
- * This is significantly faster than character-by-character iteration in V8.
+ * Using content.match() with a global flag is significantly faster in V8 
+ * than character-by-character iteration or manual loops.
  * It counts lines that have at least one non-whitespace character.
  */
 function countLines(content: string): number {
-  let count = 0;
-  const regex = /^\s*\S/gm;
-  while (regex.exec(content) !== null) {
-    count++;
-  }
-  return count;
+  return (content.match(/^\s*\S/gm) || []).length;
 }
 
 export function createDotfile(
