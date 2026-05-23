@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { type ShellInfo, DotfileFilename, FILENAME_REGEX } from "./schemas";
+import { atomicWriteFile, escapeRegex } from "./fs";
 
 const SHELL_CONFIG_MAP: Record<string, string> = {
   zsh: ".zshrc",
@@ -153,7 +154,8 @@ export function addSource(configPath: string, dotfileName: string): void {
   const sourceLine = `${needsLeadingNewline ? "\n" : ""}source "${MANAGED_DOTFILE_SOURCE_PATH}/${dotfileName}"\n`;
   const newContent = content + sourceLine;
 
-  atomicWriteConfig(configPath, newContent);
+  const stats = fs.statSync(configPath);
+  atomicWriteFile(configPath, newContent, { mode: stats.mode });
 }
 
 export function removeSource(configPath: string, dotfileName: string): void {
@@ -181,42 +183,8 @@ export function removeSource(configPath: string, dotfileName: string): void {
     throw new Error(`No managed source line found for ${dotfileName} in ${configPath}`);
   }
 
-  atomicWriteConfig(configPath, newContent);
-}
-
-/**
- * Safely writes content to a shell config file using an atomic-like approach.
- * It writes to a temporary file first and then renames it to the target,
- * which preserves the original file's permissions and prevents corruption.
- */
-function atomicWriteConfig(configPath: string, content: string): void {
   const stats = fs.statSync(configPath);
-  const tempPath = `${configPath}.tmp.${process.pid}.${Date.now()}`;
-  
-  try {
-    // Write with same permissions as original
-    fs.writeFileSync(tempPath, content, { 
-      encoding: "utf-8", 
-      mode: stats.mode 
-    });
-    
-    // Atomic rename on most Unix-like systems
-    fs.renameSync(tempPath, configPath);
-  } catch (error) {
-    // Cleanup temp file if rename failed
-    if (fs.existsSync(tempPath)) {
-      try {
-        fs.unlinkSync(tempPath);
-      } catch {
-        // Ignore cleanup errors
-      }
-    }
-    throw new Error(
-      `Failed to safely write to ${configPath}: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
-  }
+  atomicWriteFile(configPath, newContent, { mode: stats.mode });
 }
 
 function getManagedSourceLinePattern(
@@ -233,10 +201,6 @@ function getManagedSourceLinePattern(
     `^[ \\t]*(?:source|\\.)\\s+["']?${dotfilesPathPattern}["']?${trailingContent}${lineEnd}`,
     "gm"
   );
-}
-
-function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function assertSafeDotfileName(dotfileName: string): void {

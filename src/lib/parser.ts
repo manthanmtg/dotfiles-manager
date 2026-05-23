@@ -1,6 +1,7 @@
 import { DotfileMetadata } from "./schemas";
 import { type DotfileVariable as DotfileVariableMeta } from "./schemas";
 import { ZodError } from "zod/v4";
+import { countNewlines } from "./fs";
 
 const META_START = "# @dotfiles-manager";
 const META_END = "# @end";
@@ -296,19 +297,6 @@ export function parseDotfileSource(
 
   return { metadata, content };
 }
-
-/**
- * Counts the number of newline characters in a string without splitting it.
- * Significantly faster and more memory-efficient than str.split('\n').length.
- */
-function countNewlines(str: string): number {
-  let count = 0;
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === "\n") count++;
-  }
-  return count;
-}
-
 
 function parseVariableLine(
   value: string,
